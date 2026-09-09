@@ -1,0 +1,27 @@
+# GeoDAR USGS LiDAR rule-audit overlay: inspect project filename rules without
+# selecting/downloading LAZ files or producing DSM/DTM/final TIFs.
+#
+#   python run.py -c configs/default.yaml configs/runs/geodar_state_lidar_audit.yaml
+#
+# The source below is the current Linux example. Override source and report path
+# together for the actual state. Full mode/result semantics are in README.
+
+region:
+  init_args:
+    source: /mnt/disk/USA/SurfRef_Data/USA_GeoDAR/GT/AL
+    region: null
+    skip_existing_suffixes: null
+
+pipelines:
+  - name: usgs_lidar
+    enable: true
+    source:
+      init_args:
+        # Audit produces no asset; this value only satisfies the Source configuration.
+        output_products: [laz]
+        # USGSLidarSource-specific pre-download rule check.
+        mode: audit
+        # Dedicated diagnostic JSON, not the resumable download-state JSON.
+        audit_report_path: ./logs/usgs_lidar_AL_audit.json
+    # No assets are produced, so there is nothing to postprocess.
+    postprocess: []

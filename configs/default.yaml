@@ -1,0 +1,358 @@
+# GeoAcquire complete default configuration and built-in parameter catalogue.
+#
+# This file can run by itself. Every pipeline is disabled, so this only validates
+# construction and displays the resolved configuration:
+#   python run.py -c configs/default.yaml --check
+#
+# Enable a data source and override an existing parameter from the command line:
+#   python run.py -c configs/default.yaml --set pipelines.google.enable=true
+#
+# Later YAML files merge pipelines by name. Postprocessors merge by list position;
+# only `postprocess: []` clears the list. A small override can therefore be:
+#   pipelines:
+#     - name: google
+#       enable: true
+
+# source accepts a bbox, a bbox with CRS, multiple named bboxes, one target TIF,
+# or a TIF directory. Directory trees are handled one directory per run by the
+# calling script or command interface. Bbox order is always
+# [minx, miny, maxx, maxy]; see configs/examples/ for complete examples.
+# class_path is the full Python import path instantiated directly without a registry.
+# Change class_path and its init_args to select another provider, source, or processor.
+# In YAML overrides, a different class_path replaces that component's init_args;
+# keeping the same class_path merges only the changed constructor parameters.
+region:
+  class_path: geoacquire.regions.bounds.BoundsRegionProvider
+  init_args:
+    source: [-157.0442776, 21.1503038, -157.0405956, 21.1543840]
+    # For one bbox/TIF, set the Region name; null uses region_0 or the TIF stem.
+    # For a directory, null derives names or a list can name files in scan order.
+    region: example
+    # Used only for bbox input. A TIF always supplies its own CRS.
+    crs: EPSG:4326
+    # Ignore built-in generated rasters while discovering target directories.
+    # Entries with or without a leading underscore have identical meaning.
+    # null and [] both disable this filter; the concrete default is intentional.
+    exclude_suffixes: [lidar, dsm, dtm, usgs_dem_1m, nz_dem_1m, google, wayback, copdem, cop]
+    # Example [lidar, cop]: skip 0.tif only when both 0_lidar.tif and 0_cop.tif exist;
+    # those output files are also excluded from target discovery. null disables this skip.
+    skip_existing_suffixes: null
+
+# Three reporting levels share one in-memory state: concise terminal summaries,
+# a human-readable per-TIF log, and comprehensive resumable JSON. null disables
+# that durable file while terminal summaries remain enabled. Existing compatible
+# JSON is resumed by default; true starts a new report at the same path.
+reporting:
+  json_path: null
+  log_path: null
+  overwrite: false
+
+pipelines:
+  # USGS 3DEP LiDAR: WESM search -> LAZ download -> optional DSM/DTM rasterization.
+  # Common acquire and postprocess parameters are fully explained here; later
+  # pipelines use the same meanings. name identifies YAML merges/logs; enable runs it.
+  - name: usgs_lidar
+    enable: false
+    # Independent Region postprocessing threads (mosaic/crop/align). Start with 1;
+    # 2 allows two ready Regions at once. Downloads and conversion use acquire.max_workers.
+    postprocess_workers: 1
+    source:
+      class_path: geoacquire.sources.usgs.lidar.USGSLidarSource
+      init_args:
+        # Any combination is allowed: laz is the original point cloud; dsm takes the
+        # highest point per cell; dtm uses only LAS ground class 2.
+        output_products: [laz, dsm]
+        # DSM/DTM pixel size in the point cloud horizontal CRS, usually metres for US data.
+        # This setting has no effect on the LAZ file.
+        raster_resolution: 1.0
+        # LAS classes excluded from DSM; 7/18 are low/high noise. [] excludes no classes;
+        # null uses [7,18]. DTM always uses class 2, taking the lowest point per cell.
+        exclude_classes: [7, 18]
+        # Maximum points decoded per rasterization batch. Larger values use more memory
+        # and fewer iterations without changing the output.
+        point_chunk_size: 2000000
+        # true retains rasterized LAZ; false removes it after DSM/DTM succeeds. A laz
+        # entry in output_products always retains it because LAZ is then a final product.
+        keep_download: true
+        # Reviewed USGS project filename-to-footprint rules. Formal downloads never
+        # inspect remote LAZ headers to guess tile bounds.
+        project_catalog_path: ./configs/usgs_lidar_projects.yaml
+        # USGS LiDAR only: download runs production; audit checks project filename
+        # rules and writes a diagnostic report without downloading LAZ files.
+        # See README "USGS LiDAR audit" for the complete boundary and result fields.
+        mode: download
+        # Used only by mode=audit; this is not the resumable reporting.json_path.
+        audit_report_path: ./logs/usgs_lidar_audit.json
+        # wesm_cache_dir stores WESM.gpkg; link_cache_dir stores USGS link lists.
+        # link_cache_days refreshes expired lists and does not control WESM.gpkg.
+        wesm_cache_dir: ./cache/wesm
+        link_cache_dir: ./cache/link_lists
+        link_cache_days: 10.0
+    acquire:
+      # Download root. null uses the common target-TIF directory, or ./output for
+      # bbox-only input. An explicit relative path resolves from the project root.
+      output_dir: null
+      # Files are written directly into this shared directory. Adjacent Regions
+      # therefore reuse identical source tiles instead of creating private copies.
+      # true reuses a complete destination; .part files are still used for resume.
+      skip_existing: true
+      # Additional attempts after the first failure: 3 means at most 4 total attempts.
+      max_retries: 3
+      # Concurrent file tasks, not Regions: each thread downloads then converts its file.
+      # Up to this many DSM conversions may overlap, so raising it also raises RAM use.
+      max_workers: 2
+      # Bytes per streaming read/write chunk; 1 MiB does not load the whole file in memory.
+      chunk_size: 1048576
+      # Base retry delay in seconds, increasing as 2, 4, 8, ...; 0 retries immediately.
+      retry_delay: 2.0
+    postprocess:
+      - class_path: geoacquire.postprocess.raster_align.RasterAlignToTargetPostprocessor
+        init_args:
+          # Final filename suffix: Region 0 normally becomes 0_lidar.tif.
+          output_suffix: lidar
+          # LocalAsset.product describes file contents, not its filename suffix.
+          # Built-in acquisition raster products: USGS LiDAR=dsm/dtm;
+          # USGS/LINZ/CopDEM=dem; Google/Wayback=imagery. laz is point_cloud.
+          # Type is list[str] | null: [dsm] selects exactly dsm; null selects every
+          # kind=raster asset in this pipeline report; [] is invalid. The aligned
+          # output remains product=dsm.
+          input_products: [dsm]
+          # null writes beside the first DSM/DEM/GeoTIFF produced by this pipeline's acquire;
+          # an explicit path writes directly there. output_suffix alone controls the filename.
+          output_dir: null
+          # true uses a target-derived grid and reprojects/resamples. false only crops to
+          # the target extent at the first source raster's CRS/resolution, so grids may differ.
+          resample: true
+          # With resample=true, 1 exactly matches target transform/shape. N keeps the same
+          # extent/origin with N-times larger pixels and width/height divided by N.
+          target_scale: 1
+          # nearest suits classes; bilinear/cubic/cubic_spline/lanczos suit continuous data;
+          # average is common for continuous downsampling and mode for class downsampling.
+          resampling: bilinear
+          # Inputs sort by path. first preserves the first valid pixel; last lets later
+          # rasters overwrite overlapping valid pixels.
+          merge_method: first
+          # Maximum rows and columns per I/O window. Smaller saves memory; larger reduces calls.
+          window_size: 1024
+          # true reuses an existing final aligned file; this does not control source downloads.
+          skip_existing: true
+          # ignore does not compare vertical CRS; warn_once reports a mismatch once. Neither
+          # mode performs vertical datum conversion. Optical imagery normally uses ignore.
+          vertical_datum_policy: warn_once
+          # A bbox has no target TIF: true keeps downloads and skips alignment; false records failure.
+          skip_without_target: true
+
+  # USGS 3DEP 1 m DEM: WESM search -> native GeoTIFF download.
+  - name: usgs_dem_1m
+    enable: false
+    postprocess_workers: 1
+    source:
+      class_path: geoacquire.sources.usgs.dem_1m.USGSDEM1mSource
+      init_args:
+        # north decodes UTM names as EPSG:326xx; south uses EPSG:327xx. The continental
+        # US, Alaska, and Hawaii all use north. This is hemisphere, not image orientation.
+        hemisphere: north
+        # Append before the extension, e.g. tile.tif -> tile_usgs_dem_1m.tif; null keeps the name.
+        filename_suffix: usgs_dem_1m
+        # Same WESM directory, link-list directory, and link-list lifetime as LiDAR.
+        wesm_cache_dir: ./cache/wesm
+        link_cache_dir: ./cache/link_lists
+        link_cache_days: 10.0
+    # acquire directory, layout, skip, retry, concurrency, and chunk meanings match LiDAR.
+    acquire:
+      output_dir: null
+      skip_existing: true
+      max_retries: 3
+      max_workers: 2
+      chunk_size: 1048576
+      retry_delay: 2.0
+    postprocess:
+      # RasterAlign meanings match LiDAR; only filename and input product differ.
+      - class_path: geoacquire.postprocess.raster_align.RasterAlignToTargetPostprocessor
+        init_args:
+          output_suffix: usgs_dem_1m
+          input_products: [dem]
+          output_dir: null
+          resample: true
+          target_scale: 1
+          resampling: bilinear
+          merge_method: first
+          window_size: 1024
+          skip_existing: true
+          vertical_datum_policy: warn_once
+          skip_without_target: true
+
+  # LINZ national New Zealand LiDAR 1 m DEM: static STAC -> native COG GeoTIFF.
+  - name: linz_nz_dem_1m
+    enable: false
+    postprocess_workers: 1
+    source:
+      class_path: geoacquire.sources.linz.dem_1m.LINZDEM1mSource
+      init_args:
+        # Official public collection; no LINZ account, API key, or AWS credentials.
+        collection_url: https://nz-elevation.s3-ap-southeast-2.amazonaws.com/new-zealand/new-zealand/dem_1m/2193/collection.json
+        # The first run reads the small STAC Item JSON files concurrently and writes
+        # one local footprint/URL index. It never downloads non-intersecting DEM COGs.
+        catalog_cache_path: ./cache/linz/nz_dem_1m_stac.json
+        catalog_cache_days: 10.0
+        catalog_workers: 16
+        # Native names are map sheets such as AS21.tiff. The suffix prevents collisions
+        # in a shared acquire directory; null preserves LINZ's original filename.
+        filename_suffix: nz_dem_1m
+    # Each selected file is a complete LINZ 1:50,000 COG and may be large. This source
+    # does not download the whole national collection, but it also does not crop remotely.
+    acquire:
+      output_dir: null
+      skip_existing: true
+      max_retries: 3
+      max_workers: 2
+      chunk_size: 1048576
+      retry_delay: 2.0
+    postprocess:
+      - class_path: geoacquire.postprocess.raster_align.RasterAlignToTargetPostprocessor
+        init_args:
+          output_suffix: nz_dem_1m
+          input_products: [dem]
+          output_dir: null
+          resample: true
+          target_scale: 1
+          resampling: bilinear
+          merge_method: first
+          window_size: 1024
+          skip_existing: true
+          # Source elevations use NZVD2016. No vertical datum conversion is performed.
+          vertical_datum_policy: warn_once
+          skip_without_target: true
+
+  # Google satellite imagery XYZ tiles.
+  - name: google
+    enable: false
+    postprocess_workers: 1
+    source:
+      class_path: geoacquire.sources.rs.google.GoogleSource
+      init_args:
+        # Compatible XYZ URL template; keep the {x}, {y}, and {z} placeholders.
+        server: "http://arcmap.googlecnapps.club/maps/vt?lyrs=s&x={x}&y={y}&z={z}&s=Ga"
+        # Higher XYZ levels are finer. Each level roughly doubles linear pixel density
+        # and quadruples tile count over the same area.
+        zoom: 18
+        # Original tile extension, usually jpg or png; it must match server encoding.
+        tile_ext: jpg
+        # image (aliases jpg/raw) keeps ungeoreferenced images, which RasterAlign ignores;
+        # geotiff (alias tif) converts each tile to EPSG:3857 TIF for mosaic and alignment.
+        output_format: geotiff
+        # In geotiff mode, true also retains JPG/PNG; false removes it after conversion.
+        keep_download: true
+    # acquire meanings match LiDAR; max_workers controls tile download-plus-conversion tasks.
+    acquire:
+      output_dir: null
+      skip_existing: true
+      max_retries: 3
+      max_workers: 4
+      chunk_size: 1048576
+      retry_delay: 2.0
+    postprocess:
+      # RasterAlign meanings match LiDAR; optical imagery has no vertical datum.
+      - class_path: geoacquire.postprocess.raster_align.RasterAlignToTargetPostprocessor
+        init_args:
+          output_suffix: google
+          input_products: [imagery]
+          output_dir: null
+          resample: true
+          target_scale: 1
+          resampling: bilinear
+          merge_method: first
+          window_size: 1024
+          skip_existing: true
+          vertical_datum_policy: ignore
+          skip_without_target: true
+
+  # Esri World Imagery Wayback historical-release XYZ imagery.
+  - name: wayback
+    enable: false
+    postprocess_workers: 1
+    source:
+      class_path: geoacquire.sources.rs.wayback.WaybackSource
+      init_args:
+        # null selects the latest release; YYYY-MM-DD selects the nearest release date.
+        # This is the Wayback publication date, not the imagery acquisition date.
+        date: null
+        # Normally leave both null for lookup by date. Explicit version requires a
+        # YYYY-MM-DD release_date; version enters the URL and release_date tags files.
+        version: null
+        release_date: null
+        # Service template; keep {version}, {z}, {y}, and {x} placeholders.
+        server: "https://wayback.maptiles.arcgis.com/arcgis/rest/services/World_Imagery/WMTS/1.0.0/default028mm/MapServer/tile/{version}/{z}/{y}/{x}"
+        # zoom, tile_ext, output_format, and keep_download have Google semantics.
+        zoom: 18
+        tile_ext: jpg
+        output_format: geotiff
+        keep_download: true
+    # acquire meanings match LiDAR.
+    acquire:
+      output_dir: null
+      skip_existing: true
+      max_retries: 3
+      max_workers: 4
+      chunk_size: 1048576
+      retry_delay: 2.0
+    postprocess:
+      # RasterAlign meanings match LiDAR; optical imagery has no vertical datum.
+      - class_path: geoacquire.postprocess.raster_align.RasterAlignToTargetPostprocessor
+        init_args:
+          output_suffix: wayback
+          input_products: [imagery]
+          output_dir: null
+          resample: true
+          target_scale: 1
+          resampling: bilinear
+          merge_method: first
+          window_size: 1024
+          skip_existing: true
+          vertical_datum_policy: ignore
+          skip_without_target: true
+
+  # Copernicus DEM: CDSE login -> catalogue search -> ZIP download -> DEM TIF extraction.
+  - name: copdem
+    enable: false
+    postprocess_workers: 1
+    source:
+      class_path: geoacquire.sources.copdem.source.CopDEMSource
+      init_args:
+        # Credentials are intentionally read from YAML. Put real values in an ignored
+        # private override and never commit them.
+        username: REPLACE_WITH_CDSE_EMAIL
+        password: REPLACE_WITH_CDSE_PASSWORD
+        # "30" is about 30 m and "90" about 90 m; quotes preserve the required string type.
+        resolution: "30"
+        # DGED is Digital Geospatial Elevation Data; DTED is Digital Terrain Elevation
+        # Data. Keep DGED unless a downstream consumer explicitly requires DTED.
+        dem_format: DGED
+        # false deletes the ZIP after extraction; true keeps both ZIP and extracted TIF.
+        keep_archive: false
+        # Distinguishes extracted source DEM tiles from final aligned *_cop.tif files.
+        filename_suffix: copdem
+    # acquire meanings match HTTP Sources except for max_workers.
+    acquire:
+      output_dir: null
+      skip_existing: true
+      max_retries: 3
+      # CopDEM currently uses one stateful serial client, so this value is not used.
+      max_workers: 1
+      chunk_size: 1048576
+      retry_delay: 2.0
+    postprocess:
+      # RasterAlign meanings match LiDAR; CopDEM defaults to a 32-times coarser target grid.
+      - class_path: geoacquire.postprocess.raster_align.RasterAlignToTargetPostprocessor
+        init_args:
+          output_suffix: cop
+          input_products: [dem]
+          output_dir: null
+          resample: true
+          target_scale: 32
+          resampling: bilinear
+          merge_method: first
+          window_size: 1024
+          skip_existing: true
+          vertical_datum_policy: warn_once
+          skip_without_target: true

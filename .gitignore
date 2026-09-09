@@ -1,0 +1,43 @@
+# Python bytecode and test-run caches. Keep tests/ source and fixtures themselves.
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.test_tmp/
+.test_core_*/
+.test_stream_*/
+.test_boundary_*/
+.validation/
+
+# Local Python environments and editor state.
+.venv/
+.idea/
+
+# One-off local shapefile repair script; it contains workstation-specific paths.
+# Keep the real regression suite under tests/ in version control.
+/test.py
+
+# Large, reproducible remote-data caches. This includes:
+# - cache/wesm/WESM.gpkg and its partial download (multi-GB USGS catalogue)
+# - cache/link_lists/ (USGS project file lists)
+# - cache/linz/ (LINZ static STAC index)
+cache/
+
+# Runtime downloads, generated rasters, reports and manually collected server logs.
+output/
+logs/
+geodar_log/
+tmp/
+*.part
+
+# Generated files from the runnable San Juan example. Keep its input TIF and README.
+examples/USA_SanJuan_Example/downloads/
+examples/USA_SanJuan_Example/results/
+examples/USA_SanJuan_Example/logs/
+
+# Private credentials such as the Copernicus DEM account.
+configs/private*.yaml
+
+# Intentionally versioned project assets:
+# - tests/ contains regression code and reviewed LiDAR header fixtures.
+# - scripts/ contains LiDAR audit replay and header-sampling maintenance tools.
+# - special_process/ contains project-specific postprocessing utilities.

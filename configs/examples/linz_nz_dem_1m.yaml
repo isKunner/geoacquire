@@ -1,0 +1,28 @@
+# 可直接编辑的 LINZ New Zealand LiDAR 1 m DEM 下载示例。
+# 放在 configs/default.yaml 后加载；修改 source 和两个 output_dir。
+# 本示例统一读取美国 San Juan TIF，因此可以运行但不会命中仅覆盖新西兰的 LINZ 数据。
+# 实际下载 LINZ 数据时，请把 source 换成新西兰 bbox、目标 TIF 或目标 TIF 目录。
+# 每个下载文件是完整的 LINZ 1:50,000 COG，可能明显大于输入 bbox。
+#
+#   python run.py -c configs/default.yaml configs/examples/linz_nz_dem_1m.yaml --check
+
+region:
+  class_path: geoacquire.regions.bounds.BoundsRegionProvider
+  init_args:
+    source: ./examples/USA_SanJuan_Example/input/USA_SanJuan_Example.tif
+    region: null
+    crs: EPSG:4326
+
+pipelines:
+  - name: linz_nz_dem_1m
+    enable: true
+    acquire:
+      output_dir: ./examples/USA_SanJuan_Example/downloads/linz_nz_dem_1m
+    postprocess:
+      - init_args:
+          # 用于 TIF/TIF 目录输入；纯 bbox 输入会跳过目标对齐。
+          output_dir: ./examples/USA_SanJuan_Example/results/linz_nz_dem_1m
+
+reporting:
+  log_path: ./examples/USA_SanJuan_Example/logs/linz_nz_dem_1m.log
+  json_path: ./examples/USA_SanJuan_Example/logs/linz_nz_dem_1m_run.json

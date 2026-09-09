@@ -1,0 +1,3027 @@
+# USGS LiDAR project filename catalogue.
+#
+# Formal downloads never inspect remote LAZ headers. Each supported workunit is
+# listed here with a deterministic filename parser and grid model. Run the audit
+# configuration first when a workunit is not listed, inspect its report, then add
+# one reviewed entry here.
+#
+# Do not infer rules from project totals alone. Internal codes such as
+# Goshen_0995 stay unmatched until a known filename footprint establishes their
+# coordinate system, origin, scale, anchor, and tile size.
+#
+# match fields are regular expressions. Available fields:
+#   workunit, project, lpc_link
+#
+# parser choices:
+#   mgrs, mgrs_tokens, mgrs_zero_x_next_100km, mgrs_absolute_tokens,
+#   mgrs_fixed_<zone><band>, mgrs_zero_x_columns_<letters>,
+#   full_xy, axis_pair, axis_named_pair,
+#   number_pair, ct_quadrant_2500ft, zone_tokens, zone_tokens_grid_<letters>,
+#   single_number_split_<position>, odd_km_pair, fl_fdem_5000ft,
+#   il_mchenry_2500ft, az_eastern_pima_5k, ca_san_diego_5k,
+#   ca_eldorado_2500ft, ca_solano_2640ft, ca_upper_pit_5k,
+#   mgrs_zone_11, id_southern_15, mgrs_zone14_legacy_columns, mgrs_separated_xy,
+#   mn_utm_pair, nj_5000ft, mi_2500ft, mi_2500ft_wrapped,
+#   nc_panel_5000ft, nc_panel_2500ft, nc_panel_1250ft, nh_2500ft,
+#   mt_1000m_wrapped, tn_7000x4000ft, vt_1400m_legacy_center,
+#   zone_full_xy, number_pair_date, pa_luzerne_2500ft, pa_dauphin_5000ft,
+#   tx_lower_rio_500m, letter_row_number_column, sc_5000ft_quadrants,
+#   sc_savannah_5000ft, sc_savannah_2500ft, axis_suffix_pair,
+#   wi_sewrpc_10kft, wi_2500ft_quadrants, wa_thurston_4500ft
+# See docs/DEVELOPER_HANDOFF.md for meanings and tests/fixtures/lidar_headers*.json
+# for reviewed filename/bounds/CRS examples. Special parsers are opt-in only.
+#
+# crs choices:
+#   mgrs       - UTM EPSG is decoded from each MGRS filename
+#   workunit   - use WESM horiz_crs (EPSG is tried before ESRI)
+#   EPSG:xxxxx - explicit CRS
+# Grid sizes/offsets/padding use this horizontal CRS's units, not always metres.
+# x/y_ceil_step, x/y_floor_step and x/y_round_step restore encoded grid corners;
+# set at most one rounding direction per axis. They do not resample the data.
+# x/y_grid_origin defaults to 0; a non-zero origin shifts the rounding lattice,
+# not the coordinate. Example: ceil(738000 on 4500-ft lines through 530) = 738530.
+
+version: 1
+projects:
+  - name: HI_NOAA_Maui_Oahu_2020
+    match:
+      workunit: ^HI_NOAAMauiOahu_[12]_B20$
+    schemes:
+      - parser: mgrs
+        crs: mgrs
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 500, height: 500}
+
+  - name: HI_Hawaii_Island_2017
+    match:
+      workunit: ^HI_Hawaii_Island_2017$
+    schemes:
+      # Local LAZ headers confirm standard MGRS coordinates and 1 km tiles.
+      # Use WESM CRS to retain NAD83(PA11) / UTM zone 5N instead of WGS84 UTM.
+      - parser: mgrs
+        crs: workunit
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1000, height: 1000}
+
+  - name: DE_Statewide_B23
+    match:
+      workunit: ^DE_Statewide_1_B23$
+    schemes:
+      - parser: full_xy
+        crs: EPSG:32618
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: max, width: 1500, height: 1500}
+
+  # These modern Massachusetts projects encode kilometre-level MGRS tokens,
+  # while their 1.5 km tiles start on the next global 1.5 km grid line.
+  - name: MA_modern_1500m_MGRS_tokens
+    match:
+      project: ^(MA_Western_B24|MA_CentralEastern_2021_B21)$
+    schemes:
+      - parser: mgrs_tokens
+        crs: workunit
+        grid: {x_scale: 1000, y_scale: 1000, x_offset: 0, y_offset: 4000000, x_anchor: min, y_anchor: min, width: 1500, height: 1500, x_ceil_step: 1500, y_ceil_step: 1500}
+
+  # Connecticut names identify one 2.5 kft quadrant of a 5 kft parent cell.
+  # Three-digit eastings wrap at one million feet (005 -> 1,005,000; 800 ->
+  # 800,000), which is resolved by the reviewed Connecticut parser.
+  - name: CT_Statewide_C16_quadrants
+    match:
+      project: ^CT_Statewide_C16$
+    schemes:
+      - parser: ct_quadrant_2500ft
+        crs: workunit
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 2500, height: 2500, x_padding: 0.02, y_padding: 0.02}
+
+  - name: CT_2023Statewide_C25_quadrants
+    match:
+      project: ^CT_2023Statewide_C25$
+    schemes:
+      - parser: ct_quadrant_2500ft
+        crs: workunit
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 2500, height: 2500}
+
+  - name: NY_SouthEast4County_A22
+    match:
+      workunit: ^NY_SE4County_1_A22$
+    schemes:
+      - parser: single_number_split_5
+        crs: workunit
+        grid: {x_scale: 10, y_scale: 10, x_offset: 0, y_offset: 4000000, x_anchor: min, y_anchor: min, width: 1500, height: 1500}
+
+  # Maine uses kilometre tokens and either 1 km tiles or a 1.5 km snapped grid.
+  - name: ME_north_1500m_tokens
+    match:
+      project: ^(ME_CrownofMaine_2018_A18|ME_EasternME_2017_A17|ME_WesternMtns_B24)$
+    schemes:
+      - parser: mgrs_absolute_tokens
+        crs: workunit
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1500, height: 1500, x_ceil_step: 1500, y_ceil_step: 1500}
+
+  - name: ME_south_1500m_tokens
+    match:
+      project: ^(ME_MidCoast_2021_B21|ME_SouthCentral_B22|ME_SouthCoastal_2020_A20)$
+    schemes:
+      - parser: mgrs_absolute_tokens
+        crs: workunit
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1500, height: 1500, x_ceil_step: 1500, y_ceil_step: 1500}
+
+  - name: ME_MidCentral_B23_1km_tokens
+    match:
+      project: ^ME_MidCentral_B23$
+    schemes:
+      - parser: mgrs_absolute_tokens
+        crs: workunit
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1000, height: 1000}
+
+  - name: MD_4County_1_D24
+    match:
+      workunit: ^MD_4County_1_D24$
+    schemes:
+      - parser: zone_tokens
+        crs: workunit
+        grid: {x_scale: 100, y_scale: 100, x_offset: 600000, y_offset: 4300000, x_anchor: min, y_anchor: min, width: 1000, height: 1000}
+
+  - name: MD_4County_2_D24
+    match:
+      workunit: ^MD_4County_2_D24$
+    schemes:
+      - parser: mgrs
+        crs: workunit
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1000, height: 1000}
+
+  - name: MD_VA_NCB_KGeorge_2020
+    match:
+      project: ^MD_VA_NorthChesapeakeBay_KGeorge_2020_D20$
+    schemes:
+      - parser: mgrs
+        crs: workunit
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1500, height: 1500}
+
+  - name: MD_VA_Sandy_NCR_2014
+    match:
+      workunit: ^MD_VA_Sandy_NCR_2014$
+    schemes:
+      - parser: mgrs_tokens
+        crs: workunit
+        grid: {x_scale: 1000, y_scale: 1000, x_offset: 0, y_offset: 4000000, x_anchor: min, y_anchor: min, width: 1500, height: 1500, x_ceil_step: 1500, y_ceil_step: 1500}
+
+  - name: MD_Western_1_D21
+    match:
+      workunit: ^MD_Western_1_D21$
+    schemes:
+      # This link list mixes the vendor's non-MGRS ``OD`` column with valid
+      # ``PD`` names. Restricting the first scheme keeps their offsets explicit.
+      - parser: zone_tokens_grid_od
+        crs: workunit
+        grid: {x_scale: 100, y_scale: 100, x_offset: 600000, y_offset: 4300000, x_anchor: min, y_anchor: min, width: 1500, height: 1500}
+      - parser: mgrs
+        crs: workunit
+        grid: {x_scale: 1, y_scale: 1, x_offset: 100000, y_offset: 0, x_anchor: min, y_anchor: min, width: 1500, height: 1500}
+
+  - name: MD_Western_2_D21
+    match:
+      workunit: ^MD_Western_2_D21$
+    schemes:
+      - parser: mgrs
+        crs: workunit
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1500, height: 1500}
+
+  - name: LA_standard_1km_MGRS
+    match:
+      project: ^(LA_Bayou_Nezpique_2018_D18|LA_Catahoula_Concordia_2017_D17|LA_CPRA_2019_C20)$
+    schemes:
+      - parser: mgrs
+        crs: workunit
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1000, height: 1000}
+
+  - name: LA_Sabine_A1_A2_1km_MGRS
+    match:
+      workunit: ^LA_Sabine_River_Lidar_A[12]_2018$
+    schemes:
+      - parser: mgrs_zero_x_next_100km
+        crs: workunit
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1000, height: 1000}
+
+  - name: LA_Sabine_A4_A6_1km_MGRS
+    match:
+      workunit: ^LA_Sabine_River_Lidar_A[4-6]_2018$
+    schemes:
+      - parser: mgrs
+        crs: workunit
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1000, height: 1000}
+
+  - name: LA_NortheastDOTD_1500m_MGRS
+    match:
+      project: ^LA_NortheastDOTD_2017_C20$
+    schemes:
+      - parser: mgrs
+        crs: workunit
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1500, height: 1500, x_ceil_step: 1500, y_ceil_step: 1500}
+
+  - name: FL_Conus_Albers_1km_axis
+    match:
+      project: ^(FL_Southeast_2018_D18_SUPPLEMENTAL|FL_Panhandle_2018_B18)$
+    schemes:
+      - parser: axis_pair
+        crs: workunit
+        grid: {x_scale: 1000, y_scale: 1000, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1000, height: 1000}
+
+  - name: GA_AL_modern_1km_MGRS
+    match:
+      workunit: ^(GA_9County_1_D24|AL_19Co_5_B24)$
+    schemes:
+      - parser: mgrs
+        crs: workunit
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1000, height: 1000}
+
+  - name: GA_Conus_Albers_1km_axis
+    match:
+      project: ^(GA_Central_2019_B19|GA_Statewide_2018_B18_DRRA)$
+    schemes:
+      - parser: axis_pair
+        crs: workunit
+        grid: {x_scale: 1000, y_scale: 1000, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1000, height: 1000}
+
+  - name: GA_SW_Georgia_West_5k
+    match:
+      workunit: ^GA_SW_Georgia_B(1[ab]|4)_2017$
+    schemes:
+      - parser: single_number_split_4
+        crs: workunit
+        # Header bounds differ from the nominal feet grid by less than 1 ft.
+        grid: {x_scale: 1000, y_scale: 100, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 5000, height: 5000, x_padding: 1, y_padding: 1}
+
+  - name: GA_SW_Georgia_East_5k
+    match:
+      workunit: ^GA_SW_Georgia_B5_2017$
+    schemes:
+      - parser: single_number_split_4
+        crs: workunit
+        grid: {x_scale: 100, y_scale: 100, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 5000, height: 5000, x_padding: 1, y_padding: 1}
+
+  - name: IA_UTM_1km_axis
+    match:
+      project: ^IA_(WesternIA_2020_D21|NorthCentral_2020_D20|SouthCentral_2020_D20)$
+    schemes:
+      - parser: axis_pair
+        crs: workunit
+        grid: {x_scale: 100, y_scale: 1000, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1000, height: 1000}
+
+  - name: IA_Eastern_1km_MGRS
+    match:
+      project: ^IA_EasternIA_2019_B19$
+    schemes:
+      - parser: mgrs
+        crs: workunit
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1000, height: 1000}
+
+  - name: IL_modern_west_2k_number_pair
+    match:
+      workunit: ^IL_(19County_[123]_D24|22County_[135]_D25)$
+    schemes:
+      - parser: odd_km_pair
+        crs: workunit
+        grid: {x_scale: 1, y_scale: 1, x_offset: -1000, y_offset: -1000, x_anchor: min, y_anchor: min, width: 2000, height: 2000}
+
+  - name: IL_modern_east_2k_number_pair
+    match:
+      workunit: ^IL_19County_[45]_D24$
+    schemes:
+      - parser: odd_km_pair
+        crs: workunit
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 2000, height: 2000}
+
+  - name: IL_10CountyNRCS_2k
+    match:
+      project: ^IL_10CountyNRCS_D23$
+    schemes:
+      - parser: odd_km_pair
+        crs: workunit
+        grid: {x_scale: 1, y_scale: 1, x_offset: -1000, y_offset: -1000, x_anchor: min, y_anchor: min, width: 2000, height: 2000}
+
+  - name: IL_4County_2500ft
+    match:
+      workunit: ^IL_4County_Cook_2017$
+    schemes:
+      - parser: single_number_split_4
+        crs: workunit
+        grid: {x_scale: 100, y_scale: 100, x_offset: 1000000, y_offset: 1000000, x_anchor: min, y_anchor: min, width: 2500, height: 2500}
+
+  - name: IL_8County_B1_2k
+    match:
+      workunit: ^IL_8County_B1_2020$
+    schemes:
+      - parser: odd_km_pair
+        crs: workunit
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 2000, height: 2000}
+
+  - name: IL_8County_B2_2k
+    match:
+      workunit: ^IL_8County_B2_2020$
+    schemes:
+      - parser: odd_km_pair
+        crs: workunit
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 2000, height: 2000}
+
+  - name: IL_8CountyPlusChampaign_1km
+    match:
+      project: ^IL_8County_PlusChampaign_2019_B19$
+    schemes:
+      - parser: axis_pair
+        crs: workunit
+        grid: {x_scale: 100, y_scale: 1000, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1000, height: 1000}
+
+  - name: IL_HicksDome_east_2k
+    match:
+      workunit: ^(IL_HicksDome_FluorsparDistrict_B1_2019|IL_HicksDome_FluorsparDist_2_2019)$
+    schemes:
+      - parser: odd_km_pair
+        crs: workunit
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 2000, height: 2000}
+
+  - name: IL_HicksDome_west_2k
+    match:
+      workunit: ^IL_HicksDome_FluorsparDist_3_2019$
+    schemes:
+      - parser: odd_km_pair
+        crs: workunit
+        grid: {x_scale: 1, y_scale: 1, x_offset: -1000, y_offset: -1000, x_anchor: min, y_anchor: min, width: 2000, height: 2000}
+
+  - name: IL_LaSalle_2k
+    match:
+      project: ^IL_LaSalle_County_QL2_Plus_Lidar_2017_B17$
+    schemes:
+      - parser: odd_km_pair
+        crs: workunit
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 2000, height: 2000}
+
+  - name: IL_MidNorth_east_2k
+    match:
+      workunit: ^IL_MidNorth_[34]_D22$
+    schemes:
+      - parser: odd_km_pair
+        crs: workunit
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 2000, height: 2000}
+
+  - name: IL_MidNorth_west_2k
+    match:
+      workunit: ^IL_MidNorth_[12]_D22$
+    schemes:
+      - parser: single_number_split_4
+        crs: workunit
+        grid: {x_scale: 1000, y_scale: 1000, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 2000, height: 2000}
+
+  - name: IL_SouthCentral_east_2k
+    match:
+      workunit: ^IL_SouthCentral_1_2021$
+    schemes:
+      - parser: odd_km_pair
+        crs: workunit
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 2000, height: 2000}
+
+  - name: IL_SouthCentral_west_2k
+    match:
+      workunit: ^IL_SouthCentral_2_2021$
+    schemes:
+      - parser: odd_km_pair
+        crs: workunit
+        grid: {x_scale: 1, y_scale: 1, x_offset: -1000, y_offset: -1000, x_anchor: min, y_anchor: min, width: 2000, height: 2000}
+
+  - name: IN_Statewide_5k
+    match:
+      project: ^IN_Indiana_Statewide_LiDAR_2017_B17$
+    schemes:
+      - parser: single_number_split_4
+        crs: workunit
+        # Survey/header rounding can extend slightly beyond the nominal grid.
+        grid: {x_scale: 1000, y_scale: 1000, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 5000, height: 5000, x_padding: 2, y_padding: 2}
+
+  - name: IN_Central_3County_5k
+    match:
+      project: ^IN_Central_3_County_2016_A16$
+    schemes:
+      - parser: single_number_split_4
+        crs: workunit
+        grid: {x_scale: 1000, y_scale: 1000, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 5000, height: 5000}
+
+  - name: IN_Hamilton_1250ft
+    match:
+      project: ^IN_HamiltonCounty_A25$
+    schemes:
+      - parser: single_number_split_4
+        crs: workunit
+        grid: {x_scale: 1000, y_scale: 1000, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1250, height: 1250, x_ceil_step: 1250, y_ceil_step: 1250}
+
+  - name: KS_4Area_1km_MGRS
+    match:
+      project: ^KS_4Area_D23$
+    schemes:
+      - parser: mgrs
+        crs: workunit
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1000, height: 1000}
+
+  - name: KS_Statewide_5km_MGRS
+    match:
+      project: ^KS_Statewide_2018_A18$
+    schemes:
+      - parser: mgrs
+        crs: workunit
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 5000, height: 5000, x_ceil_step: 5000, y_ceil_step: 5000}
+
+  - name: KS_legacy_5km_fixed_MGRS
+    match:
+      project: ^S_Central_NE_NW_Kansas_Lidar$
+    schemes:
+      - parser: mgrs_fixed_15s
+        crs: workunit
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 5000, height: 5000}
+
+  - name: KY_StatePlane_5k_NE_grid
+    match:
+      project: ^KY_(15County_A25|CentralEast_A23|WesternKY_A22|Statewide_2021_A21|2020Western_C22)$
+    schemes:
+      - parser: axis_named_pair
+        crs: workunit
+        grid: {x_scale: 5000, y_scale: -5000, x_offset: 3775000, y_offset: 4360000, x_anchor: min, y_anchor: min, width: 5000, height: 5000}
+
+  - name: KY_Eastern_1km_axis
+    match:
+      project: ^KY_Eastern_2019_A19$
+    schemes:
+      - parser: axis_pair
+        crs: workunit
+        grid: {x_scale: 1000, y_scale: 1000, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1000, height: 1000}
+
+  - name: KY_Fluorspar_1km_MGRS
+    match:
+      project: ^KY_FluorsparDistrict_2019_D19$
+    schemes:
+      - parser: mgrs_absolute_tokens
+        crs: workunit
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1000, height: 1000}
+
+  - name: AZ_standard_1km_MGRS
+    match:
+      project: ^(AZ_BrawleyRillito_2018_D19|AZ_CochiseCounty_2020_B20|AZ_Fredonia_Safford_LiDAR_2016_D16|AZ_NavajoCorridor_2020_D20|AZ_Yavapai_2021_B21)$
+    schemes:
+      - parser: mgrs
+        crs: workunit
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1000, height: 1000}
+
+  - name: AZ_UTM_1km_axis
+    match:
+      project: ^(AZ_MaricopaPinal_2020_B20|AZ_USFSR3_D23)$
+    schemes:
+      - parser: axis_pair
+        crs: workunit
+        grid: {x_scale: 1000, y_scale: 1000, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1000, height: 1000}
+
+  - name: AZ_Albers_1km_axis
+    match:
+      project: ^(AZ_Coconino_2019_B19|AZ_LowerColoradoRiver_2018_B18|AZ_VerdeKaibab_2018_B18)$
+    schemes:
+      - parser: axis_pair
+        crs: workunit
+        grid: {x_scale: -1000, y_scale: 1000, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1000, height: 1000}
+
+  - name: AZ_NavajoNation_1500m_absolute_MGRS
+    match:
+      project: ^AZ_NavajoNation_D22$
+    schemes:
+      - parser: mgrs_absolute_tokens
+        crs: workunit
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1500, height: 1500, x_floor_step: 1500, y_floor_step: 1500}
+
+  - name: AZ_PimaCounty_1km
+    match:
+      project: ^AZ_PimaCounty_2021_B21$
+    schemes:
+      - parser: single_number_split_3
+        crs: workunit
+        grid: {x_scale: 1000, y_scale: 1000, x_offset: 266, y_offset: 3000725, x_anchor: min, y_anchor: min, width: 1000, height: 1000}
+
+  - name: AZ_SouthWest_1500m
+    match:
+      project: ^AZ_SouthWest_D23$
+    schemes:
+      - parser: number_pair
+        crs: workunit
+        grid: {x_scale: 100, y_scale: 100, x_offset: 0, y_offset: 3000000, x_anchor: min, y_anchor: min, width: 1500, height: 1500}
+
+  - name: NV_ClarkCounty_5280ft
+    match:
+      project: ^NV_ClarkCounty_B22$
+    schemes:
+      - parser: number_pair
+        crs: workunit
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 5280, height: 5280}
+
+  - name: ID_BlaineCaribou_3k
+    match:
+      project: ^ID_2023BlaineCaribou_C25$
+    schemes:
+      - parser: single_number_split_3
+        crs: workunit
+        grid: {x_scale: 1000, y_scale: 1000, x_offset: 903, y_offset: 565, x_anchor: min, y_anchor: min, width: 3000, height: 3000}
+
+  - name: ID_FEMAHQ_1km_axis
+    match:
+      project: ^ID_FEMAHQ_2018_D18$
+    schemes:
+      - parser: axis_pair
+        crs: workunit
+        grid: {x_scale: -1000, y_scale: 1000, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1000, height: 1000}
+
+  - name: ID_standard_1km_MGRS
+    match:
+      project: ^(ID_Franklin_Bear_Lidar_2017_D17|ID_NorthCentral_D22)$
+    schemes:
+      - parser: mgrs
+        crs: workunit
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1000, height: 1000}
+
+  - name: ID_Southern_1500m_MGRS
+    match:
+      project: ^ID_SouthernID_2018_D19$
+      workunit: ^(?!ID_SouthernID_15_2018$).+$
+    schemes:
+      - parser: mgrs
+        crs: workunit
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1500, height: 1500}
+
+  - name: ID_Adams_Northern_1500m_absolute_MGRS
+    match:
+      project: ^(ID_AdamsCounty_2019_B19|ID_NorthernID_2019_D19)$
+    schemes:
+      - parser: mgrs_tokens
+        crs: workunit
+        grid: {x_scale: 1000, y_scale: 1000, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1500, height: 1500, x_ceil_step: 1500, y_ceil_step: 1500}
+
+  - name: ID_NorthForkPayette_750m_absolute_MGRS
+    match:
+      project: ^ID_NorthForkPayette_2020_B20$
+    schemes:
+      - parser: mgrs_absolute_tokens
+        crs: workunit
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 750, height: 750, x_ceil_step: 750, y_ceil_step: 750}
+
+  - name: ID_NezPerce_1500m_absolute_MGRS
+    match:
+      project: ^ID_Nez_Perce_LiDAR_2016_B16$
+    schemes:
+      - parser: mgrs_absolute_tokens
+        crs: workunit
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1500, height: 1500, x_ceil_step: 1500, y_ceil_step: 1500}
+
+  - name: NV_USFSR4_1km_Albers
+    match:
+      project: ^NV_USFSR4_D23$
+    schemes:
+      - parser: number_pair
+        crs: workunit
+        grid: {x_scale: -1000, y_scale: 1000, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1000, height: 1000}
+
+  # Florida index geometry is documented by SWFWMD OpenData/Boundaries layers 17-19.
+  # These rules were cross-checked with bounded official LAZ header samples.
+  - name: IL_McHenry_2500ft
+    match:
+      workunit: ^IL_4County_McHenry_2018$
+    schemes:
+      - parser: il_mchenry_2500ft
+        crs: workunit
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 2500, height: 2500}
+
+  - name: FL_FDEM_5000ft_index
+    match:
+      project: ^FL_(ManateeCounty_B25|MiamiDade_D23|HurricaneMichael_2020_D20|Peninsular_FDEM_2018_D19_DRRA|Peninsular_2018_D18|Upper_Saint_Johns_Lidar_2017_B17)$
+    schemes:
+      - parser: fl_fdem_5000ft
+        crs: workunit
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 5000, height: 5000}
+
+  - name: AZ_EasternPima_5k
+    match:
+      project: ^Eastern_Pima_County_Lidar$
+    schemes:
+      - parser: az_eastern_pima_5k
+        crs: workunit
+        grid: {x_scale: 1, y_scale: 1, x_offset: 112.76, y_offset: 427.81, x_anchor: min, y_anchor: min, width: 5000, height: 5000}
+
+  - name: CO_UTM_1km_MGRS
+    match:
+      project: ^CO_(CentralEasternPlains_2020_D20|SanLuisJuanMiguel_2020_D20|ParkFremontCuster_2018_C21)$
+    schemes:
+      - parser: mgrs
+        crs: workunit
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1000, height: 1000}
+
+  - name: UT_COUTAML_2_1km
+    match:
+      workunit: ^UT_COUTAML_2_D24$
+    schemes:
+      - parser: mgrs
+        crs: workunit
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1000, height: 1000}
+
+  - name: CO_Arapaho_1km
+    match:
+      project: ^CO_ArapahoRooseveltPikeNF_D23$
+    schemes:
+      - parser: single_number_split_4
+        crs: workunit
+        grid: {x_scale: 100, y_scale: 1000, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1000, height: 1000}
+
+  - name: CO_StatePlane_5k_axis
+    match:
+      project: ^CO_(CameronPeakWildfire_2021_D21|NorthwestCO_2020_D20)$
+    schemes:
+      - parser: axis_pair
+        crs: workunit
+        grid: {x_scale: 1000, y_scale: 1000, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 5000, height: 5000}
+
+  - name: CO_Albers_1km_axis
+    match:
+      project: ^CO_(Southwest_NRCS_2018_D18|WestCentral_2019_A19)$
+    schemes:
+      - parser: axis_pair
+        crs: workunit
+        grid: {x_scale: -1000, y_scale: 1000, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1000, height: 1000}
+
+  - name: CO_DRCOG_1500m
+    match:
+      project: ^CO_DRCOG_2020_B20$
+    schemes:
+      - parser: axis_pair
+        crs: workunit
+        grid: {x_scale: 1000, y_scale: 1000, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1500, height: 1500, x_ceil_step: 1500, y_ceil_step: 1500}
+
+  - name: CO_StatePlane_LD_north
+    match:
+      workunit: ^(CO_Eastern_(B1|B2_QL2_North|North_Priority)_2018|CO_NESEColorado_4_2019)$
+    schemes:
+      - parser: single_number_split_4
+        crs: EPSG:6430
+        grid: {x_scale: 1000, y_scale: 1000, x_offset: 1000, y_offset: 1000, x_anchor: min, y_anchor: min, width: 3000, height: 3000}
+
+  - name: CO_StatePlane_LD_central_south
+    match:
+      workunit: ^(CO_Eastern_(B[3456]|ElPaso|B2_QL2_Central|South_Priority2)_2018|CO_NESEColorado_[13]_2019|CO_Central_Western_2016)$
+    schemes:
+      - parser: single_number_split_4
+        crs: workunit
+        grid: {x_scale: 1000, y_scale: 1000, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 3000, height: 3000}
+
+  - name: CO_Mesa_1500m
+    match:
+      project: ^CO_MesaCounty_2015$
+    schemes:
+      - parser: mgrs
+        crs: workunit
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1500, height: 1500}
+
+  - name: CO_SouthPlatte_1500m
+    match:
+      project: ^South_Platte_River_Flood_LiDAR$
+    schemes:
+      - parser: mgrs_absolute_tokens
+        crs: workunit
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1500, height: 1500, x_ceil_step: 1500, y_ceil_step: 1500}
+
+  - name: CA_UTM_1km_MGRS
+    match:
+      project: ^CA_(SierraNevada_B22|NorthernCA_B22|SaltonSea_EarthMRI_2021_D21|YosemiteNP_2019_D19)$
+    schemes:
+      - parser: mgrs
+        crs: workunit
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1000, height: 1000}
+
+  - name: CA_Gaps_1km_absolute_MGRS
+    match:
+      project: ^CA_CaliforniaGaps_B23$
+    schemes:
+      - parser: mgrs_absolute_tokens
+        crs: workunit
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1000, height: 1000}
+
+  - name: CA_LosAngeles_1km
+    match:
+      project: ^CA_LosAngeles_B23$
+    schemes:
+      - parser: single_number_split_6
+        crs: workunit
+        grid: {x_scale: 10, y_scale: 10, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1000, height: 1000}
+
+  - name: CA_PostWildfire_750m
+    match:
+      project: ^CA_2025LosAngelesPostWildfire_C25$
+    schemes:
+      - parser: single_number_split_6
+        crs: workunit
+        grid: {x_scale: 100, y_scale: 100, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 750, height: 750, x_ceil_step: 750, y_ceil_step: 750}
+
+  - name: CA_NorthCoastRanges_1km
+    match:
+      project: ^CA_NorthCoastRanges_B23$
+    schemes:
+      - parser: single_number_split_3
+        crs: workunit
+        grid: {x_scale: 1000, y_scale: 1000, x_offset: 500, y_offset: 4000000, x_anchor: min, y_anchor: min, width: 1000, height: 1000}
+
+  - name: CA_ContraCosta_1km
+    match:
+      project: ^CA_ContraCosta_B22$
+    schemes:
+      - parser: axis_pair
+        crs: workunit
+        grid: {x_scale: 1000, y_scale: 1000, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1000, height: 1000}
+
+  - name: CA_Alameda_3k
+    match:
+      project: ^CA_AlamedaCounty_2021_B21$
+    schemes:
+      - parser: axis_pair
+        crs: workunit
+        grid: {x_scale: 1000, y_scale: 1000, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 3000, height: 3000}
+
+  - name: CA_SanJoaquin_2500ft
+    match:
+      project: ^CA_SanJoaquin_2021_A21$
+    schemes:
+      - parser: axis_pair
+        crs: workunit
+        grid: {x_scale: 100, y_scale: 100, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 2500, height: 2500}
+
+  - name: CA_CarrHirz_750m
+    match:
+      project: ^CA_CarrHirzDeltaFires_2019_B19$
+    schemes:
+      - parser: single_number_split_5
+        crs: workunit
+        grid: {x_scale: 100, y_scale: 100, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 750, height: 750, x_ceil_step: 750, y_ceil_step: 750}
+
+  - name: CA_SantaClara_2500ft
+    match:
+      project: ^CA_SantaClaraCounty_2020_A20$
+    schemes:
+      - parser: single_number_split_4
+        crs: workunit
+        grid: {x_scale: 100, y_scale: 100, x_offset: 6000000, y_offset: 1000000, x_anchor: min, y_anchor: min, width: 2500, height: 2500}
+
+  - name: CA_SantaCruz_2500ft
+    match:
+      project: ^CA_SantaCruzCounty_2020_A20$
+    schemes:
+      - parser: single_number_split_3
+        crs: workunit
+        grid: {x_scale: 1000, y_scale: 1000, x_offset: 6000000, y_offset: 1000000, x_anchor: min, y_anchor: min, width: 2500, height: 2500, x_ceil_step: 2500, y_ceil_step: 2500}
+
+  - name: CA_SanFrancisco_500ft
+    match:
+      project: ^CA_SanFrancisco_B23$
+    schemes:
+      - parser: single_number_split_4
+        crs: workunit
+        grid: {x_scale: 100, y_scale: 100, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 500, height: 500}
+
+  - name: CA_Wildfires_Albers_1km
+    match:
+      project: ^CA_(NoCAL_3DEP_Supp_Funding_2018_D18|SoCAL_Wildfires_2018_D18)$
+    schemes:
+      - parser: axis_pair
+        crs: workunit
+        grid: {x_scale: -1000, y_scale: 1000, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1000, height: 1000}
+
+  - name: CA_SanDiego_5k
+    match:
+      project: ^CA_(Eastern_San_Diego_Co_Lidar_2016_B16|SanDiego_2015_C17)$
+    schemes:
+      - parser: ca_san_diego_5k
+        crs: workunit
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 5000, height: 5000}
+
+  - name: CA_CentralValley_1500m
+    match:
+      workunit: ^CA_Central_Valley_2017$
+    schemes:
+      - parser: mgrs
+        crs: EPSG:6339
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1500, height: 1500}
+
+  - name: CA_FEMA_Z4_4500ft
+    match:
+      workunit: ^CA_FEMA_Z4_B[12]_2018$
+    schemes:
+      - parser: single_number_split_4
+        crs: workunit
+        grid: {x_scale: 1000, y_scale: 1000, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 4500, height: 4500, x_ceil_step: 4500, y_ceil_step: 4500}
+
+  - name: CA_Eldorado_2500ft
+    match:
+      project: ^CA_UpperSouthAmerican_Eldorado_2019_B19$
+    schemes:
+      - parser: ca_eldorado_2500ft
+        crs: workunit
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 2500, height: 2500, x_floor_step: 2500, y_floor_step: 2500}
+
+  - name: CA_Solano_2640ft
+    match:
+      project: ^CA_SolanoCounty_A23$
+    schemes:
+      - parser: ca_solano_2640ft
+        crs: workunit
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 2640, height: 2640}
+
+  - name: CA_Fresno_zone11_1km
+    match:
+      workunit: ^CA_FEMAR9Fresno_2_2019$
+    schemes:
+      - parser: mgrs_zone_11
+        crs: workunit
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1000, height: 1000}
+
+  - name: CA_UpperPit_5k
+    match:
+      workunit: ^CA_FEMA_R9_Upper_Pit_2017$
+    schemes:
+      - parser: ca_upper_pit_5k
+        crs: EPSG:6416
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 5000, height: 5000}
+
+  - name: IN_Johnson_2011_5k
+    match:
+      workunit: ^IN_JohnsonCo_2011$
+    schemes:
+      - parser: single_number_split_4
+        crs: workunit
+        grid: {x_scale: 1000, y_scale: 1000, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 5000, height: 5000}
+
+  - name: ID_Southern_15_local_repairs
+    match:
+      workunit: ^ID_SouthernID_15_2018$
+    schemes:
+      - parser: id_southern_15
+        crs: workunit
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1500, height: 1500}
+
+  - name: AL_17County_2_2020
+    match:
+      workunit: ^AL_17Co_2_2020$
+    schemes:
+      - parser: mgrs_tokens
+        crs: EPSG:32616
+        grid: {x_scale: 100, y_scale: 1000, x_offset: 399300, y_offset: 3000000, x_anchor: min, y_anchor: min, width: 1500, height: 1500, x_padding: 0, y_padding: 500}
+
+  - name: AL_17County_1_2020
+    match:
+      workunit: ^AL_17Co_1_2020$
+    schemes:
+      - parser: mgrs_tokens
+        crs: EPSG:32616
+        grid: {x_scale: 100, y_scale: 1000, x_offset: 599300, y_offset: 2999500, x_anchor: min, y_anchor: min, width: 1500, height: 1500}
+
+  - name: AL_standard_1km_MGRS
+    match:
+      workunit: ^(AL_19Co_4_B24|AL_11County_1_B23)$
+    schemes:
+      - parser: mgrs
+        crs: mgrs
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1000, height: 1000}
+
+  - name: AL_25County_B2_2017
+    match:
+      workunit: ^AL_25Co_B2_2017$
+    schemes:
+      - parser: mgrs
+        crs: EPSG:32616
+        grid: {x_scale: 1, y_scale: 1, x_offset: 875.3, y_offset: 0, x_anchor: center, y_anchor: min, width: 1500, height: 1500, x_padding: 374.699, y_padding: 500}
+
+  - name: AL_25County_B8_2017
+    match:
+      workunit: ^AL_25Co_B8_2017$
+    schemes:
+      - parser: mgrs
+        crs: EPSG:32616
+        grid: {x_scale: 1, y_scale: 1, x_offset: 500, y_offset: 500, x_anchor: min, y_anchor: min, width: 1500, height: 1500, x_padding: 500, y_padding: 500}
+
+  - name: AL_AGIO_B1_2016
+    match:
+      workunit: ^AL_AGIO_B1_2016$
+    schemes:
+      - parser: mgrs
+        crs: EPSG:32616
+        grid: {x_scale: 1, y_scale: 1, x_offset: 2000, y_offset: 85.2051, x_anchor: max, y_anchor: min, width: 1500, height: 1500, x_padding: 500, y_padding: 414.795}
+
+  - name: AL_3County_2015
+    match:
+      workunit: ^AL_3County_2015$
+    schemes:
+      - parser: mgrs_tokens
+        crs: workunit
+        grid: {x_scale: 100, y_scale: 100, x_offset: 453941, y_offset: 3718480, x_anchor: min, y_anchor: min, width: 1506.79, height: 1506.79, x_padding: 180.945, y_padding: 549.202}
+
+  # Arkansas rules below were calibrated from the 2026-08-30 state audit and
+  # small HTTP-range reads of representative official LAZ headers. Padding is
+  # intentionally conservative for projects whose filenames describe a coarse
+  # grid while boundary tiles contain only part of that nominal footprint.
+  - name: AR_Western_Eastern_1km_MGRS
+    match:
+      project: ^AR_(Western_B24|Eastern_D23)$
+    schemes:
+      - parser: mgrs
+        crs: workunit
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1000, height: 1000}
+
+  - name: AR_NorthEast_D22
+    match:
+      workunit: ^AR_NorthEast_1_D22$
+    schemes:
+      - parser: number_pair
+        crs: workunit
+        grid: {x_scale: 100, y_scale: 1000, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1500, height: 1500}
+
+  - name: MO_Southwest_2021_D21
+    match:
+      workunit: ^MO_Southwest_1_2021$
+    schemes:
+      - parser: mgrs_tokens
+        crs: workunit
+        grid: {x_scale: 1000, y_scale: 1000, x_offset: 0, y_offset: 4000000, x_anchor: min, y_anchor: min, width: 1500, height: 1500, x_padding: 500, y_padding: 500}
+
+  - name: MS_Central_Delta_2018_D18
+    match:
+      workunit: ^MS_MississippiDelta_4_2018$
+    schemes:
+      - parser: axis_pair
+        crs: workunit
+        grid: {x_scale: 1000, y_scale: 1000, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1000, height: 1000}
+
+  - name: AR_Ouachita_2016
+    match:
+      project: ^AR_Ouachita_FEMA_R6_Lidar_2016_D17$
+    schemes:
+      - parser: mgrs
+        crs: workunit
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1500, height: 1500}
+
+  - name: AR_NRCS_2016
+    match:
+      project: ^AR_NRCS_AR_LiDAR_2016_B16$
+    schemes:
+      - parser: mgrs
+        crs: workunit
+        grid: {x_scale: 1, y_scale: 1, x_offset: -500, y_offset: -500, x_anchor: min, y_anchor: min, width: 1500, height: 1500, x_padding: 500, y_padding: 500}
+
+  - name: AR_North_Corridor_2017
+    match:
+      project: ^AR_North_Corridor_FEMA_R6_Lidar_2016_D17$
+    schemes:
+      - parser: mgrs_tokens
+        crs: workunit
+        grid: {x_scale: 1000, y_scale: 1000, x_offset: 0, y_offset: 3000000, x_anchor: min, y_anchor: min, width: 1500, height: 1500, x_padding: 500, y_padding: 500}
+
+  - name: AR_standard_1500m_MGRS
+    match:
+      project: ^(FEMA_R6_AR_Dardanelle_Reservoir_QL2_Lidar|AR_Benton_2015|FEMA_Region_6_Arkansas_QL2_LiDAR|AR_Upper_Saline_Watershed_Lidar_14)$
+    schemes:
+      - parser: mgrs
+        crs: workunit
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1500, height: 1500}
+
+  - name: AR_LakeConway_2014
+    match:
+      workunit: ^AR_LakeConwayPointRE_2014$
+    schemes:
+      - parser: single_number_split_4
+        crs: workunit
+        grid: {x_scale: 1000, y_scale: 1000, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1500, height: 1500, x_padding: 500, y_padding: 500}
+
+  - name: AR_NRCS_Languille_Cache_2011
+    match:
+      workunit: ^AR_NRCS_(Languille|Cache)_2011$
+    schemes:
+      - parser: single_number_split_4
+        crs: workunit
+        grid: {x_scale: 1000, y_scale: 1000, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1500, height: 1500, x_padding: 500, y_padding: 500}
+
+  # Texas projects confirmed by the supplied calibration logs. Pure serial
+  # StratMap names remain intentionally unmatched until a reviewed rule exists.
+  - name: TX_CentralEast_1_A23
+    match:
+      workunit: ^TX_CentralEast_1_A23$
+    schemes:
+      - parser: mgrs
+        crs: EPSG:32614
+        grid: {x_scale: 1, y_scale: 1, x_offset: 1500, y_offset: 0, x_anchor: max, y_anchor: min, width: 1500, height: 1500}
+
+  - name: TX_standard_1500m_MGRS
+    match:
+      workunit: ^(TX_CentralEast_2_A23|TX_Archer_Jack_2014|TX_Lower_SanBernard_B2_2017|USGS_LPC_TX_RedRiver_B1_2017_LAS_2019|USGS_LPC_TX_RedRiver_BrazosBasin_B5_2017_LAS_2019|USGS_LPC_TX_Panhandle_B[79]_2017_LAS_2019)$
+    schemes:
+      - parser: mgrs
+        crs: mgrs
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1500, height: 1500}
+
+  # The MGRS token denotes a point within a 1.5 km tile. Seven bounded reads
+  # of official LAZ headers confirmed that flooring both axes recovers the
+  # physical tile bounds; all 2,901 catalogue names use the same lattice.
+  - name: TX_MiddleBrazos_2016
+    match:
+      workunit: ^TX_MiddleBrazos_2016$
+    schemes:
+      - parser: mgrs
+        crs: EPSG:6343
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1500, height: 1500, x_floor_step: 1500, y_floor_step: 1500}
+
+  - name: TX_Lower_SanBernard_B6_2017
+    match:
+      workunit: ^TX_Lower_SanBernard_B6_2017$
+    schemes:
+      - parser: mgrs_tokens
+        crs: EPSG:32614
+        grid: {x_scale: 100, y_scale: 100, x_offset: 300000, y_offset: 3200000, x_anchor: min, y_anchor: min, width: 1500, height: 1500}
+
+  - name: TX_Houston_1_B24
+    match:
+      workunit: ^TX_Houston_1_B24$
+    schemes:
+      - parser: mgrs_tokens
+        crs: workunit
+        grid: {x_scale: 1000, y_scale: 1000, x_offset: 0, y_offset: 3000000, x_anchor: min, y_anchor: min, width: 1000, height: 1000}
+
+  - name: TX_South_B6_2018
+    match:
+      workunit: ^USGS_LPC_TX_South_B6_2018_LAS_2019$
+    schemes:
+      - parser: mgrs_tokens
+        crs: workunit
+        grid: {x_scale: 1000, y_scale: 1000, x_offset: 500, y_offset: 3000500, x_anchor: min, y_anchor: min, width: 1500, height: 1500, x_padding: 500, y_padding: 500}
+
+  - name: WV_FEMAR3_Southcentral_B1_2018
+    match:
+      workunit: ^WV_FEMAR3_Southcentral_B1_2018$
+    schemes:
+      - parser: axis_pair
+        crs: workunit
+        grid: {x_scale: 1000, y_scale: 1000, x_offset: 1000, y_offset: 0, x_anchor: max, y_anchor: min, width: 1000, height: 1000}
+
+  - name: WV_FEMAR3_Southcentral_B2_2018
+    match:
+      workunit: ^WV_FEMAR3_Southcentral_B2_2018$
+    schemes:
+      - parser: axis_pair
+        crs: workunit
+        grid: {x_scale: 1000, y_scale: 1000, x_offset: 0, y_offset: 1000, x_anchor: min, y_anchor: max, width: 1000, height: 1000}
+
+  - name: WV_FEMAR3_Southcentral_B4_2018
+    match:
+      workunit: ^WV_FEMAR3_Southcentral_B4_2018$
+    schemes:
+      - parser: axis_pair
+        crs: workunit
+        grid: {x_scale: 1000, y_scale: 1000, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1000, height: 1000}
+
+  - name: WV_FEMAR3_Southcentral_B3_2018
+    match:
+      workunit: ^WV_FEMAR3_Southcentral_B3_2018$
+    schemes:
+      - parser: axis_pair
+        crs: workunit
+        grid: {x_scale: 1000, y_scale: 1000, x_offset: 1000, y_offset: 0, x_anchor: max, y_anchor: min, width: 1000, height: 1000}
+
+  - name: WV_FEMAHQ_B2_2018
+    match:
+      workunit: ^WV_FEMAHQ_B2_2018$
+    schemes:
+      - parser: axis_pair
+        crs: workunit
+        grid: {x_scale: 1000, y_scale: 1000, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1000, height: 1000}
+
+  # Pennsylvania projects can legitimately intersect targets near the WV border.
+  - name: PA_WesternPA_2_2019
+    match:
+      workunit: ^PA_WesternPA_2_2019$
+    schemes:
+      - parser: mgrs_tokens
+        crs: workunit
+        grid: {x_scale: 1000, y_scale: 1000, x_offset: 500, y_offset: 4000500, x_anchor: min, y_anchor: min, width: 1500, height: 1500, x_padding: 500, y_padding: 500}
+
+  - name: PA_WesternPA_1_2019
+    match:
+      workunit: ^PA_WesternPA_1_2019$
+    schemes:
+      - parser: mgrs_tokens
+        crs: workunit
+        grid: {x_scale: 1000, y_scale: 1000, x_offset: 500, y_offset: 4001250, x_anchor: min, y_anchor: center, width: 1500, height: 1500, x_padding: 500, y_padding: 167.99}
+
+  - name: WY_standard_1km_MGRS
+    match:
+      workunit: ^(WY_SouthCentral_[123]_2020|WY_Southwest_[24]_2020|WY_NConverse_[12]_2020|WY_Southeast_[34]_D24|WY_Sheridan_[12]_2020|WY_Laramie_1_2021)$
+    schemes:
+      - parser: mgrs
+        crs: mgrs
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1000, height: 1000}
+
+  - name: WY_North_Converse_3_2020
+    match:
+      workunit: ^WY_NConverse_3_2020$
+    schemes:
+      - parser: mgrs
+        crs: mgrs
+        grid: {x_scale: 1, y_scale: 1, x_offset: 999.99, y_offset: 0, x_anchor: max, y_anchor: min, width: 1000, height: 1000}
+
+  - name: WY_FEMA_East_min_min
+    match:
+      workunit: ^WY_FEMA_East_B[1-8]_2019$
+    schemes:
+      - parser: axis_pair
+        crs: workunit
+        grid: {x_scale: -1000, y_scale: 1000, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1000, height: 1000}
+
+  - name: WY_FEMA_East_B9_2019
+    match:
+      workunit: ^WY_FEMA_East_B9_2019$
+    schemes:
+      - parser: axis_pair
+        crs: workunit
+        grid: {x_scale: -1000, y_scale: 1000, x_offset: 999.99, y_offset: 0, x_anchor: max, y_anchor: min, width: 1000, height: 1000}
+
+  - name: WY_GrandTetonNP_1_D22
+    match:
+      workunit: ^WY_GrandTetonNP_1_D22$
+    schemes:
+      - parser: mgrs
+        crs: EPSG:32612
+        grid: {x_scale: 1, y_scale: 1, x_offset: 301000, y_offset: -3999000, x_anchor: max, y_anchor: max, width: 1000, height: 1000}
+
+  - name: WY_GrandTeton_Elk_Refuge_2014
+    match:
+      workunit: ^WY_GrandTetonElkRefuge_2014$
+    schemes:
+      - parser: mgrs
+        crs: EPSG:32612
+        grid: {x_scale: 1, y_scale: 1, x_offset: 1499.99, y_offset: 0, x_anchor: max, y_anchor: min, width: 1500, height: 1500}
+
+  - name: WY_SouthCentral_5_2020
+    match:
+      workunit: ^WY_SouthCentral_5_2020$
+    schemes:
+      - parser: mgrs
+        crs: EPSG:32613
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 500, height: 500}
+
+  - name: WY_YellowstoneNP_3_2020
+    match:
+      workunit: ^WY_YellowstoneNP_3_2020$
+    schemes:
+      - parser: mgrs
+        crs: EPSG:32612
+        grid: {x_scale: 1, y_scale: 1, x_offset: 499.99, y_offset: 0, x_anchor: max, y_anchor: min, width: 500, height: 500}
+
+  - name: WY_Carbon_2015
+    match:
+      workunit: ^WY_Carbon_2015$
+    schemes:
+      - parser: mgrs_tokens
+        crs: EPSG:32612
+        grid: {x_scale: 100, y_scale: 100, x_offset: 400000, y_offset: 4601500, x_anchor: min, y_anchor: max, width: 1500, height: 1500, x_padding: 0, y_padding: 386.86}
+
+  # M-N audit review (2026-08-31): exact sampled workunits only.
+  # Official observations: tests/fixtures/lidar_headers_mn.json.
+
+  - name: IL_single_number_split_4_2000_review_01
+    match:
+      workunit: ^(IL_Pike_ScottCo_2015)$
+    schemes:
+      - parser: single_number_split_4
+        crs: "workunit"
+        grid: {x_scale: 1000, y_scale: 1000, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 2000, height: 2000}
+
+  - name: IL_single_number_split_4_5000_review_02
+    match:
+      workunit: ^(IL_MadisonCo_2014)$
+    schemes:
+      - parser: single_number_split_4
+        crs: "workunit"
+        grid: {x_scale: 1000, y_scale: 1000, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 5000, height: 5000}
+
+  - name: ME_mgrs_1500_review_03
+    match:
+      workunit: ^(ME_NRCS_Lot4_2013)$
+    schemes:
+      - parser: mgrs
+        crs: "workunit"
+        grid: {width: 1500, height: 1500, x_scale: 1, x_offset: 0, x_anchor: min, y_scale: 1, y_offset: 0, y_anchor: min}
+
+  - name: MI_mi_2500ft_2500_review_04
+    match:
+      workunit: ^(MI_16Co_Clare_2015|MI_16Co_Roscommon_2015|MI_31Co_Gladwin_2016|MI_31Co_Iosco_2016|MI_31Co_Ogemaw_2016|MI_FEMAHQ_2018|MI_FEMA_Alcona_Oscoda_2019|MI_FEMA_Antrim_Otsego_2019|MI_FEMA_Cheboygan_2019|MI_Wexford_2016)$
+    schemes:
+      - parser: mi_2500ft
+        crs: "EPSG:6494"
+        grid: {width: 2500, height: 2500, x_scale: 1, x_offset: 19000000, x_anchor: min, y_scale: 1, y_offset: 0, y_anchor: min}
+
+  - name: MI_mi_2500ft_2500_review_05
+    match:
+      workunit: ^(MI_Baraga_2015|MI_FEMA_Gogebic_2019)$
+    schemes:
+      - parser: mi_2500ft
+        crs: "EPSG:6496"
+        grid: {width: 2500, height: 2500, x_scale: 1, x_offset: 25000000, x_anchor: min, y_scale: 1, y_offset: 0, y_anchor: min}
+
+  - name: MI_mi_2500ft_2500_review_06
+    match:
+      workunit: ^(MI_AlgerCo_2015|MI_FEMA_Luce_Schoolcraft_2019)$
+    schemes:
+      - parser: mi_2500ft
+        crs: "EPSG:6496"
+        grid: {width: 2500, height: 2500, x_scale: 1, x_offset: 26000000, x_anchor: min, y_scale: 1, y_offset: 0, y_anchor: min}
+
+  - name: MI_mi_2500ft_2500_review_07
+    match:
+      workunit: ^(MI_16Co_Mecosta_2015|MI_16Co_Newaygo_2015|MI_16Co_StJoseph_2015|MI_31Co_Ionia_2016|MI_31Co_Kent_2016|MI_31Co_Oceana_2016|MI_Kalamazoo_2015|MI_Montcalm_2015|MI_Muskegon_2015)$
+    schemes:
+      - parser: mi_2500ft
+        crs: "EPSG:6499"
+        grid: {width: 2500, height: 2500, x_scale: 1, x_offset: 12000000, x_anchor: min, y_scale: 1, y_offset: 0, y_anchor: min}
+
+  - name: MI_mi_2500ft_2500_review_08
+    match:
+      workunit: ^(MI_16Co_Lapeer_2015|MI_16Co_Shiawassee_2015|MI_2020TittabawasseeFlood_1_C26|MI_31Co_Jackson_2016|MI_31Co_Lenawee_2017|MI_31Co_Livingston_2018|MI_31Co_Macomb_2016|MI_31Co_Midland_2016|MI_31Co_Oakland_2016|MI_31Co_StClair_2016|MI_31Co_Washtenaw_2016|MI_GenesseeCo_2015|MI_WayneCo_2017)$
+    schemes:
+      - parser: mi_2500ft
+        crs: "EPSG:6499"
+        grid: {width: 2500, height: 2500, x_scale: 1, x_offset: 13000000, x_anchor: min, y_scale: 1, y_offset: 0, y_anchor: min}
+
+  - name: MI_mi_2500ft_2500_review_09
+    match:
+      workunit: ^(MI_MuskegonCo_2013)$
+    schemes:
+      - parser: mi_2500ft
+        crs: "workunit"
+        grid: {width: 2500, height: 2500, x_scale: 1, x_offset: 12000000, x_anchor: min, y_scale: 1, y_offset: 0, y_anchor: min}
+
+  - name: MI_mi_2500ft_2500_review_10
+    match:
+      workunit: ^(MI_BenzieCo_2015|MI_GrandTraverseCO_2015|MI_LeelanauCo_2015|MI_ManisteeCo_2015)$
+    schemes:
+      - parser: mi_2500ft
+        crs: "workunit"
+        grid: {width: 2500, height: 2500, x_scale: 1, x_offset: 19000000, x_anchor: min, y_scale: 1, y_offset: 0, y_anchor: min}
+
+  - name: MI_mi_2500ft_2500_review_11
+    match:
+      workunit: ^(MI_MackinacCo_2015)$
+    schemes:
+      - parser: mi_2500ft
+        crs: "workunit"
+        grid: {width: 2500, height: 2500, x_scale: 1, x_offset: 26000000, x_anchor: min, y_scale: 1, y_offset: 0, y_anchor: min}
+
+  - name: MI_mi_2500ft_wrapped_2500_review_12
+    match:
+      workunit: ^(MI_FEMA_Dickinson_Iron_Menominee_2019|MI_FEMA_Houghton_Keweenaw_Ontonagon_2019)$
+    schemes:
+      - parser: mi_2500ft_wrapped
+        crs: "EPSG:6496"
+        grid: {width: 2500, height: 2500, x_scale: 1, x_offset: 25000000, x_anchor: min, y_scale: 1, y_offset: 0, y_anchor: min}
+
+  - name: MI_mi_2500ft_wrapped_2500_review_13
+    match:
+      workunit: ^(MI_31Co_Chippewa_2017)$
+    schemes:
+      - parser: mi_2500ft_wrapped
+        crs: "EPSG:6496"
+        grid: {width: 2500, height: 2500, x_scale: 1, x_offset: 26000000, x_anchor: min, y_scale: 1, y_offset: 0, y_anchor: min}
+
+  - name: MI_mi_2500ft_wrapped_2500_review_14
+    match:
+      workunit: ^(MI_31Co_Clinton_2017|MI_31Co_Isabella_2016)$
+    schemes:
+      - parser: mi_2500ft_wrapped
+        crs: "EPSG:6499"
+        grid: {width: 2500, height: 2500, x_scale: 1, x_offset: 12000000, x_anchor: min, y_scale: 1, y_offset: 0, y_anchor: min}
+
+  - name: MI_mi_2500ft_wrapped_2500_review_15
+    match:
+      workunit: ^(MI_31Co_Hillsdale_2016)$
+    schemes:
+      - parser: mi_2500ft_wrapped
+        crs: "workunit"
+        grid: {width: 2500, height: 2500, x_scale: 1, x_offset: 12000000, x_anchor: min, y_scale: 1, y_offset: 0, y_anchor: min}
+
+  - name: MI_mi_2500ft_wrapped_2500_review_16
+    match:
+      workunit: ^(MI_Marquette_2015)$
+    schemes:
+      - parser: mi_2500ft_wrapped
+        crs: "workunit"
+        grid: {width: 2500, height: 2500, x_scale: 1, x_offset: 25000000, x_anchor: min, y_scale: 1, y_offset: 0, y_anchor: min}
+
+  - name: MN_mgrs_absolute_tokens_1000_review_17
+    match:
+      workunit: ^(MN_LakeSuperior_1_2021)$
+    schemes:
+      - parser: mgrs_absolute_tokens
+        crs: "EPSG:6344"
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1000, height: 1000}
+
+  - name: MN_mgrs_absolute_tokens_750_review_18
+    match:
+      workunit: ^(MN_LakeCounty_2018)$
+    schemes:
+      - parser: mgrs_absolute_tokens
+        crs: "EPSG:6344"
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 750, height: 750, x_ceil_step: 750, y_ceil_step: 750}
+
+  - name: MN_mgrs_absolute_tokens_1000_review_19
+    match:
+      workunit: ^(MN_LakeSuperior_2_2021|MN_RainyLake_1_2020|MN_RainyLake_2_2020)$
+    schemes:
+      - parser: mgrs_absolute_tokens
+        crs: "workunit"
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1000, height: 1000}
+
+  - name: MO_7Co_1_D23_reviewed_grid
+    match:
+      workunit: ^MO_7Co_1_D23$
+    schemes:
+      - parser: mgrs_absolute_tokens
+        crs: "EPSG:6344"
+        grid: {"x_scale": 1, "y_scale": 1, "x_offset": 0, "y_offset": 0, "x_anchor": "min", "y_anchor": "min", "width": 1500, "height": 1500, "x_round_step": 1500, "y_round_step": 1500}
+
+  - name: MO_SouthernMO_1_D22_reviewed_grid
+    match:
+      workunit: ^MO_SouthernMO_1_D22$
+    schemes:
+      - parser: mgrs_absolute_tokens
+        crs: "EPSG:6344"
+        grid: {"x_scale": 1, "y_scale": 1, "x_offset": 0, "y_offset": 0, "x_anchor": "min", "y_anchor": "min", "width": 1500, "height": 1500, "x_round_step": 1500, "y_round_step": 1500}
+
+  - name: NY_FEMA_R2_B1_2016_reviewed_grid
+    match:
+      workunit: ^NY_FEMA_R2_B1_2016$
+    schemes:
+      - parser: single_number_split_3
+        crs: "workunit"
+        grid: {"x_scale": 1000, "y_scale": 1000, "x_offset": 0, "y_offset": 0, "x_anchor": "min", "y_anchor": "min", "width": 1500, "height": 1500, "x_round_step": 1500, "y_round_step": 1500}
+
+  - name: NY_FEMA_R2_B2_2016_reviewed_grid
+    match:
+      workunit: ^NY_FEMA_R2_B2_2016$
+    schemes:
+      - parser: single_number_split_3
+        crs: "workunit"
+        grid: {"x_scale": 1000, "y_scale": 1000, "x_offset": 0, "y_offset": 0, "x_anchor": "min", "y_anchor": "min", "width": 1500, "height": 1500, "x_round_step": 1500, "y_round_step": 1500}
+
+  - name: NE_Eastern_UA_2016_reviewed_grid
+    match:
+      workunit: ^NE_Eastern_UA_2016$
+    schemes:
+      - parser: single_number_split_3
+        crs: "EPSG:6880"
+        grid: {"x_scale": 1000, "y_scale": 1000, "x_offset": 2000000, "y_offset": 0, "x_anchor": "min", "y_anchor": "min", "width": 5000, "height": 5000}
+
+  - name: NJ_SouthernNJ_2018_reviewed_grid
+    match:
+      workunit: ^NJ_SouthernNJ_2018$
+    schemes:
+      - parser: nj_5000ft
+        crs: "EPSG:6527"
+        grid: {"x_scale": 1, "y_scale": 1, "x_offset": 0, "y_offset": 0, "x_anchor": "min", "y_anchor": "min", "width": 5000, "height": 5000}
+
+  - name: NM_SouthEast_B1_2018_reviewed_grid
+    match:
+      workunit: ^NM_SouthEast_B1_2018$
+    schemes:
+      - parser: mgrs_separated_xy
+        crs: "EPSG:6342"
+        grid: {"x_scale": 1, "y_scale": 1, "x_offset": 0, "y_offset": 0, "x_anchor": "min", "y_anchor": "min", "width": 1500, "height": 1500, "x_ceil_step": 1500, "y_ceil_step": 1500}
+
+  - name: NM_SouthEast_B3_2018_reviewed_grid
+    match:
+      workunit: ^NM_SouthEast_B3_2018$
+    schemes:
+      - parser: mgrs_separated_xy
+        crs: "EPSG:6342"
+        grid: {"x_scale": 1, "y_scale": 1, "x_offset": 0, "y_offset": 0, "x_anchor": "min", "y_anchor": "min", "width": 1500, "height": 1500, "x_ceil_step": 1500, "y_ceil_step": 1500}
+
+  - name: NM_SouthEast_B4_2018_reviewed_grid
+    match:
+      workunit: ^NM_SouthEast_B4_2018$
+    schemes:
+      - parser: mgrs_separated_xy
+        crs: "EPSG:6342"
+        grid: {"x_scale": 1, "y_scale": 1, "x_offset": 0, "y_offset": 0, "x_anchor": "min", "y_anchor": "min", "width": 1500, "height": 1500, "x_ceil_step": 1500, "y_ceil_step": 1500}
+
+  - name: NM_SouthEast_B5_2018_reviewed_grid
+    match:
+      workunit: ^NM_SouthEast_B5_2018$
+    schemes:
+      - parser: mgrs_separated_xy
+        crs: "EPSG:6342"
+        grid: {"x_scale": 1, "y_scale": 1, "x_offset": 0, "y_offset": 0, "x_anchor": "min", "y_anchor": "min", "width": 1500, "height": 1500, "x_ceil_step": 1500, "y_ceil_step": 1500}
+
+  - name: MN_mn_utm_pair_1000_review_20
+    match:
+      workunit: ^(MN_RedRiver_1_D23|MN_RedRiver_2_D23)$
+    schemes:
+      - parser: mn_utm_pair
+        crs: "EPSG:6343"
+        grid: {width: 1000, height: 1000, x_scale: 1, x_offset: 0, x_anchor: min, y_scale: 1, y_offset: 0, y_anchor: min}
+
+  - name: MN_mn_utm_pair_1000_review_21
+    match:
+      workunit: ^(MN_CentralMissRiver_2_B22|MN_CentralMissRiver_3_B22|MN_DouglasCounty_1_A22|MN_MORiverBigSioux_1_B21|MN_RedRiver_3_D23|MN_RedRiver_4_D23|MN_SEDriftless_1_2021|MN_SEDriftless_2_2021|MN_SEDriftless_3_2021)$
+    schemes:
+      - parser: mn_utm_pair
+        crs: "EPSG:6344"
+        grid: {width: 1000, height: 1000, x_scale: 1, x_offset: 0, x_anchor: min, y_scale: 1, y_offset: 0, y_anchor: min}
+
+  - name: MN_mn_utm_pair_500_review_22
+    match:
+      workunit: ^(MN_CentralMissRiver_4_B22|MN_SEDriftless_4_2021|MN_SEDriftless_5_2021)$
+    schemes:
+      - parser: mn_utm_pair
+        crs: "EPSG:6344"
+        grid: {width: 500, height: 500, x_scale: 1, x_offset: 0, x_anchor: min, y_scale: 1, y_offset: 0, y_anchor: min}
+
+  - name: MN_mn_utm_pair_1000_review_23
+    match:
+      workunit: ^(MN_BeckerCo_1_2021|MN_CentralMissRiver_5_B22|MN_CentralMissRiver_6_B22|MN_RiverEast_1_B23|MN_RiverEast_2_B23|MN_RiverWest_1_B23|MN_RiverWest_2_B23|MN_UpperMissRiver_1_B22|MN_UpperMissRiver_2_B22|MN_UpperMissRiver_3_B22|MN_UpperMissRiver_4_B22|MN_UpperMissRiver_5_B22|MN_UpperMissRiver_6_B22)$
+    schemes:
+      - parser: mn_utm_pair
+        crs: "workunit"
+        grid: {width: 1000, height: 1000, x_scale: 1, x_offset: 0, x_anchor: min, y_scale: 1, y_offset: 0, y_anchor: min}
+
+  - name: MO_axis_pair_1500_review_24
+    match:
+      workunit: ^(MO_NSEMO_1_2021|MO_NSEMO_2_2021)$
+    schemes:
+      - parser: axis_pair
+        crs: "EPSG:6344"
+        grid: {x_scale: 1000, y_scale: 1000, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1500, height: 1500, x_ceil_step: 1500, y_ceil_step: 1500}
+
+  - name: MO_mgrs_absolute_tokens_1500_review_25
+    match:
+      workunit: ^(MO_FEMAR7_North_A2_2017|MO_FEMAR7_North_A3_2017|MO_FEMAR7_North_A4_2017)$
+    schemes:
+      - parser: mgrs_absolute_tokens
+        crs: "workunit"
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1500, height: 1500, x_ceil_step: 1500, y_ceil_step: 1500, x_padding: 0}
+
+  - name: MO_mgrs_absolute_tokens_1500_review_26
+    match:
+      workunit: ^(MO_FEMAR7_North_A1_2017)$
+    schemes:
+      - parser: mgrs_absolute_tokens
+        crs: "workunit"
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1500, height: 1500, x_ceil_step: 1500, y_ceil_step: 1500, x_padding: 0.2}
+
+  - name: MO_mgrs_absolute_tokens_1500_review_27
+    match:
+      workunit: ^(MO_FEMANRCS_1_2020|MO_FEMANRCS_2_2020|MO_FEMANRCS_3_2020|MO_WestCentral_1_2018|MO_WestCentral_2_2018|MO_WestCentral_3_2018|MO_WestCentral_4_2018)$
+    schemes:
+      - parser: mgrs_absolute_tokens
+        crs: "workunit"
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1500, height: 1500}
+
+  - name: MO_number_pair_1500_review_28
+    match:
+      workunit: ^(MO_SE11County_1_B24)$
+    schemes:
+      - parser: number_pair
+        crs: "workunit"
+        grid: {x_scale: 100, y_scale: 100, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1500, height: 1500}
+
+  - name: MO_single_number_split_4_1500_review_29
+    match:
+      workunit: ^(MO_Fork_Salt_River_2011)$
+    schemes:
+      - parser: single_number_split_4
+        crs: "EPSG:26915"
+        grid: {x_scale: 1000, y_scale: 1000, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1500, height: 1500, x_ceil_step: 1500, y_ceil_step: 1500}
+
+  - name: MS_axis_pair_1000_review_30
+    match:
+      workunit: ^(MS_MississippiDelta_A1_2018)$
+    schemes:
+      - parser: axis_pair
+        crs: "EPSG:6350"
+        grid: {width: 1000, height: 1000, x_scale: 1000, x_offset: 0, x_anchor: min, y_scale: 1000, y_offset: 0, y_anchor: min}
+
+  - name: MS_axis_pair_1000_review_31
+    match:
+      workunit: ^(MS_MississippiDelta_3_2018|MS_MississippiDelta_A2_2018)$
+    schemes:
+      - parser: axis_pair
+        crs: "workunit"
+        grid: {width: 1000, height: 1000, x_scale: 1000, x_offset: 0, x_anchor: min, y_scale: 1000, y_offset: 0, y_anchor: min}
+
+  - name: MS_mgrs_1500_review_32
+    match:
+      workunit: ^(MS_Coastal_Z15_2015|MS_NatchezTrace_2016)$
+    schemes:
+      - parser: mgrs
+        crs: "EPSG:6344"
+        grid: {width: 1500, height: 1500, x_scale: 1, x_offset: 0, x_anchor: min, y_scale: 1, y_offset: 0, y_anchor: min}
+
+  - name: MS_mgrs_1000_review_33
+    match:
+      workunit: ^(MS_Southern_4_D24|MS_Southern_5_D24|MS_Southern_6_D24)$
+    schemes:
+      - parser: mgrs
+        crs: "EPSG:6345"
+        grid: {width: 1000, height: 1000, x_scale: 1, x_offset: 0, x_anchor: min, y_scale: 1, y_offset: 0, y_anchor: min}
+
+  - name: MS_mgrs_1500_review_34
+    match:
+      workunit: ^(MS_Laurel_2014|MS_Tishomingo_North_2016|MS_Tupelo_UTM16_2015)$
+    schemes:
+      - parser: mgrs
+        crs: "workunit"
+        grid: {width: 1500, height: 1500, x_scale: 1, x_offset: 0, x_anchor: min, y_scale: 1, y_offset: 0, y_anchor: min}
+
+  - name: MT_mt_1000m_wrapped_1000_review_35
+    match:
+      workunit: ^(MT_NRCS_B2_2018)$
+    schemes:
+      - parser: mt_1000m_wrapped
+        crs: "EPSG:6514"
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1000, height: 1000}
+
+  - name: MT_mt_1000m_wrapped_1000_review_36
+    match:
+      workunit: ^(MT_Statewide_P2_1_2020)$
+    schemes:
+      - parser: mt_1000m_wrapped
+        crs: "workunit"
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1000, height: 1000}
+
+  - name: MT_single_number_split_3_1000_review_37
+    match:
+      workunit: ^(MT_HCW_1_2021|MT_NRCS_B1_QL1_2018|MT_NRCS_B1_QL2_2018|MT_RavalliGraniteCusterPowder_3_2019|MT_StatewideP4_2_B22|MT_StatewideP4_4_B22|MT_StatewideP4_7_B22|MT_StatewideP4_8_B22|MT_StatewideP4_9_B22|MT_Statewide_P2_2_2020|MT_Statewide_P2_4_2020|MT_Statewide_P2_5_2020|MT_Statewide_P5_7_D23)$
+    schemes:
+      - parser: single_number_split_3
+        crs: "EPSG:6514"
+        grid: {x_scale: 1000, y_scale: 1000, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1000, height: 1000}
+
+  - name: MT_single_number_split_3_1000_review_38
+    match:
+      workunit: ^(MT_RavalliGraniteCusterPowder_1_2019|MT_RavalliGraniteCusterPowder_4_2019|MT_StatewideP4_5_B22|MT_StatewideP4_6_B22|MT_Statewide_P3_1_B21|MT_Statewide_P3_2_B21|MT_Statewide_P3_3_B21|MT_Statewide_P3_4_B21|MT_Statewide_P3_5_B21)$
+    schemes:
+      - parser: single_number_split_3
+        crs: "workunit"
+        grid: {x_scale: 1000, y_scale: 1000, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1000, height: 1000}
+
+  - name: NC_mgrs_absolute_tokens_750_review_39
+    match:
+      workunit: ^(NC_HurFlo_NOAA_14_2020)$
+    schemes:
+      - parser: mgrs_absolute_tokens
+        crs: "EPSG:6347"
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 750, height: 750, x_ceil_step: 750, y_ceil_step: 750}
+
+  - name: NC_mgrs_absolute_tokens_750_review_40
+    match:
+      workunit: ^(NC_HurFlo_NOAA_13_2020|NC_HurricaneFlorence_11_2020|NC_HurricaneFlorence_1_2020|NC_HurricaneFlorence_3_2020|NC_HurricaneFlorence_7_2020|NC_HurricaneFlorence_8_2020)$
+    schemes:
+      - parser: mgrs_absolute_tokens
+        crs: "workunit"
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 750, height: 750, x_ceil_step: 750, y_ceil_step: 750}
+
+  - name: NC_nc_panel_2500ft_2500_review_41
+    match:
+      workunit: ^(NC_Phase4_Alexander_2017|NC_Phase4_Alleghany_2016|NC_Phase4_Anson_2016|NC_Phase4_Cabarrus_2016|NC_Phase4_Catawba_2017|NC_Phase4_Cleveland_2016|NC_Phase4_Davidson_2017|NC_Phase4_Davie_2017|NC_Phase4_Forsyth_2017|NC_Phase4_Gaston_2016|NC_Phase4_Iredell_2017|NC_Phase4_Mecklenburg_2016|NC_Phase4_Rowan_2017|NC_Phase4_Stanly_2016|NC_Phase4_Stokes_2016|NC_Phase4_Surry_2016|NC_Phase4_Union_2016|NC_Phase4_Wilkes_2017|NC_Phase5_Ashe_2017|NC_Phase5_Avery_2017|NC_Phase5_Buncombe_2017|NC_Phase5_Burke_2017|NC_Phase5_Caldwell_2017|NC_Phase5_Clay_2017|NC_Phase5_Henderson_2017|NC_Phase5_Macon_2017|NC_Phase5_Madison_2017|NC_Phase5_McDowell_2017|NC_Phase5_Mitchell_2017|NC_Phase5_Rutherford_2017|NC_Phase5_Swain_2017|NC_Phase5_Transylvania_2017|NC_Phase5_Watauga_2017)$
+    schemes:
+      - parser: nc_panel_2500ft
+        crs: "workunit"
+        grid: {width: 2500, height: 2500, x_scale: 1, x_offset: 0, x_anchor: min, y_scale: 1, y_offset: 0, y_anchor: min}
+
+  - name: NC_nc_panel_5000ft_5000_review_42
+    match:
+      workunit: ^(NC_BladenCo_2014|NC_BrunswickCo_2014|NC_FranklinCo_2014|NC_HalifaxCo_2014|NC_NashCo_2014|NC_NorthHamptonCo_2014|NC_WayneCo_2014)$
+    schemes:
+      - parser: nc_panel_5000ft
+        crs: "EPSG:6543"
+        grid: {width: 5000, height: 5000, x_scale: 1, x_offset: 0, x_anchor: min, y_scale: 1, y_offset: 0, y_anchor: min}
+
+  - name: NC_nc_panel_5000ft_5000_review_43
+    match:
+      workunit: ^(NC_Sandy_L12_2014)$
+    schemes:
+      - parser: nc_panel_5000ft
+        crs: "workunit"
+        grid: {width: 5000, height: 5000, x_scale: 1, x_offset: 0, x_anchor: min, y_scale: 1, y_offset: 0, y_anchor: min}
+
+  - name: ND_mgrs_2000_review_44
+    match:
+      workunit: ^(ND_Phase10_2_C23|ND_Phase11_1_C24|ND_SouthWest_1_D21)$
+    schemes:
+      - parser: mgrs
+        crs: "EPSG:6342"
+        grid: {width: 2000, height: 2000, x_scale: 1, x_offset: 0, x_anchor: min, y_scale: 1, y_offset: 0, y_anchor: min}
+
+  - name: ND_mgrs_2000_review_45
+    match:
+      workunit: ^(ND_Phase10_1_C23|ND_SouthWest_2_D21)$
+    schemes:
+      - parser: mgrs
+        crs: "EPSG:6343"
+        grid: {width: 2000, height: 2000, x_scale: 1, x_offset: 0, x_anchor: min, y_scale: 1, y_offset: 0, y_anchor: min}
+
+  - name: ND_mgrs_zone14_legacy_columns_1000_review_46
+    match:
+      workunit: ^(ND_3DEPProcessing_4_D22)$
+    schemes:
+      - parser: mgrs_zone14_legacy_columns
+        crs: "EPSG:6342"
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1000, height: 1000}
+
+  - name: ND_mgrs_zone14_legacy_columns_1000_review_47
+    match:
+      workunit: ^(ND_3DEPProcessing_1_D22|ND_3DEPProcessing_2_D22|ND_3DEPProcessing_3_D22|ND_3DEPProcessing_5_D22|ND_3DEPProcessing_6_D22)$
+    schemes:
+      - parser: mgrs_zone14_legacy_columns
+        crs: "EPSG:6343"
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1000, height: 1000}
+
+  - name: NE_mgrs_1000_review_48
+    match:
+      workunit: ^(NE_Statewide_2_D23|NE_Statewide_3_D23)$
+    schemes:
+      - parser: mgrs
+        crs: "BOUNDCRS[SOURCECRS[PROJCRS[\"NAD83(2011) / UTM zone 13N\",BASEGEOGCRS[\"NAD83(2011)\",DATUM[\"NAD83 (National Spatial Reference System 2011)\",ELLIPSOID[\"GRS 1980\",6378137,298.257222101,LENGTHUNIT[\"metre\",1]]],PRIMEM[\"Greenwich\",0,ANGLEUNIT[\"Degree\",0.0174532925199433]]],CONVERSION[\"UTM zone 13N\",METHOD[\"Transverse Mercator\",ID[\"EPSG\",9807]],PARAMETER[\"False easting\",500000,LENGTHUNIT[\"Meter\",1],ID[\"EPSG\",8806]],PARAMETER[\"False northing\",0,LENGTHUNIT[\"Meter\",1],ID[\"EPSG\",8807]],PARAMETER[\"Longitude of natural origin\",-105,ANGLEUNIT[\"Degree\",0.0174532925199433],ID[\"EPSG\",8802]],PARAMETER[\"Scale factor at natural origin\",0.9996,SCALEUNIT[\"unity\",1],ID[\"EPSG\",8805]],PARAMETER[\"Latitude of natural origin\",0,ANGLEUNIT[\"Degree\",0.0174532925199433],ID[\"EPSG\",8801]]],CS[Cartesian,2],AXIS[\"easting\",east,ORDER[1],LENGTHUNIT[\"Meter\",1]],AXIS[\"northing\",north,ORDER[2],LENGTHUNIT[\"Meter\",1]],ID[\"EPSG\",6342]]],TARGETCRS[GEOGCRS[\"WGS 84\",DATUM[\"World Geodetic System 1984\",ELLIPSOID[\"WGS 84\",6378137,298.257223563,LENGTHUNIT[\"metre\",1]]],PRIMEM[\"Greenwich\",0,ANGLEUNIT[\"degree\",0.0174532925199433]],CS[ellipsoidal,2],AXIS[\"latitude\",north,ORDER[1],ANGLEUNIT[\"degree\",0.0174532925199433]],AXIS[\"longitude\",east,ORDER[2],ANGLEUNIT[\"degree\",0.0174532925199433]],ID[\"EPSG\",4326]]],ABRIDGEDTRANSFORMATION[\"Transformation from NAD83(2011) to WGS84\",METHOD[\"Position Vector transformation (geog2D domain)\",ID[\"EPSG\",9606]],PARAMETER[\"X-axis translation\",0,ID[\"EPSG\",8605]],PARAMETER[\"Y-axis translation\",0,ID[\"EPSG\",8606]],PARAMETER[\"Z-axis translation\",0,ID[\"EPSG\",8607]],PARAMETER[\"X-axis rotation\",0,ID[\"EPSG\",8608]],PARAMETER[\"Y-axis rotation\",0,ID[\"EPSG\",8609]],PARAMETER[\"Z-axis rotation\",0,ID[\"EPSG\",8610]],PARAMETER[\"Scale difference\",1,ID[\"EPSG\",8611]]]]"
+        grid: {width: 1000, height: 1000, x_scale: 1, x_offset: 0, x_anchor: min, y_scale: 1, y_offset: 0, y_anchor: min}
+
+  - name: NE_mgrs_1000_review_49
+    match:
+      workunit: ^(NE_Hat_White_Sioux_2016|NE_Sandhills_B4_UTM13_2016|NE_SouthPlatte_UTM13_2015|NE_Southwest_1_2020)$
+    schemes:
+      - parser: mgrs
+        crs: "EPSG:6342"
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1000, height: 1000}
+
+  - name: NE_mgrs_1000_review_50
+    match:
+      workunit: ^(NE_CherryBrownCuster_Partial_1_2020|NE_Hat_White_Cherry_UTM14_2016|NE_NRCS_OrthoLidar_B2_2017|NE_NRCS_OrthoLidar_B3_2017|NE_Northeast_Phase2_1_2020|NE_Northeast_Phase2_2_2020|NE_Sandhills_B3_2016|NE_Sandhills_B6_2016|NE_SouthernNE_B1_2018)$
+    schemes:
+      - parser: mgrs
+        crs: "EPSG:6343"
+        grid: {width: 1000, height: 1000, x_scale: 1, x_offset: 0, x_anchor: min, y_scale: 1, y_offset: 0, y_anchor: min}
+
+  - name: NE_mgrs_1000_review_51
+    match:
+      workunit: ^(NE_NRCS_OrthoLidar_B1_UTM14_2017|NE_NRCS_OrthoLidar_B1_UTM15_2017|NE_NRCS_OrthoLidar_B4_2017|NE_Northeast_1_2020|NE_Northeast_2_2020|NE_Northeast_3_2020|NE_SouthernNE_B2_2018|NE_SouthernNE_B3_2018|NE_SouthernNE_B4B_2018|NE_SouthernNE_B5_2018|NE_Southwest_2_2020|NE_Statewide_1_D23|NE_Statewide_4_D23|NE_Statewide_5_D23|NE_Statewide_6_D23)$
+    schemes:
+      - parser: mgrs
+        crs: "workunit"
+        grid: {width: 1000, height: 1000, x_scale: 1, x_offset: 0, x_anchor: min, y_scale: 1, y_offset: 0, y_anchor: min}
+
+  - name: NE_number_pair_3000_review_52
+    match:
+      workunit: ^(NE_PostSpringFlood_OrthoLidar_B2_2019)$
+    schemes:
+      - parser: number_pair
+        crs: "EPSG:6880"
+        grid: {x_scale: 1000, y_scale: 1000, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 3000, height: 3000}
+
+  - name: NH_mgrs_absolute_tokens_1500_review_53
+    match:
+      workunit: ^(NH_CT_RiverNorthL6_P1_2015|NH_Umbagog_2016)$
+    schemes:
+      - parser: mgrs_absolute_tokens
+        crs: "workunit"
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1500, height: 1500, x_ceil_step: 1500, y_ceil_step: 1500}
+
+  - name: NH_nh_2500ft_2500_review_54
+    match:
+      workunit: ^(NH_Coastal_2_2019)$
+    schemes:
+      - parser: nh_2500ft
+        crs: "EPSG:6525"
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 2500, height: 2500}
+
+  - name: NH_nh_2500ft_2500_review_55
+    match:
+      workunit: ^(NH_Coastal_1_2019)$
+    schemes:
+      - parser: nh_2500ft
+        crs: "workunit"
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 2500, height: 2500}
+
+  - name: NJ_mgrs_1500_review_56
+    match:
+      workunit: ^(NJ_SdL5_2014)$
+    schemes:
+      - parser: mgrs
+        crs: "workunit"
+        grid: {width: 1500, height: 1500, x_scale: 1, x_offset: 0, x_anchor: min, y_scale: 1, y_offset: 0, y_anchor: min}
+
+  - name: NJ_nj_5000ft_5000_review_57
+    match:
+      workunit: ^(NJ_NE6Co_3_B23|NJ_NW6Co_2017)$
+    schemes:
+      - parser: nj_5000ft
+        crs: "EPSG:6527"
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 5000, height: 5000}
+
+  - name: NM_mgrs_1500_review_58
+    match:
+      workunit: ^(NM_SouthCentral_B10_2018|NM_SouthCentral_B8_2018)$
+    schemes:
+      - parser: mgrs
+        crs: "EPSG:6341"
+        grid: {width: 1500, height: 1500, x_scale: 1, x_offset: 0, x_anchor: min, y_scale: 1, y_offset: 0, y_anchor: min}
+
+  - name: NM_mgrs_1000_review_59
+    match:
+      workunit: ^(NM_HermitsPeak_1_D23)$
+    schemes:
+      - parser: mgrs
+        crs: "EPSG:6342"
+        grid: {width: 1000, height: 1000, x_scale: 1, x_offset: 0, x_anchor: min, y_scale: 1, y_offset: 0, y_anchor: min}
+
+  - name: NM_mgrs_1500_review_60
+    match:
+      workunit: ^(NM_NorthCentral_B1_2016|NM_NorthCentral_B2_2016|NM_NorthCentral_B3_2017|NM_NorthCentral_B4_2016|NM_Northeast_B2_2018|NM_Northeast_B4_2018|NM_Northeast_B5_2018|NM_RioHondo_2014|NM_SouthCentral_B3_2018|NM_SouthCentral_B7_2018)$
+    schemes:
+      - parser: mgrs
+        crs: "EPSG:6342"
+        grid: {width: 1500, height: 1500, x_scale: 1, x_offset: 0, x_anchor: min, y_scale: 1, y_offset: 0, y_anchor: min}
+
+  - name: NM_mgrs_1000_review_61
+    match:
+      workunit: ^(NM_USFSEnchantedCircle_1_D24)$
+    schemes:
+      - parser: mgrs
+        crs: "workunit"
+        grid: {width: 1000, height: 1000, x_scale: 1, x_offset: 0, x_anchor: min, y_scale: 1, y_offset: 0, y_anchor: min}
+
+  - name: NM_mgrs_1500_review_62
+    match:
+      workunit: ^(NM_SouthCentral_B6_2018)$
+    schemes:
+      - parser: mgrs
+        crs: "workunit"
+        grid: {width: 1500, height: 1500, x_scale: 1, x_offset: 0, x_anchor: min, y_scale: 1, y_offset: 0, y_anchor: min}
+
+  - name: NM_mgrs_absolute_tokens_1500_review_63
+    match:
+      workunit: ^(NM_NorthWest_Navajo_A_TL_2018|NM_NorthWest_Zuni_TL_2018)$
+    schemes:
+      - parser: mgrs_absolute_tokens
+        crs: "EPSG:6341"
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1500, height: 1500}
+
+  - name: NM_mgrs_absolute_tokens_1500_review_64
+    match:
+      workunit: ^(NM_Roosevelt_Curry_2015)$
+    schemes:
+      - parser: mgrs_absolute_tokens
+        crs: "workunit"
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1500, height: 1500, x_ceil_step: 1500, y_ceil_step: 1500}
+
+  - name: NM_number_pair_1500_review_65
+    match:
+      workunit: ^(NM_NRCS_Central_A1_2017|NM_RioSanJose_2016)$
+    schemes:
+      - parser: number_pair
+        crs: "EPSG:6342"
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1500, height: 1500}
+
+  - name: NM_number_pair_1500_review_66
+    match:
+      workunit: ^(NM_NRCS_Central_A3_2017)$
+    schemes:
+      - parser: number_pair
+        crs: "workunit"
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1500, height: 1500}
+
+  - name: NM_single_number_split_4_5000_review_67
+    match:
+      workunit: ^(NM_SantaFeCo_2014)$
+    schemes:
+      - parser: single_number_split_4
+        crs: "workunit"
+        grid: {x_scale: 1000, y_scale: 1000, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 5000, height: 5000}
+
+  - name: NM_zone_tokens_1500_review_68
+    match:
+      workunit: ^(NM_NorthWest_B2B_2018)$
+    schemes:
+      - parser: zone_tokens
+        crs: "EPSG:6342"
+        grid: {x_scale: 1000, y_scale: 1000, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1500, height: 1500, x_ceil_step: 1500, y_ceil_step: 1500}
+
+  - name: NV_axis_pair_1000_review_69
+    match:
+      workunit: ^(NV_Humboldt_1_2021)$
+    schemes:
+      - parser: axis_pair
+        crs: "EPSG:6340"
+        grid: {x_scale: 100, y_scale: 100, x_offset: 0, y_offset: 4000000, x_anchor: min, y_anchor: min, width: 1000, height: 1000}
+
+  - name: NV_axis_pair_1500_review_70
+    match:
+      workunit: ^(NV_Humboldt_2_2021|NV_Humboldt_3_2021)$
+    schemes:
+      - parser: axis_pair
+        crs: "EPSG:6340"
+        grid: {x_scale: 100, y_scale: 100, x_offset: 0, y_offset: 4000000, x_anchor: min, y_anchor: min, width: 1500, height: 1500}
+
+  - name: NV_mgrs_1000_review_71
+    match:
+      workunit: ^(NV_NyeNE_1_D23|NV_Southern_4_D23)$
+    schemes:
+      - parser: mgrs
+        crs: "EPSG:6340"
+        grid: {width: 1000, height: 1000, x_scale: 1, x_offset: 0, x_anchor: min, y_scale: 1, y_offset: 0, y_anchor: min}
+
+  - name: NV_mgrs_1500_review_72
+    match:
+      workunit: ^(NV_EastCentral_4_D21|NV_EastCentral_5_D21|NV_NWElko_1_D20|NV_NWElko_2_D20)$
+    schemes:
+      - parser: mgrs
+        crs: "EPSG:6340"
+        grid: {width: 1500, height: 1500, x_scale: 1, x_offset: 0, x_anchor: min, y_scale: 1, y_offset: 0, y_anchor: min}
+
+  - name: NV_mgrs_absolute_tokens_1500_review_73
+    match:
+      workunit: ^(NV_WestCentralEarthMRI_3_2020|NV_WestCentralEarthMRI_5_2020)$
+    schemes:
+      - parser: mgrs_absolute_tokens
+        crs: "workunit"
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1500, height: 1500, x_ceil_step: 1500, y_ceil_step: 1500}
+
+  - name: NV_single_number_split_3_1500_review_74
+    match:
+      workunit: ^(NV_UpperHumboldt_2016)$
+    schemes:
+      - parser: single_number_split_3
+        crs: "EPSG:6340"
+        grid: {x_scale: 1000, y_scale: 1000, x_offset: 0, y_offset: 4000000, x_anchor: min, y_anchor: min, width: 1500, height: 1500, x_ceil_step: 1500, y_ceil_step: 1500}
+
+  - name: NY_axis_pair_1500_review_75
+    match:
+      workunit: ^(NY_Hudson_1_D22)$
+    schemes:
+      - parser: axis_pair
+        crs: "EPSG:6347"
+        grid: {x_scale: 1000, y_scale: 1000, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1500, height: 1500, x_ceil_step: 1500, y_ceil_step: 1500}
+
+  - name: NY_axis_pair_1500_review_76
+    match:
+      workunit: ^(NY_NHGaps_1_D24)$
+    schemes:
+      - parser: axis_pair
+        crs: "EPSG:6347"
+        grid: {x_scale: 100, y_scale: 100, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1500, height: 1500}
+
+  - name: NY_axis_pair_1000_review_77
+    match:
+      workunit: ^(NY_3County_2019|NY_FEMAR2_Central_2_2018|NY_FEMAR2_Central_3_2018|NY_FEMAR2_Central_4_2018|NY_FEMAR2_Central_5_2018|NY_FEMAR2_Central_B1_2018)$
+    schemes:
+      - parser: axis_pair
+        crs: "EPSG:6350"
+        grid: {width: 1000, height: 1000, x_scale: 1000, x_offset: 0, x_anchor: min, y_scale: 1000, y_offset: 0, y_anchor: min}
+
+  - name: NY_mgrs_1500_review_78
+    match:
+      workunit: ^(NY_FEMA_R2_Seneca_2012)$
+    schemes:
+      - parser: mgrs
+        crs: "EPSG:26918"
+        grid: {width: 1500, height: 1500, x_scale: 1, x_offset: 0, x_anchor: min, y_scale: 1, y_offset: 0, y_anchor: min}
+
+  - name: NY_mgrs_1500_review_79
+    match:
+      workunit: ^(NY_CMPG_2013|NY_GreatLakes_Phase2_L3_2014|NY_Schoharie_2014)$
+    schemes:
+      - parser: mgrs
+        crs: "workunit"
+        grid: {width: 1500, height: 1500, x_scale: 1, x_offset: 0, x_anchor: min, y_scale: 1, y_offset: 0, y_anchor: min}
+
+  - name: NY_single_number_split_3_1500_review_80
+    match:
+      workunit: ^(NY_FEMA_R2_Northeast_2017)$
+    schemes:
+      - parser: single_number_split_3
+        crs: "workunit"
+        # 117478 -> (117000, 478500); 196498 -> (196500, 498000).
+        grid: {x_scale: 1000, y_scale: 1000, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1500, height: 1500, x_round_step: 1500, y_round_step: 1500}
+
+  - name: NY_single_number_split_5_1500_review_81
+    match:
+      workunit: ^(NY_CayugaOswego_2018|NY_CayugaOswego_TL_2018|NY_Columbia_Rensselaer_2016|NY_FingerLakes_1_2020|NY_LakeOntarioShoreline_1_A23)$
+    schemes:
+      - parser: single_number_split_5
+        crs: "EPSG:6347"
+        grid: {x_scale: 10, y_scale: 10, x_offset: 0, y_offset: 4000000, x_anchor: min, y_anchor: min, width: 1500, height: 1500}
+
+  - name: NY_single_number_split_5_1500_review_82
+    match:
+      workunit: ^(NY_MadisonOtsegoCo_2015|NY_Southwest_2_CO_2016|NY_Southwest_B2_2017|NY_Southwest_B2_TL_2017|NY_Southwest_East_2017)$
+    schemes:
+      - parser: single_number_split_5
+        crs: "workunit"
+        grid: {x_scale: 10, y_scale: 10, x_offset: 0, y_offset: 4000000, x_anchor: min, y_anchor: min, width: 1500, height: 1500}
+
+  - name: NY_single_number_split_5_500_review_83
+    match:
+      workunit: ^(NY_HudsonRiverRegion_1_2020)$
+    schemes:
+      - parser: single_number_split_5
+        crs: "workunit"
+        grid: {x_scale: 10, y_scale: 100, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 500, height: 500}
+
+  - name: PA_axis_pair_1000_review_84
+    match:
+      workunit: ^(PA_Northcentral_B5_2019)$
+    schemes:
+      - parser: axis_pair
+        crs: "EPSG:6350"
+        grid: {width: 1000, height: 1000, x_scale: 1000, x_offset: 0, x_anchor: min, y_scale: 1000, y_offset: 0, y_anchor: min}
+
+  - name: SD_mgrs_zone14_legacy_columns_1000_review_85
+    match:
+      workunit: ^(SD_EasternSD_1_2020)$
+    schemes:
+      - parser: mgrs_zone14_legacy_columns
+        crs: "EPSG:6343"
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1000, height: 1000}
+
+  - name: VT_axis_named_pair_1400_review_86
+    match:
+      workunit: ^(VT_Statewide_2_A23|VT_Statewide_3_A23)$
+    schemes:
+      - parser: axis_named_pair
+        crs: "EPSG:6589"
+        grid: {x_scale: 100, y_scale: 100, x_offset: 0, y_offset: 0, x_anchor: center, y_anchor: center, width: 1400, height: 1400}
+
+  - name: WI_mgrs_absolute_tokens_1000_review_87
+    match:
+      workunit: ^(WI_2County_2_B23)$
+    schemes:
+      - parser: mgrs_absolute_tokens
+        crs: "workunit"
+        grid: {x_scale: 1, y_scale: 1, x_offset: 0, y_offset: 0, x_anchor: min, y_anchor: min, width: 1000, height: 1000}
+
+# 2026-08-31 OH--VT review: official header/holdout observations in
+# tests/fixtures/lidar_headers_ov.json. Exact reviewed workunits only.
+# Padding is explicit source-unit edge spill, not fitted tile enlargement.
+
+  - name: IN_single_number_split_4_OV_01
+    match:
+      workunit: ^(IN_ET_B8_Dearborn_2012)$
+    schemes:
+      - parser: single_number_split_4
+        crs: "EPSG:2965"
+        grid: {"height": 5000, "width": 5000, "x_anchor": "min", "x_offset": 0, "x_scale": 1000, "y_anchor": "min", "y_offset": 0, "y_scale": 1000}
+
+  - name: KS_mgrs_OV_02
+    match:
+      workunit: ^(KS_Lidar_1_B3_2013)$
+    schemes:
+      - parser: mgrs
+        crs: "EPSG:3744"
+        grid: {"height": 5000, "width": 5000, "x_anchor": "min", "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_scale": 1}
+
+  - name: MA_mgrs_absolute_tokens_OV_03
+    match:
+      workunit: ^(MA_ME_MA_QL2_UTM19_L1_2015)$
+    schemes:
+      - parser: mgrs_absolute_tokens
+        crs: "workunit"
+        grid: {"height": 1500, "width": 1500, "x_anchor": "min", "x_ceil_step": 1500, "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_ceil_step": 1500, "y_offset": 0, "y_scale": 1}
+
+  - name: MD_mgrs_OV_04
+    match:
+      workunit: ^(MD_PA_SandySupp_2014)$
+    schemes:
+      - parser: mgrs
+        crs: "EPSG:26918"
+        grid: {"height": 1500, "width": 1500, "x_anchor": "min", "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_scale": 1}
+
+  - name: NC_mgrs_absolute_tokens_OV_05
+    match:
+      workunit: ^(NC_HurricaneFlorence_4_2020)$
+    schemes:
+      - parser: mgrs_absolute_tokens
+        crs: "workunit"
+        grid: {"height": 750, "width": 750, "x_anchor": "min", "x_ceil_step": 750, "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_ceil_step": 750, "y_offset": 0, "y_scale": 1}
+
+  - name: NC_nc_panel_5000ft_OV_06
+    match:
+      workunit: ^(NC_VanceCo_2014)$
+    schemes:
+      - parser: nc_panel_5000ft
+        crs: "EPSG:6543"
+        grid: {"height": 5000, "width": 5000, "x_anchor": "min", "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_scale": 1}
+
+  - name: OH_axis_pair_OV_07
+    match:
+      workunit: ^(OH_Clinton_2018|OH_Delaware_2018)$
+    schemes:
+      - parser: axis_pair
+        crs: "EPSG:6350"
+        grid: {"height": 1000, "width": 1000, "x_anchor": "min", "x_offset": 0, "x_scale": 1000, "y_anchor": "min", "y_offset": 0, "y_scale": 1000}
+
+  - name: OH_single_number_split_3_OV_08
+    match:
+      workunit: ^(OH_ChippewaWatershed_2017)$
+    schemes:
+      - parser: single_number_split_3
+        crs: "BOUNDCRS[SOURCECRS[PROJCRS[\"NAD83(HARN) / Ohio North (ftUS)\",BASEGEOGCRS[\"NAD83(HARN)\",DATUM[\"NAD83 (High Accuracy Reference Network)\",ELLIPSOID[\"GRS 1980\",6378137,298.257222101,LENGTHUNIT[\"metre\",1]]],PRIMEM[\"Greenwich\",0,ANGLEUNIT[\"degree\",0.0174532925199433]],ID[\"EPSG\",4152]],CONVERSION[\"unnamed\",METHOD[\"Lambert Conic Conformal (2SP)\",ID[\"EPSG\",9802]],PARAMETER[\"Latitude of 1st standard parallel\",41.7,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8823]],PARAMETER[\"Latitude of 2nd standard parallel\",40.4333333333333,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8824]],PARAMETER[\"Latitude of false origin\",39.6666666666667,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8821]],PARAMETER[\"Longitude of false origin\",-82.5,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8822]],PARAMETER[\"Easting at false origin\",1968500,LENGTHUNIT[\"US survey foot\",0.304800609601219],ID[\"EPSG\",8826]],PARAMETER[\"Northing at false origin\",0,LENGTHUNIT[\"US survey foot\",0.304800609601219],ID[\"EPSG\",8827]]],CS[Cartesian,2],AXIS[\"x\",east,ORDER[1],LENGTHUNIT[\"US survey foot\",0.304800609601219]],AXIS[\"y\",north,ORDER[2],LENGTHUNIT[\"US survey foot\",0.304800609601219]],ID[\"EPSG\",3753]]],TARGETCRS[GEOGCRS[\"WGS 84\",DATUM[\"World Geodetic System 1984\",ELLIPSOID[\"WGS 84\",6378137,298.257223563,LENGTHUNIT[\"metre\",1]]],PRIMEM[\"Greenwich\",0,ANGLEUNIT[\"degree\",0.0174532925199433]],CS[ellipsoidal,2],AXIS[\"latitude\",north,ORDER[1],ANGLEUNIT[\"degree\",0.0174532925199433]],AXIS[\"longitude\",east,ORDER[2],ANGLEUNIT[\"degree\",0.0174532925199433]],ID[\"EPSG\",4326]]],ABRIDGEDTRANSFORMATION[\"Transformation from NAD83(HARN) to WGS84\",METHOD[\"Position Vector transformation (geog2D domain)\",ID[\"EPSG\",9606]],PARAMETER[\"X-axis translation\",0,ID[\"EPSG\",8605]],PARAMETER[\"Y-axis translation\",0,ID[\"EPSG\",8606]],PARAMETER[\"Z-axis translation\",0,ID[\"EPSG\",8607]],PARAMETER[\"X-axis rotation\",0,ID[\"EPSG\",8608]],PARAMETER[\"Y-axis rotation\",0,ID[\"EPSG\",8609]],PARAMETER[\"Z-axis rotation\",0,ID[\"EPSG\",8610]],PARAMETER[\"Scale difference\",1,ID[\"EPSG\",8611]]]]"
+        grid: {"height": 2500, "width": 2500, "x_anchor": "min", "x_ceil_step": 2500, "x_offset": 2000000, "x_scale": 1000, "y_anchor": "min", "y_ceil_step": 2500, "y_offset": 0, "y_scale": 1000}
+
+  - name: OH_single_number_split_3_OV_09
+    match:
+      workunit: ^(OH_Columbus_2019)$
+    schemes:
+      - parser: single_number_split_3
+        crs: "BOUNDCRS[SOURCECRS[PROJCRS[\"NAD83(HARN) / Ohio South (ftUS)\",BASEGEOGCRS[\"NAD83(HARN)\",DATUM[\"NAD83 (High Accuracy Reference Network)\",ELLIPSOID[\"GRS 1980\",6378137,298.257222101,LENGTHUNIT[\"metre\",1]]],PRIMEM[\"Greenwich\",0,ANGLEUNIT[\"degree\",0.0174532925199433]],ID[\"EPSG\",4152]],CONVERSION[\"unnamed\",METHOD[\"Lambert Conic Conformal (2SP)\",ID[\"EPSG\",9802]],PARAMETER[\"Latitude of 1st standard parallel\",40.0333333333333,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8823]],PARAMETER[\"Latitude of 2nd standard parallel\",38.7333333333333,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8824]],PARAMETER[\"Latitude of false origin\",38,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8821]],PARAMETER[\"Longitude of false origin\",-82.5,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8822]],PARAMETER[\"Easting at false origin\",1968500,LENGTHUNIT[\"US survey foot\",0.304800609601219],ID[\"EPSG\",8826]],PARAMETER[\"Northing at false origin\",0,LENGTHUNIT[\"US survey foot\",0.304800609601219],ID[\"EPSG\",8827]]],CS[Cartesian,2],AXIS[\"x\",east,ORDER[1],LENGTHUNIT[\"US survey foot\",0.304800609601219]],AXIS[\"y\",north,ORDER[2],LENGTHUNIT[\"US survey foot\",0.304800609601219]],ID[\"EPSG\",3754]]],TARGETCRS[GEOGCRS[\"WGS 84\",DATUM[\"World Geodetic System 1984\",ELLIPSOID[\"WGS 84\",6378137,298.257223563,LENGTHUNIT[\"metre\",1]]],PRIMEM[\"Greenwich\",0,ANGLEUNIT[\"degree\",0.0174532925199433]],CS[ellipsoidal,2],AXIS[\"latitude\",north,ORDER[1],ANGLEUNIT[\"degree\",0.0174532925199433]],AXIS[\"longitude\",east,ORDER[2],ANGLEUNIT[\"degree\",0.0174532925199433]],ID[\"EPSG\",4326]]],ABRIDGEDTRANSFORMATION[\"Transformation from NAD83(HARN) to WGS84\",METHOD[\"Position Vector transformation (geog2D domain)\",ID[\"EPSG\",9606]],PARAMETER[\"X-axis translation\",0,ID[\"EPSG\",8605]],PARAMETER[\"Y-axis translation\",0,ID[\"EPSG\",8606]],PARAMETER[\"Z-axis translation\",0,ID[\"EPSG\",8607]],PARAMETER[\"X-axis rotation\",0,ID[\"EPSG\",8608]],PARAMETER[\"Y-axis rotation\",0,ID[\"EPSG\",8609]],PARAMETER[\"Z-axis rotation\",0,ID[\"EPSG\",8610]],PARAMETER[\"Scale difference\",1,ID[\"EPSG\",8611]]]]"
+        grid: {"height": 1250, "width": 1250, "x_anchor": "min", "x_ceil_step": 1250, "x_offset": 1000000, "x_scale": 1000, "y_anchor": "min", "y_ceil_step": 1250, "y_offset": 0, "y_scale": 1000}
+
+  - name: OH_single_number_split_4_OV_10
+    match:
+      workunit: ^(OH_StatewideP3_3_B21|OH_StatewideP3_4_B21|OH_Statewide_Phase1_1_2019|OH_Statewide_Phase1_2_2019|OH_Statewide_Phase1_3_2019|OH_Statewide_Phase1_4_2019|OH_Statewide_Phase1_5_2019|OH_Statewide_Phase1_6_2019|OH_Statewide_Phase2_7_2020|OH_Statewide_Phase2_8_2020)$
+    schemes:
+      - parser: single_number_split_4
+        crs: "EPSG:6549"
+        grid: {"height": 1250, "width": 1250, "x_anchor": "min", "x_ceil_step": 1250, "x_offset": 0, "x_padding": 0, "x_scale": 1000, "y_anchor": "min", "y_ceil_step": 1250, "y_offset": 0, "y_scale": 1000}
+
+  - name: OH_single_number_split_4_OV_11
+    match:
+      workunit: ^(OH_Statewide_Phase2_6_2020)$
+    schemes:
+      - parser: single_number_split_4
+        crs: "EPSG:6549"
+        grid: {"height": 1250, "width": 1250, "x_anchor": "min", "x_ceil_step": 1250, "x_offset": 0, "x_padding": 5, "x_scale": 1000, "y_anchor": "min", "y_ceil_step": 1250, "y_offset": 0, "y_scale": 1000}
+
+  - name: OH_single_number_split_4_OV_12
+    match:
+      workunit: ^(OH_LowerMaumee_B16_2016)$
+    schemes:
+      - parser: single_number_split_4
+        crs: "EPSG:6549"
+        grid: {"height": 5000, "width": 5000, "x_anchor": "min", "x_offset": 0, "x_scale": 1000, "y_anchor": "min", "y_offset": 0, "y_scale": 1000}
+
+  - name: OH_single_number_split_4_OV_13
+    match:
+      workunit: ^(OH_StatewideP3_1_B21|OH_StatewideP3_2_B21|OH_StatewideP3_5_B21|OH_StatewideP3_6_B21|OH_StatewideP3_7_B21|OH_StatewideP3_8_B21|OH_Statewide_Phase2_1_2020|OH_Statewide_Phase2_2_2020|OH_Statewide_Phase2_3_2020|OH_Statewide_Phase2_4_2020|OH_Statewide_Phase2_5_2020)$
+    schemes:
+      - parser: single_number_split_4
+        crs: "EPSG:6551"
+        grid: {"height": 1250, "width": 1250, "x_anchor": "min", "x_ceil_step": 1250, "x_offset": 0, "x_padding": 0, "x_scale": 1000, "y_anchor": "min", "y_ceil_step": 1250, "y_offset": 0, "y_scale": 1000}
+
+  - name: OK_mgrs_OV_14
+    match:
+      workunit: ^(OK_Panhandle_B1A_2018)$
+    schemes:
+      - parser: mgrs
+        crs: "EPSG:6342"
+        grid: {"height": 1500, "width": 1500, "x_anchor": "min", "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_scale": 1}
+
+  - name: OK_mgrs_OV_15
+    match:
+      workunit: ^(OK_Panhandle_B1B_2018|OK_Panhandle_B2_2018)$
+    schemes:
+      - parser: mgrs
+        crs: "EPSG:6343"
+        grid: {"height": 1500, "width": 1500, "x_anchor": "min", "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_scale": 1}
+
+  - name: OK_mgrs_OV_16
+    match:
+      workunit: ^(OK_3County_2017)$
+    schemes:
+      - parser: mgrs
+        crs: "EPSG:6344"
+        grid: {"height": 1500, "width": 1500, "x_anchor": "min", "x_ceil_step": 1500, "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_ceil_step": 1500, "y_offset": 0, "y_scale": 1}
+
+  - name: OK_mgrs_absolute_tokens_OV_17
+    match:
+      workunit: ^(OK_Cache_L5_2014)$
+    schemes:
+      - parser: mgrs_absolute_tokens
+        crs: "EPSG:26914"
+        grid: {"height": 1500, "width": 1500, "x_anchor": "min", "x_ceil_step": 1500, "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_ceil_step": 1500, "y_offset": 0, "y_scale": 1}
+
+  - name: OK_mgrs_absolute_tokens_OV_18
+    match:
+      workunit: ^(OK_Woodward_UTM14_B1_2016|OK_Woodward_UTM14_B2_2016|OK_Woodward_UTM15_B3_2016|OK_Woodward_UTM15_B4_2016|OK_Woodward_UTM15_B5_2016|OK_Woodward_UTM15_B6_2016)$
+    schemes:
+      - parser: mgrs_absolute_tokens
+        crs: "workunit"
+        grid: {"height": 1500, "width": 1500, "x_anchor": "min", "x_ceil_step": 1500, "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_ceil_step": 1500, "y_offset": 0, "y_scale": 1}
+
+  - name: OK_number_pair_OV_19
+    match:
+      workunit: ^(OK_ARCacheLCimarron_1_D25|OK_ARCacheLCimarron_2_D25)$
+    schemes:
+      - parser: number_pair
+        crs: "EPSG:6553"
+        grid: {"height": 2000, "width": 2000, "x_anchor": "min", "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_scale": 1}
+
+  - name: OK_number_pair_OV_20
+    match:
+      workunit: ^(OK_Statewide_1_D22|OK_Statewide_2_D22)$
+    schemes:
+      - parser: number_pair
+        crs: "EPSG:6553"
+        grid: {"height": 5000, "width": 5000, "x_anchor": "min", "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_scale": 1}
+
+  - name: OK_number_pair_OV_21
+    match:
+      workunit: ^(OK_ARCacheLCimarron_5_D25|OK_ARCacheLCimarron_6_D25)$
+    schemes:
+      - parser: number_pair
+        crs: "EPSG:6555"
+        grid: {"height": 2000, "width": 2000, "x_anchor": "min", "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_scale": 1}
+
+  - name: OK_number_pair_OV_22
+    match:
+      workunit: ^(OK_Statewide_3_D22|OK_Statewide_4_D22)$
+    schemes:
+      - parser: number_pair
+        crs: "EPSG:6555"
+        grid: {"height": 5000, "width": 5000, "x_anchor": "min", "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_scale": 1}
+
+  - name: OR_axis_pair_OV_23
+    match:
+      workunit: ^(OR_OLCMetro_2019)$
+    schemes:
+      - parser: axis_pair
+        crs: "EPSG:6350"
+        grid: {"height": 1000, "width": 1000, "x_anchor": "min", "x_offset": 0, "x_scale": -1000, "y_anchor": "min", "y_offset": 0, "y_scale": 1000}
+
+  - name: OR_axis_pair_OV_24
+    match:
+      workunit: ^(OR_2022Jackson_1_C25)$
+    schemes:
+      - parser: axis_pair
+        crs: "EPSG:6557"
+        grid: {"height": 3000, "width": 3000, "x_anchor": "min", "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_scale": 1}
+
+  - name: OR_axis_pair_OV_25
+    match:
+      workunit: ^(OR_HarneySilver_2_2020|OR_MKRC_Topobathy_2021|OR_Malheur_1_A22|OR_Malheur_2_A22|OR_Malheur_3_A22|OR_McKenzieRiver_1_2021|OR_NRCSUSGS_3_2019|OR_SoCoast_1_2019|OR_UpperJohnDay_1_2020|OR_WWildfires_1_A22|OR_WWildfires_2_A22)$
+    schemes:
+      - parser: axis_pair
+        crs: "EPSG:6557"
+        grid: {"height": 3000, "width": 3000, "x_anchor": "min", "x_offset": 0, "x_scale": 100, "y_anchor": "min", "y_offset": 0, "y_scale": 100}
+
+  - name: OR_mgrs_OV_26
+    match:
+      workunit: ^(OR_RogueRiverSiskiyouNF_B1_2019|OR_SWCentralSycan_1_B21|OR_SantiamRiverTB_Topobathy_1_D23|OR_SouthEast_11_D22)$
+    schemes:
+      - parser: mgrs
+        crs: "EPSG:6339"
+        grid: {"height": 1000, "width": 1000, "x_anchor": "min", "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_scale": 1}
+
+  - name: OR_mgrs_OV_27
+    match:
+      workunit: ^(OR_SouthEast_2_D22|OR_SouthEast_3_D22|OR_SouthEast_5_D22|OR_SouthEast_6_D22|OR_SouthEast_7_D22|OR_SouthEast_8_D22|OR_SouthEast_9_D22|OR_UmatillaUnionMorrow_1_2021)$
+    schemes:
+      - parser: mgrs
+        crs: "EPSG:6340"
+        grid: {"height": 1000, "width": 1000, "x_anchor": "min", "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_scale": 1}
+
+  - name: OR_mgrs_OV_28
+    match:
+      workunit: ^(OR_Malheur_2016)$
+    schemes:
+      - parser: mgrs
+        crs: "EPSG:6340"
+        grid: {"height": 1500, "width": 1500, "x_anchor": "min", "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_scale": 1}
+
+  - name: OR_mgrs_OV_29
+    match:
+      workunit: ^(OR_SouthEast_10_D22|OR_SouthEast_12_D22)$
+    schemes:
+      - parser: mgrs
+        crs: "workunit"
+        grid: {"height": 1000, "width": 1000, "x_anchor": "min", "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_scale": 1}
+
+  - name: OR_number_pair_date_OV_30
+    match:
+      workunit: ^(OR_Klamath_2018)$
+    schemes:
+      - parser: number_pair_date
+        crs: "EPSG:4269"
+        grid: {"height": 1500, "width": 1500, "x_anchor": "min", "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_scale": 1}
+
+  - name: OR_zone_full_xy_OV_31
+    match:
+      workunit: ^(OR_PortlandMetro_1_B24)$
+    schemes:
+      - parser: zone_full_xy
+        crs: "workunit"
+        grid: {"height": 750, "width": 750, "x_anchor": "min", "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_scale": 1}
+
+  - name: PA_axis_pair_OV_32
+    match:
+      workunit: ^(PA_Northcentral_B1_2019|PA_Northcentral_B2_2019|PA_Northcentral_B3_2019)$
+    schemes:
+      - parser: axis_pair
+        crs: "EPSG:6350"
+        grid: {"height": 1000, "width": 1000, "x_anchor": "min", "x_offset": 0, "x_scale": 1000, "y_anchor": "min", "y_offset": 0, "y_scale": 1000}
+
+  - name: PA_axis_pair_OV_33
+    match:
+      workunit: ^(PA_Northcentral_B4_2019)$
+    schemes:
+      - parser: axis_pair
+        crs: "workunit"
+        grid: {"height": 1000, "width": 1000, "x_anchor": "min", "x_offset": 0, "x_scale": 1000, "y_anchor": "min", "y_offset": 0, "y_scale": 1000}
+
+  - name: PA_mgrs_OV_34
+    match:
+      workunit: ^(PA_Sandy_2014)$
+    schemes:
+      - parser: mgrs
+        crs: "workunit"
+        grid: {"height": 1500, "width": 1500, "x_anchor": "min", "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_scale": 1}
+
+  - name: PA_mgrs_absolute_tokens_OV_35
+    match:
+      workunit: ^(PA_WesternPA_4_2019)$
+    schemes:
+      - parser: mgrs_absolute_tokens
+        crs: "EPSG:6346"
+        grid: {"height": 1500, "width": 1500, "x_anchor": "min", "x_ceil_step": 1500, "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_ceil_step": 1500, "y_offset": 0, "y_scale": 1}
+
+  - name: PA_mgrs_absolute_tokens_OV_36
+    match:
+      workunit: ^(PA_WesternPA_3_2019)$
+    schemes:
+      - parser: mgrs_absolute_tokens
+        crs: "EPSG:6346"
+        grid: {"height": 750, "width": 750, "x_anchor": "min", "x_ceil_step": 750, "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_ceil_step": 750, "y_offset": 0, "y_scale": 1}
+
+  - name: PA_mgrs_absolute_tokens_OV_37
+    match:
+      workunit: ^(PA_17Co_4_D24|PA_17Co_5_D24|PA_17Co_7_D24)$
+    schemes:
+      - parser: mgrs_absolute_tokens
+        crs: "EPSG:6347"
+        grid: {"height": 1000, "width": 1000, "x_anchor": "min", "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_scale": 1}
+
+  - name: PA_mgrs_absolute_tokens_OV_38
+    match:
+      workunit: ^(PA_3_County_South_Central_2018)$
+    schemes:
+      - parser: mgrs_absolute_tokens
+        crs: "EPSG:6347"
+        grid: {"height": 1500, "width": 1500, "x_anchor": "min", "x_ceil_step": 1500, "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_ceil_step": 1500, "y_offset": 0, "y_scale": 1}
+
+  - name: PA_mgrs_absolute_tokens_OV_39
+    match:
+      workunit: ^(PA_17Co_2_D24|PA_17Co_3_D24|PA_17Co_6_D24)$
+    schemes:
+      - parser: mgrs_absolute_tokens
+        crs: "workunit"
+        grid: {"height": 1000, "width": 1000, "x_anchor": "min", "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_scale": 1}
+
+  - name: PA_mgrs_absolute_tokens_OV_40
+    match:
+      workunit: ^(PA_South_Central_B1_2017|PA_South_Central_B2_2017)$
+    schemes:
+      - parser: mgrs_absolute_tokens
+        crs: "workunit"
+        grid: {"height": 1500, "width": 1500, "x_anchor": "min", "x_ceil_step": 1500, "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_ceil_step": 1500, "y_offset": 0, "y_scale": 1}
+
+  - name: PA_pa_dauphin_5000ft_OV_41
+    match:
+      workunit: ^(PA_Dauphin_2016)$
+    schemes:
+      - parser: pa_dauphin_5000ft
+        crs: "workunit"
+        grid: {"height": 5000, "width": 5000, "x_anchor": "min", "x_offset": 0, "x_scale": 1, "y_anchor": "max", "y_offset": 0, "y_scale": 1}
+
+  - name: PA_pa_luzerne_2500ft_OV_42
+    match:
+      workunit: ^(PA_LuzerneCounty_2018)$
+    schemes:
+      - parser: pa_luzerne_2500ft
+        crs: "EPSG:6563"
+        grid: {"height": 2500, "width": 2500, "x_anchor": "min", "x_offset": 0, "x_scale": 1, "y_anchor": "max", "y_offset": 0, "y_scale": 1}
+
+  - name: PR_number_pair_OV_43
+    match:
+      workunit: ^(PR_PuertoRicoUSVI_4_D24|PR_PuertoRicoUSVI_6_D24)$
+    schemes:
+      - parser: number_pair
+        crs: "EPSG:6566"
+        grid: {"height": 1000, "width": 1000, "x_anchor": "min", "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_scale": 1}
+
+  - name: RI_number_pair_OV_44
+    match:
+      workunit: ^(RI_Statewide_1_D22)$
+    schemes:
+      - parser: number_pair
+        crs: "EPSG:6568"
+        grid: {"height": 2500, "width": 2500, "x_anchor": "min", "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_scale": 1}
+
+  - name: SC_axis_pair_OV_45
+    match:
+      workunit: ^(SC_East_Central_2017)$
+    schemes:
+      - parser: axis_pair
+        crs: "EPSG:6350"
+        grid: {"height": 1000, "width": 1000, "x_anchor": "min", "x_offset": 0, "x_scale": 1000, "y_anchor": "min", "y_offset": 0, "y_scale": 1000}
+
+  - name: SC_sc_5000ft_quadrants_OV_46
+    match:
+      workunit: ^(SC_6County_Abbeville_2012|SC_6County_Aiken_2012|SC_6County_Edgefield_2012|SC_6County_McCormick_2012)$
+    schemes:
+      - parser: sc_5000ft_quadrants
+        crs: "EPSG:3656"
+        grid: {"height": 5000, "width": 5000, "x_anchor": "min", "x_offset": 1000000, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_scale": 1}
+
+  - name: SC_sc_5000ft_quadrants_OV_47
+    match:
+      workunit: ^(SC_Berkeley_2016)$
+    schemes:
+      - parser: sc_5000ft_quadrants
+        crs: "EPSG:6570"
+        grid: {"height": 5000, "width": 5000, "x_anchor": "min", "x_offset": 2000000, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_scale": 1}
+
+  - name: SC_sc_savannah_2500ft_OV_48
+    match:
+      workunit: ^(SC_SavannahPeeDee_2_2019)$
+    schemes:
+      - parser: sc_savannah_2500ft
+        crs: "EPSG:6570"
+        grid: {"height": 2500, "width": 2500, "x_anchor": "min", "x_offset": 19.17, "x_scale": 1, "y_anchor": "min", "y_offset": -1147.03, "y_scale": 1}
+
+  - name: SC_sc_savannah_5000ft_OV_49
+    match:
+      workunit: ^(SC_SavannahPeeDee_1_2019|SC_SavannahPeeDee_3_2019|SC_SavannahPeeDee_5_2019|SC_SavannahPeeDee_6_2019)$
+    schemes:
+      - parser: sc_savannah_5000ft
+        crs: "EPSG:6570"
+        grid: {"height": 5000, "width": 5000, "x_anchor": "min", "x_offset": 519.17, "x_scale": 1, "y_anchor": "min", "y_offset": -4647.03, "y_scale": 1}
+
+  - name: TN_mgrs_OV_50
+    match:
+      workunit: ^(TN_NRCS_L1_2011_12|TN_NRCS_L2_2011_12)$
+    schemes:
+      - parser: mgrs
+        crs: "EPSG:3723"
+        grid: {"height": 1000, "width": 1000, "x_anchor": "min", "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_scale": 1}
+
+  - name: TN_mgrs_OV_51
+    match:
+      workunit: ^(TN_3County_2015|TN_HamiltonCo_1_B25)$
+    schemes:
+      - parser: mgrs
+        crs: "EPSG:6345"
+        grid: {"height": 1000, "width": 1000, "x_anchor": "min", "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_scale": 1}
+
+  - name: TN_mgrs_zero_x_columns_b_OV_52
+    match:
+      workunit: ^(TN_West3County_1_B25)$
+    schemes:
+      - parser: mgrs_zero_x_columns_b
+        crs: "EPSG:6345"
+        grid: {"height": 1000, "width": 1000, "x_anchor": "min", "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_scale": 1}
+
+  - name: TN_number_pair_OV_53
+    match:
+      workunit: ^(TN_ShelbyCo_2017)$
+    schemes:
+      - parser: number_pair
+        crs: "BOUNDCRS[SOURCECRS[PROJCRS[\"NAD83 / Tennessee (ftUS)\",BASEGEOGCRS[\"NAD83\",DATUM[\"North American Datum 1983\",ELLIPSOID[\"GRS 1980\",6378137,298.257222101,LENGTHUNIT[\"metre\",1]]],PRIMEM[\"Greenwich\",0,ANGLEUNIT[\"degree\",0.0174532925199433]],ID[\"EPSG\",4269]],CONVERSION[\"unnamed\",METHOD[\"Lambert Conic Conformal (2SP)\",ID[\"EPSG\",9802]],PARAMETER[\"Latitude of 1st standard parallel\",36.4166666666667,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8823]],PARAMETER[\"Latitude of 2nd standard parallel\",35.25,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8824]],PARAMETER[\"Latitude of false origin\",34.3333333333333,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8821]],PARAMETER[\"Longitude of false origin\",-86,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8822]],PARAMETER[\"Easting at false origin\",1968500,LENGTHUNIT[\"US survey foot\",0.304800609601219],ID[\"EPSG\",8826]],PARAMETER[\"Northing at false origin\",0,LENGTHUNIT[\"US survey foot\",0.304800609601219],ID[\"EPSG\",8827]]],CS[Cartesian,2],AXIS[\"x\",east,ORDER[1],LENGTHUNIT[\"US survey foot\",0.304800609601219]],AXIS[\"y\",north,ORDER[2],LENGTHUNIT[\"US survey foot\",0.304800609601219]],ID[\"EPSG\",2274]]],TARGETCRS[GEOGCRS[\"WGS 84\",DATUM[\"World Geodetic System 1984\",ELLIPSOID[\"WGS 84\",6378137,298.257223563,LENGTHUNIT[\"metre\",1]]],PRIMEM[\"Greenwich\",0,ANGLEUNIT[\"degree\",0.0174532925199433]],CS[ellipsoidal,2],AXIS[\"latitude\",north,ORDER[1],ANGLEUNIT[\"degree\",0.0174532925199433]],AXIS[\"longitude\",east,ORDER[2],ANGLEUNIT[\"degree\",0.0174532925199433]],ID[\"EPSG\",4326]]],ABRIDGEDTRANSFORMATION[\"Transformation from NAD83 to WGS84\",METHOD[\"Position Vector transformation (geog2D domain)\",ID[\"EPSG\",9606]],PARAMETER[\"X-axis translation\",0,ID[\"EPSG\",8605]],PARAMETER[\"Y-axis translation\",0,ID[\"EPSG\",8606]],PARAMETER[\"Z-axis translation\",0,ID[\"EPSG\",8607]],PARAMETER[\"X-axis rotation\",0,ID[\"EPSG\",8608]],PARAMETER[\"Y-axis rotation\",0,ID[\"EPSG\",8609]],PARAMETER[\"Z-axis rotation\",0,ID[\"EPSG\",8610]],PARAMETER[\"Scale difference\",1,ID[\"EPSG\",8611]]]]"
+        grid: {"height": 2500, "width": 2500, "x_anchor": "min", "x_offset": 0, "x_scale": 100, "y_anchor": "min", "y_offset": 0, "y_scale": 100}
+
+  - name: TN_tn_7000x4000ft_OV_54
+    match:
+      workunit: ^(TN_Eastern_2_16_B16_Del1_2016|TN_Eastern_2_16_B16_Del3_2016|TN_Eastern_2_16_B16_Del4_2016|TN_Middle_B1_2018|TN_Middle_B2_2018|TN_Middle_B3_2018|TN_WestCentral_B1_2017|TN_WestCentral_B2_2017|TN_WestTN_B1_2019|TN_WestTN_B2_2019)$
+    schemes:
+      - parser: tn_7000x4000ft
+        crs: "EPSG:6576"
+        grid: {"height": 4000, "width": 7000, "x_anchor": "min", "x_offset": 0, "x_padding": 0, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_padding": 0, "y_scale": 1}
+
+  - name: TN_tn_7000x4000ft_OV_55
+    match:
+      workunit: ^(TN_Eastern_2_16_B16_Del2_2016|TN_WestTN_B3_2019)$
+    schemes:
+      - parser: tn_7000x4000ft
+        crs: "EPSG:6576"
+        grid: {"height": 4000, "width": 7000, "x_anchor": "min", "x_offset": 0, "x_padding": 0.5, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_padding": 0.5, "y_scale": 1}
+
+  - name: TN_tn_7000x4000ft_OV_56
+    match:
+      workunit: ^(TN_27County_blk1_2015|TN_27County_blk2_2015|TN_27County_blk3_2015|TN_27County_blk4_2015|TN_BlountCo_2015)$
+    schemes:
+      - parser: tn_7000x4000ft
+        crs: "workunit"
+        grid: {"height": 4000, "width": 7000, "x_anchor": "min", "x_offset": 0, "x_padding": 0, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_padding": 0, "y_scale": 1}
+
+  - name: TX_axis_pair_OV_57
+    match:
+      workunit: ^(TX_2021McLennanCP_1_D25)$
+    schemes:
+      - parser: axis_pair
+        crs: "EPSG:6343"
+        grid: {"height": 1000, "width": 1000, "x_anchor": "min", "x_offset": 0, "x_scale": 1000, "y_anchor": "min", "y_offset": 0, "y_scale": 1000}
+
+  - name: TX_mgrs_OV_58
+    match:
+      workunit: ^(TX_DesertMountains_B1_2018|TX_DesertMountains_B2_2018|TX_Panhandle_B2_2017|TX_Panhandle_B4_2017|TX_Panhandle_B5_2017|TX_WestTexas_B1_2018|TX_WestTexas_B5_2018|TX_WestTexas_B7_2018)$
+    schemes:
+      - parser: mgrs
+        crs: "EPSG:6342"
+        grid: {"height": 1500, "width": 1500, "x_anchor": "min", "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_scale": 1}
+
+  - name: TX_mgrs_OV_59
+    match:
+      workunit: ^(TX_Eastern_B1_2018|TX_Eastern_B2_Z14_2018|TX_Pecos_Dallas_B2a_2018|TX_Pecos_Dallas_B3_2018)$
+    schemes:
+      - parser: mgrs
+        crs: "EPSG:6343"
+        grid: {"height": 1500, "width": 1500, "x_anchor": "min", "x_offset": 0, "x_round_step": 1500, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_round_step": 1500, "y_scale": 1}
+
+  - name: TX_mgrs_OV_60
+    match:
+      workunit: ^(TX_Hurricane_B1_2018|TX_Hurricane_B2_2018|TX_Hurricane_B3_2018|TX_Lower_SanBernard_B3_2017|TX_Panhandle_B10_2017|TX_Panhandle_B11_2017|TX_Panhandle_B1_2017|TX_Panhandle_B1_TL_2018|TX_Panhandle_B6_2017|TX_Panhandle_B7_2017|TX_Panhandle_B8_2017|TX_Panhandle_B9_2017|TX_RedRiver_BrazosBasin_B1_2017|TX_RedRiver_BrazosBasin_B2_2017|TX_RedRiver_BrazosBasin_B3_2017|TX_West_Central_B13_2018)$
+    schemes:
+      - parser: mgrs
+        crs: "EPSG:6343"
+        grid: {"height": 1500, "width": 1500, "x_anchor": "min", "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_scale": 1}
+
+  - name: TX_mgrs_OV_61
+    match:
+      workunit: ^(TX_Hurricane_B5B_2018)$
+    schemes:
+      - parser: mgrs
+        crs: "EPSG:6344"
+        grid: {"height": 1500, "width": 1500, "x_anchor": "min", "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_scale": 1}
+
+  - name: TX_mgrs_OV_62
+    match:
+      workunit: ^(TX_Lower_SanBernard_B1_2017|TX_Lower_SanBernard_B4_2017|TX_Lower_SanBernard_B5_2017)$
+    schemes:
+      - parser: mgrs
+        crs: "workunit"
+        grid: {"height": 1500, "width": 1500, "x_anchor": "min", "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_scale": 1}
+
+  - name: TX_mgrs_absolute_tokens_OV_63
+    match:
+      workunit: ^(TX_Houston_2_B24|TX_Houston_3_B24)$
+    schemes:
+      - parser: mgrs_absolute_tokens
+        crs: "workunit"
+        grid: {"height": 1000, "width": 1000, "x_anchor": "min", "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_scale": 1}
+
+  - name: TX_mgrs_absolute_tokens_OV_64
+    match:
+      workunit: ^(TX_RioGrand_FTWhit_2014|TX_South_B3_2018|TX_South_B4_2018|TX_South_B5_2018|TX_South_B6_2018|TX_South_B7_2018|TX_South_B8_2018)$
+    schemes:
+      - parser: mgrs_absolute_tokens
+        crs: "workunit"
+        grid: {"height": 1500, "width": 1500, "x_anchor": "min", "x_ceil_step": 1500, "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_ceil_step": 1500, "y_offset": 0, "y_scale": 1}
+
+  - name: TX_mgrs_zero_x_columns_k_OV_65
+    match:
+      workunit: ^(TX_West_Central_B10_2018|TX_West_Central_B12_2018|TX_West_Central_B9_2018)$
+    schemes:
+      - parser: mgrs_zero_x_columns_k
+        crs: "EPSG:6343"
+        grid: {"height": 1500, "width": 1500, "x_anchor": "min", "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_scale": 1}
+
+  - name: TX_mgrs_zero_x_columns_n_OV_66
+    match:
+      workunit: ^(TX_RedRiver_Atacosa_B1_2018|TX_RedRiver_BrazosBasin_B4_2017|TX_RedRiver_BrazosBasin_B5_2017|TX_West_Central_B14_2018)$
+    schemes:
+      - parser: mgrs_zero_x_columns_n
+        crs: "EPSG:6343"
+        grid: {"height": 1500, "width": 1500, "x_anchor": "min", "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_scale": 1}
+
+  - name: TX_mgrs_zero_x_columns_t_OV_67
+    match:
+      workunit: ^(TX_RedRiver_B1_2017|TX_RedRiver_B2_2017|TX_RedRiver_B2_TL_2017|TX_RedRiver_B3_2017)$
+    schemes:
+      - parser: mgrs_zero_x_columns_t
+        crs: "EPSG:6344"
+        grid: {"height": 1500, "width": 1500, "x_anchor": "min", "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_scale": 1}
+
+  - name: TX_mgrs_zone14_legacy_columns_OV_68
+    match:
+      workunit: ^(TX_2022NorthCentral_1_D25|TX_LowerRioGrande_3_D22)$
+    schemes:
+      - parser: mgrs_zone14_legacy_columns
+        crs: "EPSG:6343"
+        grid: {"height": 1000, "width": 1000, "x_anchor": "min", "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_scale": 1}
+
+  - name: TX_mgrs_zone14_legacy_columns_OV_69
+    match:
+      workunit: ^(TX_Hurricane_B4_2018|TX_Hurricane_B5_2018|TX_MatagordaBay_B1_2018)$
+    schemes:
+      - parser: mgrs_zone14_legacy_columns
+        crs: "EPSG:6343"
+        grid: {"height": 1500, "width": 1500, "x_anchor": "min", "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_scale": 1}
+
+  - name: TX_single_number_split_3_OV_70
+    match:
+      workunit: ^(TX_Neches_B1_2016|TX_Neches_B2_2016|TX_Neches_B3_2016|TX_Neches_B4_2016|TX_Neches_B5_2016)$
+    schemes:
+      - parser: single_number_split_3
+        crs: "EPSG:6344"
+        grid: {"height": 1500, "width": 1500, "x_anchor": "min", "x_ceil_step": 1500, "x_offset": 0, "x_scale": 1000, "y_anchor": "min", "y_offset": 3000000, "y_scale": 100}
+
+  - name: TX_tx_lower_rio_500m_OV_71
+    match:
+      workunit: ^(TX_LowerRioGrande_1_D22|TX_LowerRioGrande_2_D22)$
+    schemes:
+      - parser: tx_lower_rio_500m
+        crs: "EPSG:6343"
+        grid: {"height": 500, "width": 500, "x_anchor": "min", "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_scale": 1}
+
+  - name: UT_axis_pair_OV_72
+    match:
+      workunit: ^(UT_BoxElder_2018)$
+    schemes:
+      - parser: axis_pair
+        crs: "EPSG:6350"
+        grid: {"height": 1000, "width": 1000, "x_anchor": "min", "x_offset": 0, "x_scale": -1000, "y_anchor": "min", "y_offset": 0, "y_scale": 1000}
+
+  - name: UT_axis_pair_OV_73
+    match:
+      workunit: ^(UT_FEMAHQ_B2_2018)$
+    schemes:
+      - parser: axis_pair
+        crs: "workunit"
+        grid: {"height": 1000, "width": 1000, "x_anchor": "min", "x_offset": 0, "x_scale": -1000, "y_anchor": "min", "y_offset": 0, "y_scale": 1000}
+
+  - name: UT_mgrs_OV_74
+    match:
+      workunit: ^(UT_Wasatch_L4_2013|UT_WastachFault_L1_L2_2013)$
+    schemes:
+      - parser: mgrs
+        crs: "EPSG:26912"
+        grid: {"height": 1000, "width": 1000, "x_anchor": "min", "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_scale": 1}
+
+  - name: UT_mgrs_OV_75
+    match:
+      workunit: ^(UT_2023_SaltLakeCo_1_C24|UT_Central_QL1_B1_2018|UT_Central_QL2_2018|UT_KaneCo_2019|UT_MonroeMoutain_2016|UT_Northern_QL2_2018|UT_Southern_B1_2018|UT_Southern_B1_TL_2018|UT_Southern_B2_2018|UT_Southern_QL1_2018|UT_StatewideCenSouth_3_2020|UT_StatewideNCentral_2_2020|UT_StatewideNCentral_4_2020|UT_WestEast_10_B22)$
+    schemes:
+      - parser: mgrs
+        crs: "EPSG:6341"
+        grid: {"height": 1000, "width": 1000, "x_anchor": "min", "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_scale": 1}
+
+  - name: UT_mgrs_OV_76
+    match:
+      workunit: ^(UT_FlamingGorge_2_2020|UT_FlamingGorge_3_2020|UT_FlamingGorge_5_2020)$
+    schemes:
+      - parser: mgrs
+        crs: "EPSG:6341"
+        grid: {"height": 1500, "width": 1500, "x_anchor": "min", "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_scale": 1}
+
+  - name: UT_mgrs_OV_77
+    match:
+      workunit: ^(UT_WashingtonCo_2016)$
+    schemes:
+      - parser: mgrs
+        crs: "workunit"
+        grid: {"height": 1000, "width": 1000, "x_anchor": "min", "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_scale": 1}
+
+  - name: VA_axis_pair_OV_78
+    match:
+      workunit: ^(VA_Fairfax_County_2018|VA_UpperMiddleNeckQL2_B3_2018)$
+    schemes:
+      - parser: axis_pair
+        crs: "EPSG:6350"
+        grid: {"height": 1000, "width": 1000, "x_anchor": "min", "x_offset": 0, "x_scale": 1000, "y_anchor": "min", "y_offset": 0, "y_scale": 1000}
+
+  - name: VA_axis_pair_OV_79
+    match:
+      workunit: ^(VA_NorthernVA_1_B22)$
+    schemes:
+      - parser: axis_pair
+        crs: "EPSG:6593"
+        grid: {"height": 3000, "width": 3000, "x_anchor": "min", "x_offset": 10000000, "x_scale": 1000, "y_anchor": "min", "y_offset": 0, "y_scale": 1000}
+
+  - name: VA_axis_pair_OV_80
+    match:
+      workunit: ^(VA_NorthernVA_2_B22|VA_NorthernVA_3_B22)$
+    schemes:
+      - parser: axis_pair
+        crs: "EPSG:6593"
+        grid: {"height": 3000, "width": 3000, "x_anchor": "min", "x_offset": 9999000, "x_scale": 1000, "y_anchor": "min", "y_offset": -1000, "y_scale": 1000}
+
+  - name: VA_letter_row_number_column_OV_81
+    match:
+      workunit: ^(VA_FEMA_R3_Southwest_A_2016|VA_FEMA_R3_Southwest_B_2016)$
+    schemes:
+      - parser: letter_row_number_column
+        crs: "EPSG:6346"
+        grid: {"height": 1500, "width": 1500, "x_anchor": "min", "x_offset": 259090, "x_scale": 1500, "y_anchor": "min", "y_offset": 4045879, "y_scale": 1500}
+
+  - name: VA_mgrs_OV_82
+    match:
+      workunit: ^(VA_Norfolk_2013)$
+    schemes:
+      - parser: mgrs
+        crs: "EPSG:26918"
+        grid: {"height": 1500, "width": 1500, "x_anchor": "min", "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_scale": 1}
+
+  - name: VA_mgrs_OV_83
+    match:
+      workunit: ^(VA_Central_1_D24)$
+    schemes:
+      - parser: mgrs
+        crs: "EPSG:6346"
+        grid: {"height": 1000, "width": 1000, "x_anchor": "min", "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_scale": 1}
+
+  - name: VA_mgrs_OV_84
+    match:
+      workunit: ^(VA_SouthamptonHenricoWMBG_2_2019)$
+    schemes:
+      - parser: mgrs
+        crs: "EPSG:6347"
+        grid: {"height": 1500, "width": 1500, "x_anchor": "min", "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_scale": 1}
+
+  - name: VA_mgrs_zero_x_columns_n_OV_85
+    match:
+      workunit: ^(VA_West_Chesapeake_B2_2017)$
+    schemes:
+      - parser: mgrs_zero_x_columns_n
+        crs: "EPSG:6346"
+        grid: {"height": 1500, "width": 1500, "x_anchor": "min", "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_scale": 1}
+
+  - name: VA_number_pair_OV_86
+    match:
+      workunit: ^(VA_HamptonRoads_1_B23)$
+    schemes:
+      - parser: number_pair
+        crs: "EPSG:6595"
+        grid: {"height": 2500, "width": 2500, "x_anchor": "min", "x_offset": 0, "x_scale": 100, "y_anchor": "min", "y_offset": 0, "y_scale": 100}
+
+  - name: VT_axis_named_pair_OV_87
+    match:
+      workunit: ^(VT_Statewide_1_A23)$
+    schemes:
+      - parser: axis_named_pair
+        crs: "EPSG:6589"
+        grid: {"height": 1400, "width": 1400, "x_anchor": "center", "x_offset": 0, "x_scale": 100, "y_anchor": "center", "y_offset": 0, "y_scale": 100}
+
+  - name: VT_vt_1400m_legacy_center_OV_88
+    match:
+      workunit: ^(VT_Connecticut_River_2016|VT_Western_2017|VT_Windham_CO_2015)$
+    schemes:
+      - parser: vt_1400m_legacy_center
+        crs: "workunit"
+        grid: {"height": 1400, "width": 1400, "x_anchor": "center", "x_offset": 0, "x_scale": 1, "y_anchor": "center", "y_offset": 0, "y_scale": 1}
+
+  - name: WV_axis_pair_OV_89
+    match:
+      workunit: ^(WV_FEMAHQ_B1_2018)$
+    schemes:
+      - parser: axis_pair
+        crs: "EPSG:6350"
+        grid: {"height": 1000, "width": 1000, "x_anchor": "min", "x_offset": 0, "x_scale": 1000, "y_anchor": "min", "y_offset": 0, "y_scale": 1000}
+
+# 2026-08-31 WA/WI/WV/WY: independently reviewed official header observations
+# in tests/fixtures/lidar_headers_w.json. Exact workunits, no runtime fitting.
+
+  - name: MN_mn_utm_pair_W_01
+    match:
+      workunit: ^(MN_CentralMissRiver_1_B22)$
+    schemes:
+      - parser: mn_utm_pair
+        crs: "EPSG:6344"
+        grid: {"height": 500, "width": 500, "x_anchor": "min", "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_scale": 1}
+
+  - name: VA_letter_row_number_column_W_02
+    match:
+      workunit: ^(VA_FEMA_R3_Northeast_2016)$
+    schemes:
+      - parser: letter_row_number_column
+        crs: "EPSG:6346"
+        grid: {"height": 1500, "width": 1500, "x_anchor": "min", "x_offset": 259090, "x_scale": 1500, "y_anchor": "min", "y_offset": 4045878, "y_scale": 1500}
+
+  - name: WA_axis_pair_W_03
+    match:
+      workunit: ^(WA_6County_1_A24)$
+    schemes:
+      - parser: axis_pair
+        crs: "BOUNDCRS[SOURCECRS[PROJCRS[\"NAD83(HARN) / Washington South (ftUS)\",BASEGEOGCRS[\"NAD83(HARN)\",DATUM[\"NAD83 (High Accuracy Reference Network)\",ELLIPSOID[\"GRS 1980\",6378137,298.257222101,LENGTHUNIT[\"metre\",1]]],PRIMEM[\"Greenwich\",0,ANGLEUNIT[\"degree\",0.0174532925199433]],ID[\"EPSG\",4152]],CONVERSION[\"unnamed\",METHOD[\"Lambert Conic Conformal (2SP)\",ID[\"EPSG\",9802]],PARAMETER[\"Latitude of 1st standard parallel\",47.3333333333333,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8823]],PARAMETER[\"Latitude of 2nd standard parallel\",45.8333333333333,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8824]],PARAMETER[\"Latitude of false origin\",45.3333333333333,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8821]],PARAMETER[\"Longitude of false origin\",-120.5,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8822]],PARAMETER[\"Easting at false origin\",1640416.667,LENGTHUNIT[\"US survey foot\",0.304800609601219],ID[\"EPSG\",8826]],PARAMETER[\"Northing at false origin\",0,LENGTHUNIT[\"US survey foot\",0.304800609601219],ID[\"EPSG\",8827]]],CS[Cartesian,2],AXIS[\"x\",east,ORDER[1],LENGTHUNIT[\"US survey foot\",0.304800609601219]],AXIS[\"y\",north,ORDER[2],LENGTHUNIT[\"US survey foot\",0.304800609601219]],ID[\"EPSG\",2927]]],TARGETCRS[GEOGCRS[\"WGS 84\",DATUM[\"World Geodetic System 1984\",ELLIPSOID[\"WGS 84\",6378137,298.257223563,LENGTHUNIT[\"metre\",1]]],PRIMEM[\"Greenwich\",0,ANGLEUNIT[\"degree\",0.0174532925199433]],CS[ellipsoidal,2],AXIS[\"latitude\",north,ORDER[1],ANGLEUNIT[\"degree\",0.0174532925199433]],AXIS[\"longitude\",east,ORDER[2],ANGLEUNIT[\"degree\",0.0174532925199433]],ID[\"EPSG\",4326]]],ABRIDGEDTRANSFORMATION[\"Transformation from NAD83(HARN) to WGS84\",METHOD[\"Position Vector transformation (geog2D domain)\",ID[\"EPSG\",9606]],PARAMETER[\"X-axis translation\",0,ID[\"EPSG\",8605]],PARAMETER[\"Y-axis translation\",0,ID[\"EPSG\",8606]],PARAMETER[\"Z-axis translation\",0,ID[\"EPSG\",8607]],PARAMETER[\"X-axis rotation\",0,ID[\"EPSG\",8608]],PARAMETER[\"Y-axis rotation\",0,ID[\"EPSG\",8609]],PARAMETER[\"Z-axis rotation\",0,ID[\"EPSG\",8610]],PARAMETER[\"Scale difference\",1,ID[\"EPSG\",8611]]]]"
+        grid: {"height": 2250, "width": 2250, "x_anchor": "min", "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_scale": 1}
+
+  - name: WA_axis_pair_W_04
+    match:
+      workunit: ^(WA_DNR_3DEP_Processing_1_2019)$
+    schemes:
+      - parser: axis_pair
+        crs: "EPSG:6597"
+        grid: {"height": 5000, "width": 5000, "x_anchor": "min", "x_offset": 0, "x_scale": 1000, "y_anchor": "min", "y_offset": 0, "y_scale": 1000}
+
+  - name: WA_mgrs_W_05
+    match:
+      workunit: ^(WA_FEMAHQ_B2A_2018|WA_FEMAHQ_B2B_2018|WA_FEMAHQ_B2C_2018)$
+    schemes:
+      - parser: mgrs
+        crs: "EPSG:6339"
+        grid: {"height": 1000, "width": 1000, "x_anchor": "min", "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_scale": 1}
+
+  - name: WA_mgrs_W_06
+    match:
+      workunit: ^(WA_NorthCentral_3_2021)$
+    schemes:
+      - parser: mgrs
+        crs: "EPSG:6339"
+        grid: {"height": 1500, "width": 1500, "x_anchor": "min", "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_scale": 1}
+
+  - name: WA_mgrs_W_07
+    match:
+      workunit: ^(WA_FEMAHQ_B1_QL2_2018)$
+    schemes:
+      - parser: mgrs
+        crs: "EPSG:6340"
+        grid: {"height": 1000, "width": 1000, "x_anchor": "min", "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_scale": 1}
+
+  - name: WA_mgrs_W_08
+    match:
+      workunit: ^(WA_NorthCentral_1_2021|WA_NorthCentral_2_2021|WA_Pasco_1_2020)$
+    schemes:
+      - parser: mgrs
+        crs: "EPSG:6340"
+        grid: {"height": 1500, "width": 1500, "x_anchor": "min", "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_scale": 1}
+
+  - name: WA_mgrs_absolute_tokens_W_09
+    match:
+      workunit: ^(WA_NorthEast_1_B22|WA_NorthEast_2_B22)$
+    schemes:
+      - parser: mgrs_absolute_tokens
+        crs: "EPSG:6340"
+        grid: {"height": 1000, "width": 1000, "x_anchor": "min", "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_scale": 1}
+
+  - name: WA_mgrs_absolute_tokens_W_10
+    match:
+      workunit: ^(WA_ColumbiaValley_1_2018|WA_ColumbiaValley_3_2018|WA_ColumbiaValley_4_2018)$
+    schemes:
+      - parser: mgrs_absolute_tokens
+        crs: "EPSG:6340"
+        grid: {"height": 750, "width": 750, "x_anchor": "min", "x_ceil_step": 750, "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_ceil_step": 750, "y_offset": 0, "y_scale": 1}
+
+  - name: WA_single_number_split_4_W_11
+    match:
+      workunit: ^(WA_CentralWildfire_1_D22)$
+    schemes:
+      - parser: single_number_split_4
+        crs: "BOUNDCRS[SOURCECRS[PROJCRS[\"NAD83(HARN) / Washington North (ftUS)\",BASEGEOGCRS[\"NAD83(HARN)\",DATUM[\"NAD83 (High Accuracy Reference Network)\",ELLIPSOID[\"GRS 1980\",6378137,298.257222101,LENGTHUNIT[\"metre\",1]]],PRIMEM[\"Greenwich\",0,ANGLEUNIT[\"degree\",0.0174532925199433]],ID[\"EPSG\",4152]],CONVERSION[\"unnamed\",METHOD[\"Lambert Conic Conformal (2SP)\",ID[\"EPSG\",9802]],PARAMETER[\"Latitude of 1st standard parallel\",48.7333333333333,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8823]],PARAMETER[\"Latitude of 2nd standard parallel\",47.5,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8824]],PARAMETER[\"Latitude of false origin\",47,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8821]],PARAMETER[\"Longitude of false origin\",-120.833333333333,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8822]],PARAMETER[\"Easting at false origin\",1640416.667,LENGTHUNIT[\"US survey foot\",0.304800609601219],ID[\"EPSG\",8826]],PARAMETER[\"Northing at false origin\",0,LENGTHUNIT[\"US survey foot\",0.304800609601219],ID[\"EPSG\",8827]]],CS[Cartesian,2],AXIS[\"x\",east,ORDER[1],LENGTHUNIT[\"US survey foot\",0.304800609601219]],AXIS[\"y\",north,ORDER[2],LENGTHUNIT[\"US survey foot\",0.304800609601219]],ID[\"EPSG\",2926]]],TARGETCRS[GEOGCRS[\"WGS 84\",DATUM[\"World Geodetic System 1984\",ELLIPSOID[\"WGS 84\",6378137,298.257223563,LENGTHUNIT[\"metre\",1]]],PRIMEM[\"Greenwich\",0,ANGLEUNIT[\"degree\",0.0174532925199433]],CS[ellipsoidal,2],AXIS[\"latitude\",north,ORDER[1],ANGLEUNIT[\"degree\",0.0174532925199433]],AXIS[\"longitude\",east,ORDER[2],ANGLEUNIT[\"degree\",0.0174532925199433]],ID[\"EPSG\",4326]]],ABRIDGEDTRANSFORMATION[\"Transformation from NAD83(HARN) to WGS84\",METHOD[\"Position Vector transformation (geog2D domain)\",ID[\"EPSG\",9606]],PARAMETER[\"X-axis translation\",0,ID[\"EPSG\",8605]],PARAMETER[\"Y-axis translation\",0,ID[\"EPSG\",8606]],PARAMETER[\"Z-axis translation\",0,ID[\"EPSG\",8607]],PARAMETER[\"X-axis rotation\",0,ID[\"EPSG\",8608]],PARAMETER[\"Y-axis rotation\",0,ID[\"EPSG\",8609]],PARAMETER[\"Z-axis rotation\",0,ID[\"EPSG\",8610]],PARAMETER[\"Scale difference\",1,ID[\"EPSG\",8611]]]]"
+        grid: {"height": 4500, "width": 4500, "x_anchor": "min", "x_offset": 1000000, "x_scale": 100, "y_anchor": "min", "y_offset": 0, "y_scale": 100}
+
+  - name: WA_single_number_split_4_W_12
+    match:
+      workunit: ^(WA_PierceCounty_1_2020)$
+    schemes:
+      - parser: single_number_split_4
+        crs: "BOUNDCRS[SOURCECRS[PROJCRS[\"NAD83(HARN) / Washington South (ftUS)\",BASEGEOGCRS[\"NAD83(HARN)\",DATUM[\"NAD83 (High Accuracy Reference Network)\",ELLIPSOID[\"GRS 1980\",6378137,298.257222101,LENGTHUNIT[\"metre\",1]]],PRIMEM[\"Greenwich\",0,ANGLEUNIT[\"Degree\",0.0174532925199433]],ID[\"EPSG\",4152]],CONVERSION[\"unnamed\",METHOD[\"Lambert Conic Conformal (2SP)\",ID[\"EPSG\",9802]],PARAMETER[\"Latitude of 1st standard parallel\",47.3333333333333,ANGLEUNIT[\"Degree\",0.0174532925199433],ID[\"EPSG\",8823]],PARAMETER[\"Latitude of 2nd standard parallel\",45.8333333333333,ANGLEUNIT[\"Degree\",0.0174532925199433],ID[\"EPSG\",8824]],PARAMETER[\"Latitude of false origin\",45.3333333333333,ANGLEUNIT[\"Degree\",0.0174532925199433],ID[\"EPSG\",8821]],PARAMETER[\"Longitude of false origin\",-120.5,ANGLEUNIT[\"Degree\",0.0174532925199433],ID[\"EPSG\",8822]],PARAMETER[\"Easting at false origin\",1640416.667,LENGTHUNIT[\"US survey foot\",0.304800609601219],ID[\"EPSG\",8826]],PARAMETER[\"Northing at false origin\",0,LENGTHUNIT[\"US survey foot\",0.304800609601219],ID[\"EPSG\",8827]]],CS[Cartesian,2],AXIS[\"x\",east,ORDER[1],LENGTHUNIT[\"US survey foot\",0.304800609601219]],AXIS[\"y\",north,ORDER[2],LENGTHUNIT[\"US survey foot\",0.304800609601219]],ID[\"EPSG\",2927]]],TARGETCRS[GEOGCRS[\"WGS 84\",DATUM[\"World Geodetic System 1984\",ELLIPSOID[\"WGS 84\",6378137,298.257223563,LENGTHUNIT[\"metre\",1]]],PRIMEM[\"Greenwich\",0,ANGLEUNIT[\"degree\",0.0174532925199433]],CS[ellipsoidal,2],AXIS[\"latitude\",north,ORDER[1],ANGLEUNIT[\"degree\",0.0174532925199433]],AXIS[\"longitude\",east,ORDER[2],ANGLEUNIT[\"degree\",0.0174532925199433]],ID[\"EPSG\",4326]]],ABRIDGEDTRANSFORMATION[\"Transformation from NAD83(HARN) to WGS84\",METHOD[\"Position Vector transformation (geog2D domain)\",ID[\"EPSG\",9606]],PARAMETER[\"X-axis translation\",0,ID[\"EPSG\",8605]],PARAMETER[\"Y-axis translation\",0,ID[\"EPSG\",8606]],PARAMETER[\"Z-axis translation\",0,ID[\"EPSG\",8607]],PARAMETER[\"X-axis rotation\",0,ID[\"EPSG\",8608]],PARAMETER[\"Y-axis rotation\",0,ID[\"EPSG\",8609]],PARAMETER[\"Z-axis rotation\",0,ID[\"EPSG\",8610]],PARAMETER[\"Scale difference\",1,ID[\"EPSG\",8611]]]]"
+        grid: {"height": 3000, "width": 3000, "x_anchor": "min", "x_offset": 0, "x_scale": 1000, "y_anchor": "max", "y_offset": 0, "y_scale": 100}
+
+  - name: WA_single_number_split_4_W_13
+    match:
+      workunit: ^(WA_CentralWildfire_2_D22)$
+    schemes:
+      - parser: single_number_split_4
+        crs: "BOUNDCRS[SOURCECRS[PROJCRS[\"NAD83(HARN) / Washington South (ftUS)\",BASEGEOGCRS[\"NAD83(HARN)\",DATUM[\"NAD83 (High Accuracy Reference Network)\",ELLIPSOID[\"GRS 1980\",6378137,298.257222101,LENGTHUNIT[\"metre\",1]]],PRIMEM[\"Greenwich\",0,ANGLEUNIT[\"degree\",0.0174532925199433]],ID[\"EPSG\",4152]],CONVERSION[\"unnamed\",METHOD[\"Lambert Conic Conformal (2SP)\",ID[\"EPSG\",9802]],PARAMETER[\"Latitude of 1st standard parallel\",47.3333333333333,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8823]],PARAMETER[\"Latitude of 2nd standard parallel\",45.8333333333333,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8824]],PARAMETER[\"Latitude of false origin\",45.3333333333333,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8821]],PARAMETER[\"Longitude of false origin\",-120.5,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8822]],PARAMETER[\"Easting at false origin\",1640416.667,LENGTHUNIT[\"US survey foot\",0.304800609601219],ID[\"EPSG\",8826]],PARAMETER[\"Northing at false origin\",0,LENGTHUNIT[\"US survey foot\",0.304800609601219],ID[\"EPSG\",8827]]],CS[Cartesian,2],AXIS[\"x\",east,ORDER[1],LENGTHUNIT[\"US survey foot\",0.304800609601219]],AXIS[\"y\",north,ORDER[2],LENGTHUNIT[\"US survey foot\",0.304800609601219]],ID[\"EPSG\",2927]]],TARGETCRS[GEOGCRS[\"WGS 84\",DATUM[\"World Geodetic System 1984\",ELLIPSOID[\"WGS 84\",6378137,298.257223563,LENGTHUNIT[\"metre\",1]]],PRIMEM[\"Greenwich\",0,ANGLEUNIT[\"degree\",0.0174532925199433]],CS[ellipsoidal,2],AXIS[\"latitude\",north,ORDER[1],ANGLEUNIT[\"degree\",0.0174532925199433]],AXIS[\"longitude\",east,ORDER[2],ANGLEUNIT[\"degree\",0.0174532925199433]],ID[\"EPSG\",4326]]],ABRIDGEDTRANSFORMATION[\"Transformation from NAD83(HARN) to WGS84\",METHOD[\"Position Vector transformation (geog2D domain)\",ID[\"EPSG\",9606]],PARAMETER[\"X-axis translation\",0,ID[\"EPSG\",8605]],PARAMETER[\"Y-axis translation\",0,ID[\"EPSG\",8606]],PARAMETER[\"Z-axis translation\",0,ID[\"EPSG\",8607]],PARAMETER[\"X-axis rotation\",0,ID[\"EPSG\",8608]],PARAMETER[\"Y-axis rotation\",0,ID[\"EPSG\",8609]],PARAMETER[\"Z-axis rotation\",0,ID[\"EPSG\",8610]],PARAMETER[\"Scale difference\",1,ID[\"EPSG\",8611]]]]"
+        grid: {"height": 4500, "width": 4500, "x_anchor": "min", "x_offset": 1000000, "x_scale": 100, "y_anchor": "min", "y_offset": 0, "y_scale": 100}
+
+  - name: WA_wa_thurston_4500ft_W_14
+    match:
+      workunit: ^(WA_ThurstonCo_1_2021)$
+    schemes:
+      - parser: wa_thurston_4500ft
+        crs: "EPSG:6599"
+        grid: {"height": 4500, "width": 4500, "x_anchor": "min", "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_scale": 1}
+
+  - name: WA_zone_tokens_W_15
+    match:
+      workunit: ^(WA_EasternCascades_1_2019|WA_EasternCascades_5_2019|WA_EasternCascades_6_2019)$
+    schemes:
+      - parser: zone_tokens
+        crs: "EPSG:6339"
+        grid: {"height": 1000, "width": 1000, "x_anchor": "min", "x_offset": 0, "x_scale": 1000, "y_anchor": "min", "y_offset": 0, "y_scale": 1000}
+
+  - name: WA_zone_tokens_W_16
+    match:
+      workunit: ^(WA_EasternCascades_3_2019|WA_EasternCascades_4_2019)$
+    schemes:
+      - parser: zone_tokens
+        crs: "EPSG:6340"
+        grid: {"height": 1000, "width": 1000, "x_anchor": "min", "x_offset": 0, "x_scale": 1000, "y_anchor": "min", "y_offset": 0, "y_scale": 1000}
+
+  - name: WI_axis_pair_W_17
+    match:
+      workunit: ^(WI_Oshkosh_3Rivers_B1_2018)$
+    schemes:
+      - parser: axis_pair
+        crs: "EPSG:6350"
+        grid: {"height": 1000, "width": 1000, "x_anchor": "min", "x_offset": 0, "x_scale": 1000, "y_anchor": "min", "y_offset": 0, "y_scale": 1000}
+
+  - name: WI_axis_suffix_pair_W_18
+    match:
+      workunit: ^(WI_OneidaCo_2013)$
+    schemes:
+      - parser: axis_suffix_pair
+        crs: "EPSG:7623"
+        grid: {"height": 5000, "width": 5000, "x_anchor": "min", "x_offset": 0, "x_scale": 1000, "y_anchor": "min", "y_offset": 0, "y_scale": 1000}
+
+  - name: WI_mgrs_absolute_tokens_W_19
+    match:
+      workunit: ^(WI_5County_1_B24)$
+    schemes:
+      - parser: mgrs_absolute_tokens
+        crs: "EPSG:6344"
+        grid: {"height": 1000, "width": 1000, "x_anchor": "min", "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_scale": 1}
+
+  - name: WI_mgrs_absolute_tokens_W_20
+    match:
+      workunit: ^(WI_5County_2_B24|WI_FEMAHQ_2018)$
+    schemes:
+      - parser: mgrs_absolute_tokens
+        crs: "EPSG:6345"
+        grid: {"height": 1000, "width": 1000, "x_anchor": "min", "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_scale": 1}
+
+  - name: WI_single_number_split_3_W_21
+    match:
+      workunit: ^(WI_12County_12_B22)$
+    schemes:
+      - parser: single_number_split_3
+        crs: "EPSG:7590"
+        grid: {"height": 4500, "width": 4500, "x_anchor": "min", "x_ceil_step": 4500, "x_grid_origin": 530, "x_offset": 0, "x_scale": 1000, "y_anchor": "min", "y_ceil_step": 4500, "y_grid_origin": 1490, "y_offset": 0, "y_scale": 1000}
+
+  - name: WI_single_number_split_3_W_22
+    match:
+      workunit: ^(WI_12County_11_B22)$
+    schemes:
+      - parser: single_number_split_3
+        crs: "EPSG:7593"
+        grid: {"height": 4500, "width": 4500, "x_anchor": "min", "x_ceil_step": 4500, "x_grid_origin": 270, "x_offset": 0, "x_scale": 1000, "y_anchor": "min", "y_ceil_step": 4500, "y_grid_origin": 3980, "y_offset": 0, "y_scale": 1000}
+
+  - name: WI_single_number_split_3_W_23
+    match:
+      workunit: ^(WI_12County_6_B22)$
+    schemes:
+      - parser: single_number_split_3
+        crs: "EPSG:7594"
+        grid: {"height": 4500, "width": 4500, "x_anchor": "min", "x_ceil_step": 4500, "x_grid_origin": 2180, "x_offset": 0, "x_scale": 1000, "y_anchor": "min", "y_ceil_step": 4500, "y_grid_origin": 3520, "y_offset": 0, "y_scale": 1000}
+
+  - name: WI_single_number_split_3_W_24
+    match:
+      workunit: ^(WI_DodgeCo_2017)$
+    schemes:
+      - parser: single_number_split_3
+        crs: "EPSG:7600"
+        grid: {"height": 4500, "width": 4500, "x_anchor": "min", "x_ceil_step": 4500, "x_offset": 0, "x_scale": 1000, "y_anchor": "min", "y_ceil_step": 4500, "y_offset": 0, "y_scale": 1000}
+
+  - name: WI_single_number_split_3_W_25
+    match:
+      workunit: ^(WI_12County_10_B22)$
+    schemes:
+      - parser: single_number_split_3
+        crs: "EPSG:7602"
+        grid: {"height": 4500, "width": 4500, "x_anchor": "min", "x_ceil_step": 4500, "x_grid_origin": 3580, "x_offset": 0, "x_scale": 1000, "y_anchor": "min", "y_ceil_step": 4500, "y_grid_origin": 190, "y_offset": 0, "y_scale": 1000}
+
+  - name: WI_single_number_split_3_W_26
+    match:
+      workunit: ^(WI_12County_4_B22)$
+    schemes:
+      - parser: single_number_split_3
+        crs: "EPSG:7610"
+        grid: {"height": 4500, "width": 4500, "x_anchor": "min", "x_ceil_step": 4500, "x_grid_origin": 410, "x_offset": 0, "x_scale": 1000, "y_anchor": "min", "y_ceil_step": 4500, "y_grid_origin": 3550, "y_offset": 0, "y_scale": 1000}
+
+  - name: WI_single_number_split_3_W_27
+    match:
+      workunit: ^(WI_12County_9_B22)$
+    schemes:
+      - parser: single_number_split_3
+        crs: "EPSG:7612"
+        grid: {"height": 4500, "width": 4500, "x_anchor": "min", "x_ceil_step": 4500, "x_grid_origin": 3710, "x_offset": 0, "x_scale": 1000, "y_anchor": "min", "y_ceil_step": 4500, "y_grid_origin": 1250, "y_offset": 0, "y_scale": 1000}
+
+  - name: WI_single_number_split_3_W_28
+    match:
+      workunit: ^(WI_12County_8_B22)$
+    schemes:
+      - parser: single_number_split_3
+        crs: "EPSG:7623"
+        grid: {"height": 4500, "width": 4500, "x_anchor": "min", "x_ceil_step": 4500, "x_grid_origin": 2700, "x_offset": 0, "x_scale": 1000, "y_anchor": "min", "y_ceil_step": 4500, "y_grid_origin": 1490, "y_offset": 0, "y_scale": 1000}
+
+  - name: WI_single_number_split_3_W_29
+    match:
+      workunit: ^(WI_12County_5_B22)$
+    schemes:
+      - parser: single_number_split_3
+        crs: "EPSG:7625"
+        grid: {"height": 4500, "width": 4500, "x_anchor": "min", "x_ceil_step": 4500, "x_grid_origin": 992, "x_offset": 0, "x_scale": 1000, "y_anchor": "min", "y_ceil_step": 4500, "y_grid_origin": 4360, "y_offset": 0, "y_scale": 1000}
+
+  - name: WI_single_number_split_3_W_30
+    match:
+      workunit: ^(WI_12County_1_B22)$
+    schemes:
+      - parser: single_number_split_3
+        crs: "EPSG:7638"
+        grid: {"height": 4500, "width": 4500, "x_anchor": "min", "x_ceil_step": 4500, "x_grid_origin": 2160, "x_offset": 0, "x_scale": 1000, "y_anchor": "min", "y_ceil_step": 4500, "y_grid_origin": 1290, "y_offset": 0, "y_scale": 1000}
+
+  - name: WI_single_number_split_3_W_31
+    match:
+      workunit: ^(WI_12County_2_B22)$
+    schemes:
+      - parser: single_number_split_3
+        crs: "EPSG:7645"
+        grid: {"height": 4500, "width": 4500, "x_anchor": "min", "x_ceil_step": 4500, "x_grid_origin": 1160, "x_offset": 0, "x_scale": 1000, "y_anchor": "min", "y_ceil_step": 4500, "y_grid_origin": 2560, "y_offset": 0, "y_scale": 1000}
+
+  - name: WI_single_number_split_4_W_32
+    match:
+      workunit: ^(WI_Brown_2_2020)$
+    schemes:
+      - parser: single_number_split_4
+        crs: "EPSG:7532"
+        grid: {"height": 1500, "width": 1500, "x_anchor": "min", "x_offset": 49, "x_scale": 100, "y_anchor": "min", "y_offset": 58, "y_scale": 100}
+
+  - name: WI_single_number_split_4_W_33
+    match:
+      workunit: ^(WI_Rusk_1_2020)$
+    schemes:
+      - parser: single_number_split_4
+        crs: "EPSG:7571"
+        grid: {"height": 1500, "width": 1500, "x_anchor": "min", "x_offset": 41, "x_scale": 100, "y_anchor": "min", "y_offset": 19, "y_scale": 100}
+
+  - name: WI_single_number_split_4_W_34
+    match:
+      workunit: ^(WI_StWide_6_Juneau_2021)$
+    schemes:
+      - parser: single_number_split_4
+        crs: "EPSG:7587"
+        grid: {"height": 4500, "width": 4500, "x_anchor": "min", "x_ceil_step": 4500, "x_grid_origin": 2250, "x_offset": 0, "x_scale": 1000, "y_anchor": "min", "y_ceil_step": 4500, "y_grid_origin": 0, "y_offset": 0, "y_scale": 1000}
+
+  - name: WI_single_number_split_4_W_35
+    match:
+      workunit: ^(WI_Ashland_1_2019)$
+    schemes:
+      - parser: single_number_split_4
+        crs: "EPSG:7588"
+        grid: {"height": 2500, "width": 2500, "x_anchor": "min", "x_ceil_step": 2500, "x_offset": 0, "x_scale": 1000, "y_anchor": "min", "y_ceil_step": 2500, "y_offset": 0, "y_scale": 1000}
+
+  - name: WI_single_number_split_4_W_36
+    match:
+      workunit: ^(WI_StWide_8_Marathon_2021)$
+    schemes:
+      - parser: single_number_split_4
+        crs: "EPSG:7618"
+        grid: {"height": 4500, "width": 4500, "x_anchor": "min", "x_ceil_step": 4500, "x_grid_origin": 2250, "x_offset": 0, "x_scale": 1000, "y_anchor": "min", "y_ceil_step": 4500, "y_grid_origin": 0, "y_offset": 0, "y_scale": 1000}
+
+  - name: WI_single_number_split_4_W_37
+    match:
+      workunit: ^(WI_StWide_1_Marinette_2021)$
+    schemes:
+      - parser: single_number_split_4
+        crs: "EPSG:7619"
+        grid: {"height": 4500, "width": 4500, "x_anchor": "min", "x_ceil_step": 4500, "x_grid_origin": 0, "x_offset": 0, "x_scale": 1000, "y_anchor": "min", "y_ceil_step": 4500, "y_grid_origin": 0, "y_offset": 0, "y_scale": 1000}
+
+  - name: WI_single_number_split_4_W_38
+    match:
+      workunit: ^(WI_StWide_2_Pierce_2021)$
+    schemes:
+      - parser: single_number_split_4
+        crs: "EPSG:7624"
+        grid: {"height": 4500, "width": 4500, "x_anchor": "min", "x_ceil_step": 4500, "x_grid_origin": 0, "x_offset": 0, "x_scale": 1000, "y_anchor": "min", "y_ceil_step": 4500, "y_grid_origin": 2250, "y_offset": 0, "y_scale": 1000}
+
+  - name: WI_single_number_split_4_W_39
+    match:
+      workunit: ^(WI_StWide_4_StCroix_2021)$
+    schemes:
+      - parser: single_number_split_4
+        crs: "EPSG:7634"
+        grid: {"height": 4500, "width": 4500, "x_anchor": "min", "x_ceil_step": 4500, "x_grid_origin": 2250, "x_offset": 0, "x_scale": 1000, "y_anchor": "min", "y_ceil_step": 4500, "y_grid_origin": 2250, "y_offset": 0, "y_scale": 1000}
+
+  - name: WI_wi_2500ft_quadrants_W_40
+    match:
+      workunit: ^(WI_Florence_6_2019)$
+    schemes:
+      - parser: wi_2500ft_quadrants
+        crs: "EPSG:7605"
+        grid: {"height": 2500, "width": 2500, "x_anchor": "min", "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_scale": 1}
+
+  - name: WI_wi_2500ft_quadrants_W_41
+    match:
+      workunit: ^(WI_Iron_5_2019)$
+    schemes:
+      - parser: wi_2500ft_quadrants
+        crs: "EPSG:7611"
+        grid: {"height": 2500, "width": 2500, "x_anchor": "min", "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_scale": 1}
+
+  - name: WI_wi_sewrpc_10kft_W_42
+    match:
+      workunit: ^(WI_SEWRPC_2017)$
+    schemes:
+      - parser: wi_sewrpc_10kft
+        crs: "EPSG:6609"
+        grid: {"height": 10000, "width": 10000, "x_anchor": "min", "x_offset": 0, "x_scale": 1, "y_anchor": "min", "y_offset": 0, "y_scale": 1}
+
+  - name: WV_letter_row_number_column_W_43
+    match:
+      workunit: ^(WV_FEMA_R3_East_2016)$
+    schemes:
+      - parser: letter_row_number_column
+        crs: "BOUNDCRS[SOURCECRS[PROJCRS[\"NAD83 / UTM zone 17N\",BASEGEOGCRS[\"NAD83\",DATUM[\"North American Datum 1983\",ELLIPSOID[\"GRS 1980\",6378137,298.257222101,LENGTHUNIT[\"metre\",1]]],PRIMEM[\"Greenwich\",0,ANGLEUNIT[\"degree\",0.0174532925199433]],ID[\"EPSG\",4269]],CONVERSION[\"UTM zone 17N\",METHOD[\"Transverse Mercator\",ID[\"EPSG\",9807]],PARAMETER[\"Latitude of natural origin\",0,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8801]],PARAMETER[\"Longitude of natural origin\",-81,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8802]],PARAMETER[\"Scale factor at natural origin\",0.9996,SCALEUNIT[\"unity\",1],ID[\"EPSG\",8805]],PARAMETER[\"False easting\",500000,LENGTHUNIT[\"meter\",1],ID[\"EPSG\",8806]],PARAMETER[\"False northing\",0,LENGTHUNIT[\"meter\",1],ID[\"EPSG\",8807]]],CS[Cartesian,2],AXIS[\"x\",east,ORDER[1],LENGTHUNIT[\"meter\",1]],AXIS[\"y\",north,ORDER[2],LENGTHUNIT[\"meter\",1]],ID[\"EPSG\",26917]]],TARGETCRS[GEOGCRS[\"WGS 84\",DATUM[\"World Geodetic System 1984\",ELLIPSOID[\"WGS 84\",6378137,298.257223563,LENGTHUNIT[\"metre\",1]]],PRIMEM[\"Greenwich\",0,ANGLEUNIT[\"degree\",0.0174532925199433]],CS[ellipsoidal,2],AXIS[\"latitude\",north,ORDER[1],ANGLEUNIT[\"degree\",0.0174532925199433]],AXIS[\"longitude\",east,ORDER[2],ANGLEUNIT[\"degree\",0.0174532925199433]],ID[\"EPSG\",4326]]],ABRIDGEDTRANSFORMATION[\"Transformation from NAD83 to WGS84\",METHOD[\"Position Vector transformation (geog2D domain)\",ID[\"EPSG\",9606]],PARAMETER[\"X-axis translation\",0,ID[\"EPSG\",8605]],PARAMETER[\"Y-axis translation\",0,ID[\"EPSG\",8606]],PARAMETER[\"Z-axis translation\",0,ID[\"EPSG\",8607]],PARAMETER[\"X-axis rotation\",0,ID[\"EPSG\",8608]],PARAMETER[\"Y-axis rotation\",0,ID[\"EPSG\",8609]],PARAMETER[\"Z-axis rotation\",0,ID[\"EPSG\",8610]],PARAMETER[\"Scale difference\",1,ID[\"EPSG\",8611]]]]"
+        grid: {"height": 1500, "width": 1500, "x_anchor": "min", "x_offset": 259090.17, "x_scale": 1500, "y_anchor": "min", "y_offset": 4045879.91, "y_scale": 1500}

@@ -1,0 +1,37 @@
+# GeoDAR production overlay: acquire one state directory on any operating system.
+#
+# Always merge this file after configs/default.yaml:
+#   python run.py -c configs/default.yaml configs/runs/geodar_state_lidar.yaml
+#
+# The source below is the current Linux example. Override it with the actual
+# GeoDAR state directory on Windows or Linux. Both output_dir values inherit
+# null: downloads, intermediate rasters, and final TIFs use the target directory.
+
+region:
+  init_args:
+    source: /mnt/disk/USA/SurfRef_Data/USA_GeoDAR/GT/AL
+    region: null
+    # Let Pipeline see every target so reporting can count both existing and pending TIFs.
+    # Existing *_lidar.tif files are still reused before any WESM/LAZ work.
+    skip_existing_suffixes: null
+
+reporting:
+  # Change AL together with region.init_args.source when running another state.
+  json_path: ./logs/geodar_AL_run.json
+  log_path: ./logs/geodar_AL.log
+  # false resumes a compatible report; the current disk files always decide what is complete.
+  overwrite: false
+
+pipelines:
+  - name: usgs_lidar
+    enable: true
+    source:
+      init_args:
+        # Produce the DSM needed by alignment. keep_download inherits true from
+        # default.yaml, so both the source LAZ and generated DSM are retained.
+        output_products: [dsm]
+        mode: download
+    acquire:
+      # Each worker downloads then converts its file; up to 4 DSM jobs may overlap.
+      # postprocess_workers inherits 1 from default; it controls the independent B pool.
+      max_workers: 4

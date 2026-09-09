@@ -1,0 +1,345 @@
+# GeoAcquire 完整默认配置，同时也是内置参数目录（中文版）。
+#
+# 这份文件可以单独执行；所有 pipeline 默认关闭，只做配置检查：
+#   python run.py -c configs/default_zh.yaml --check
+#
+# 可以用命令行打开某个数据源并覆盖已有参数：
+#   python run.py -c configs/default_zh.yaml --set pipelines.google.enable=true
+#
+# 后加载的 YAML 按 pipeline.name 合并；postprocess 按列表位置合并，写 [] 才会清空。
+# 因此专用配置只需写变化项，例如：
+#   pipelines:
+#     - name: google
+#       enable: true
+
+# source 支持六种输入：单 bbox、带 CRS 的 bbox、多个命名 bbox、单个目标 TIF、
+# 或 TIF 目录。目录树由调用脚本或命令接口逐个目录运行。bbox 顺序固定为
+# [minx, miny, maxx, maxy]；详细写法见 configs/examples/。
+# class_path 是 Python 类的完整导入路径，程序会按它直接创建对象，不需要注册器。
+# 更换 RegionProvider、Source 或 Postprocessor 时修改对应 class_path 和 init_args。
+# YAML 覆盖中更换 class_path 会替换该组件的 init_args，避免混入旧类参数；
+# 保持原 class_path 时只需覆盖要修改的构造参数。
+region:
+  class_path: geoacquire.regions.bounds.BoundsRegionProvider
+  init_args:
+    source: [-157.0442776, 21.1503038, -157.0405956, 21.1543840]
+    # 单 bbox/TIF 时可指定 Region 名；null 时分别使用 region_0 或 TIF 文件名。
+    # 目录输入时 null 自动取各文件名，也可传与扫描结果等长的名称列表。
+    region: example
+    # 只用于 bbox；TIF 输入始终读取文件自身 CRS，不会被这里覆盖。
+    crs: EPSG:4326
+    # 扫描目标目录时排除内置生成栅格；每项写不写开头下划线效果相同。
+    # null 和 [] 都会关闭排除；这里故意给出具体默认列表，避免结果被再次当成目标。
+    exclude_suffixes: [lidar, dsm, dtm, usgs_dem_1m, nz_dem_1m, google, wayback, copdem, cop]
+    # 例如 [lidar, cop]：同时存在 0_lidar.tif 和 0_cop.tif 时跳过 0.tif；
+    # 这些结果文件也会自动从目标扫描中排除。null 表示不按已有结果跳过。
+    skip_existing_suffixes: null
+
+# 三级输出共用同一份内存状态：终端只给摘要，log 按目标 TIF 记录人可读结果，
+# JSON 保存最完整且可续接的程序状态。路径为 null 时只关闭对应持久文件，终端摘要仍启用。
+# overwrite=false 默认续接同一批输入的兼容 JSON；true 才从头覆盖该报告。
+reporting:
+  json_path: null
+  log_path: null
+  overwrite: false
+
+pipelines:
+  # USGS 3DEP LiDAR：WESM 检索 -> LAZ 下载 -> 可选 DSM/DTM 栅格化。
+  # 下方第一次完整解释 acquire 和 postprocess 通用参数；后续 pipeline 含义相同。
+  # name 是 YAML 合并和日志标识；enable=false 只声明配置，true 才实际运行。
+  - name: usgs_lidar
+    enable: false
+    # 独立的 region 后处理线程数（拼接、裁剪、对齐），先用 1，设 2 可同时处理两个就绪区域。
+    # 不负责下载或 LAZ→DSM；下载与转换在 acquire.max_workers 对应的线程内连续执行。
+    postprocess_workers: 1
+    source:
+      class_path: geoacquire.sources.usgs.lidar.USGSLidarSource
+      init_args:
+        # 可任意组合：laz 是原始点云；dsm 取每格最高点，保留建筑/树木等表面；
+        # dtm 只使用 LAS 地面分类 2。只需对齐高程图时可仅写 [dsm] 或 [dtm]。
+        output_products: [laz, dsm]
+        # DSM/DTM 的像元大小，单位跟点云水平 CRS 一致，美国数据通常为米；不影响 LAZ。
+        raster_resolution: 1.0
+        # DSM 排除的 LAS 分类码；7/18 是低/高噪声。[] 不排除任何分类，null 使用默认 [7,18]。
+        # DTM 固定只用地面分类 2，取每格最低点，不受这个排除列表影响。
+        exclude_classes: [7, 18]
+        # 栅格化时每批最多读取的点数；增大可减少循环但提高内存占用，不改变结果。
+        point_chunk_size: 2000000
+        # true 保留栅格化所用 LAZ；false 在成功生成 DSM/DTM 后删除临时 LAZ。
+        # output_products 包含 laz 时始终保留，因为 LAZ 本身就是最终产品。
+        keep_download: true
+        # USGS 各项目文件名到空间范围的已审核规则；正式下载不会在线读取 LAZ 头猜范围。
+        project_catalog_path: ./configs/usgs_lidar_projects.yaml
+        # 仅 USGS LiDAR 使用：download 正式生产；audit 只检查项目文件名规则并输出
+        # 诊断报告，不下载 LAZ。完整边界和报告字段见 README 的 USGS LiDAR audit 说明。
+        mode: download
+        # 仅 mode=audit 使用；它不是可续跑状态文件 reporting.json_path。
+        audit_report_path: ./logs/usgs_lidar_audit.json
+        # wesm_cache_dir 保存 WESM.gpkg；link_cache_dir 保存 USGS 下载链接清单。
+        # link_cache_days 是清单有效天数，过期后重新联网获取；WESM.gpkg 不受它控制。
+        wesm_cache_dir: ./cache/wesm
+        link_cache_dir: ./cache/link_lists
+        link_cache_days: 10.0
+    acquire:
+      # 下载根目录。null 时：目标 TIF 使用其共同所在目录，纯 bbox 使用 ./output；
+      # 显式填写的相对路径以项目根目录解析。
+      output_dir: null
+      # 文件直接写入这个共享目录，不再创建 Region 子目录；相邻 Region 因此可以
+      # 复用相同源瓦片，不会各自保存一份。
+      # true 发现完整目标文件就直接复用；.part 文件仍用于断点续传。
+      skip_existing: true
+      # 首次失败后最多再试 3 次，即总共最多 4 次。
+      max_retries: 3
+      # 同时执行“下载＋转换”的文件任务数，不是 Region 数；每个线程下载完就转换。
+      # 最多也可能同时生成这么多个 DSM，增大此值会增加内存需求。
+      max_workers: 2
+      # 每次流式读写的字节数；1 MiB 不代表整个文件一次进入内存。
+      chunk_size: 1048576
+      # 重试基础等待秒数，按 2、4、8……指数增加；0 表示立即重试。
+      retry_delay: 2.0
+    postprocess:
+      - class_path: geoacquire.postprocess.raster_align.RasterAlignToTargetPostprocessor
+        init_args:
+          # 最终文件名后缀：Region 0 默认生成 0_lidar.tif。
+          output_suffix: lidar
+          # LocalAsset.product 描述文件内容，不是文件名后缀。
+          # 内置 acquisition 栅格产品：USGS LiDAR=dsm/dtm；USGS/LINZ/CopDEM=dem；
+          # Google/Wayback=imagery；laz 是 point_cloud，不能进入这个栅格后处理器。
+          # 类型为 list[str] | null：[dsm] 只选 dsm；null 选择当前 pipeline 报告中的
+          # 全部 kind=raster 资产；[] 非法。对齐后的输出仍为 product=dsm。
+          input_products: [dsm]
+          # null 时放在本 pipeline 的 acquire 产生的第一个 DSM/DEM/GeoTIFF 所在目录；
+          # 填写路径时直接放入该目录。文件名只由 region 名和 output_suffix 控制。
+          output_dir: null
+          # true 使用目标 TIF 派生网格并重投影/重采样；false 只按目标范围裁剪，
+          # 保留第一个输入栅格的 CRS 和像元大小，因此不保证与目标网格严格对齐。
+          resample: true
+          # resample=true 时：1 与目标 transform/shape 严格一致；N 保持同一范围和左上角，
+          # 像元放大 N 倍、宽高缩小 N 倍。目标宽高必须能被 N 整除。
+          target_scale: 1
+          # nearest 适合类别；bilinear/cubic/cubic_spline/lanczos 适合连续影像或高程；
+          # average 常用于连续数据降采样，mode 用于类别降采样；也接受 Rasterio 其他方法。
+          resampling: bilinear
+          # 输入按路径排序；first 保留先写入的有效像元，last 让后写入的数据覆盖重叠区。
+          merge_method: first
+          # 单次读写窗口的最大行列数；减小可省内存，增大可减少 I/O 调用，不改变结果。
+          window_size: 1024
+          # true 时最终对齐文件已存在就复用；只影响 postprocess，不控制源文件下载。
+          skip_existing: true
+          # ignore 不检查高程基准；warn_once 发现源和目标垂直 CRS 不同只警告一次。
+          # 两种模式都不会自动做垂直基准转换，遥感影像通常使用 ignore。
+          vertical_datum_policy: warn_once
+          # bbox 没有目标 TIF：true 跳过对齐但保留下载结果，false 将其记为失败。
+          skip_without_target: true
+
+  # USGS 3DEP 1 m DEM：WESM 检索 -> 原生 GeoTIFF 下载。
+  - name: usgs_dem_1m
+    enable: false
+    postprocess_workers: 1
+    source:
+      class_path: geoacquire.sources.usgs.dem_1m.USGSDEM1mSource
+      init_args:
+        # north 用 EPSG:326xx、south 用 EPSG:327xx 解码 UTM 瓦片名；美国本土、
+        # 阿拉斯加和夏威夷均在北半球，应使用 north。它表示半球，不是图像朝向。
+        hemisphere: north
+        # 在原文件扩展名前加后缀，例如 tile.tif -> tile_usgs_dem_1m.tif；null 保留原文件名。
+        filename_suffix: usgs_dem_1m
+        # 与 LiDAR 相同：WESM 数据库目录、链接清单目录、清单缓存有效天数。
+        wesm_cache_dir: ./cache/wesm
+        link_cache_dir: ./cache/link_lists
+        link_cache_days: 10.0
+    # acquire 的目录、跳过、重试、并发和分块参数含义与 usgs_lidar 完全相同。
+    acquire:
+      output_dir: null
+      skip_existing: true
+      max_retries: 3
+      max_workers: 2
+      chunk_size: 1048576
+      retry_delay: 2.0
+    postprocess:
+      # RasterAlign 的参数含义见 usgs_lidar；这里只改变文件后缀和输入产品。
+      - class_path: geoacquire.postprocess.raster_align.RasterAlignToTargetPostprocessor
+        init_args:
+          output_suffix: usgs_dem_1m
+          input_products: [dem]
+          output_dir: null
+          resample: true
+          target_scale: 1
+          resampling: bilinear
+          merge_method: first
+          window_size: 1024
+          skip_existing: true
+          vertical_datum_policy: warn_once
+          skip_without_target: true
+
+  # LINZ 新西兰全国 LiDAR 1 米 DEM：静态 STAC -> 原生 COG GeoTIFF。
+  - name: linz_nz_dem_1m
+    enable: false
+    postprocess_workers: 1
+    source:
+      class_path: geoacquire.sources.linz.dem_1m.LINZDEM1mSource
+      init_args:
+        # 官方公开 Collection，不需要 LINZ 账号、API Key 或 AWS 凭证。
+        collection_url: https://nz-elevation.s3-ap-southeast-2.amazonaws.com/new-zealand/new-zealand/dem_1m/2193/collection.json
+        # 首次运行并发读取轻量 STAC Item JSON，生成一份 footprint/URL 本地索引；
+        # 后续只读取缓存，且永远不会下载与目标范围不相交的 DEM COG。
+        catalog_cache_path: ./cache/linz/nz_dem_1m_stac.json
+        catalog_cache_days: 10.0
+        catalog_workers: 16
+        # 原文件是 AS21.tiff 一类图幅名；后缀可避免共享目录中的文件冲突，null 保留原名。
+        filename_suffix: nz_dem_1m
+    # 每个命中文件是完整的 LINZ 1:50,000 COG，可能较大。本 Source 不会下载全国数据，
+    # 但也不会在服务器端先按 bbox 裁小。
+    acquire:
+      output_dir: null
+      skip_existing: true
+      max_retries: 3
+      max_workers: 2
+      chunk_size: 1048576
+      retry_delay: 2.0
+    postprocess:
+      - class_path: geoacquire.postprocess.raster_align.RasterAlignToTargetPostprocessor
+        init_args:
+          output_suffix: nz_dem_1m
+          input_products: [dem]
+          output_dir: null
+          resample: true
+          target_scale: 1
+          resampling: bilinear
+          merge_method: first
+          window_size: 1024
+          skip_existing: true
+          # 源高程采用 NZVD2016；这里仅提示差异，不执行垂直基准转换。
+          vertical_datum_policy: warn_once
+          skip_without_target: true
+
+  # Google 卫星影像 XYZ 瓦片。
+  - name: google
+    enable: false
+    postprocess_workers: 1
+    source:
+      class_path: geoacquire.sources.rs.google.GoogleSource
+      init_args:
+        # XYZ 服务模板，必须保留 {x}/{y}/{z} 占位符；可替换为兼容服务地址。
+        server: "http://arcmap.googlecnapps.club/maps/vt?lyrs=s&x={x}&y={y}&z={z}&s=Ga"
+        # XYZ 层级越大越细；每增加一级，线性像素密度约翻倍、同一区域瓦片数约变四倍。
+        zoom: 18
+        # 原始瓦片扩展名，通常为 jpg 或 png，必须与服务实际返回的编码一致。
+        tile_ext: jpg
+        # image（别名 jpg/raw）只保留原始图片，没有地理参考，当前 RasterAlign 不会处理；
+        # geotiff（别名 tif）把每张瓦片转成 EPSG:3857 TIF，可继续拼接、裁剪和对齐。
+        output_format: geotiff
+        # geotiff 模式下 true 同时保留 JPG/PNG，false 转换成功后删除原始图片。
+        keep_download: true
+    # acquire 参数含义与 usgs_lidar 相同；max_workers 控制瓦片“下载＋转换”的并发。
+    acquire:
+      output_dir: null
+      skip_existing: true
+      max_retries: 3
+      max_workers: 4
+      chunk_size: 1048576
+      retry_delay: 2.0
+    postprocess:
+      # RasterAlign 参数含义见 usgs_lidar；光学影像没有垂直基准，所以使用 ignore。
+      - class_path: geoacquire.postprocess.raster_align.RasterAlignToTargetPostprocessor
+        init_args:
+          output_suffix: google
+          input_products: [imagery]
+          output_dir: null
+          resample: true
+          target_scale: 1
+          resampling: bilinear
+          merge_method: first
+          window_size: 1024
+          skip_existing: true
+          vertical_datum_policy: ignore
+          skip_without_target: true
+
+  # Esri World Imagery Wayback 历史版本 XYZ 影像。
+  - name: wayback
+    enable: false
+    postprocess_workers: 1
+    source:
+      class_path: geoacquire.sources.rs.wayback.WaybackSource
+      init_args:
+        # null 选择最新发布版本；YYYY-MM-DD 选择发布日期最接近的版本。
+        # 这是 Wayback 服务发布日期，不等于影像真实拍摄日期。
+        date: null
+        # 通常两项都保持 null，让程序根据 date 查询。手动指定 version 时必须同时给
+        # release_date（YYYY-MM-DD），前者进入下载 URL，后者用于文件名和元数据。
+        version: null
+        release_date: null
+        # 服务模板必须保留 {version}/{z}/{y}/{x} 占位符。
+        server: "https://wayback.maptiles.arcgis.com/arcgis/rest/services/World_Imagery/WMTS/1.0.0/default028mm/MapServer/tile/{version}/{z}/{y}/{x}"
+        # zoom/tile_ext/output_format/keep_download 与 Google 含义相同。
+        zoom: 18
+        tile_ext: jpg
+        output_format: geotiff
+        keep_download: true
+    # acquire 参数含义与 usgs_lidar 相同。
+    acquire:
+      output_dir: null
+      skip_existing: true
+      max_retries: 3
+      max_workers: 4
+      chunk_size: 1048576
+      retry_delay: 2.0
+    postprocess:
+      # RasterAlign 参数含义见 usgs_lidar；光学影像没有垂直基准。
+      - class_path: geoacquire.postprocess.raster_align.RasterAlignToTargetPostprocessor
+        init_args:
+          output_suffix: wayback
+          input_products: [imagery]
+          output_dir: null
+          resample: true
+          target_scale: 1
+          resampling: bilinear
+          merge_method: first
+          window_size: 1024
+          skip_existing: true
+          vertical_datum_policy: ignore
+          skip_without_target: true
+
+  # Copernicus DEM：CDSE 登录 -> 产品检索 -> ZIP 下载 -> DEM TIF 提取。
+  - name: copdem
+    enable: false
+    postprocess_workers: 1
+    source:
+      class_path: geoacquire.sources.copdem.source.CopDEMSource
+      init_args:
+        # 项目按约定直接从 YAML 读取账号密码；真实值放进被忽略的私有配置，不要提交。
+        username: REPLACE_WITH_CDSE_EMAIL
+        password: REPLACE_WITH_CDSE_PASSWORD
+        # "30" 约 30 m、"90" 约 90 m；必须加引号以保持字符串类型。
+        resolution: "30"
+        # DGED（Digital Geospatial Elevation Data）和 DTED（Digital Terrain Elevation Data）
+        # 选择 CDSE 中不同产品类型；通常保持默认 DGED，只有下游明确要求 DTED 时再改。
+        dem_format: DGED
+        # false 提取 DEM 后删除下载的 ZIP；true 同时保留 ZIP 和提取出的 TIF。
+        keep_archive: false
+        # 区分提取出的源 DEM 瓦片与最终对齐的 *_cop.tif。
+        filename_suffix: copdem
+    # 除 max_workers 外，其余 acquire 参数与 HTTP 数据源含义相同。
+    acquire:
+      output_dir: null
+      skip_existing: true
+      max_retries: 3
+      # CopDEM 使用有登录状态的串行客户端，目前此值不生效；写 1 表达真实行为。
+      max_workers: 1
+      chunk_size: 1048576
+      retry_delay: 2.0
+    postprocess:
+      # RasterAlign 参数含义见 usgs_lidar；CopDEM 默认生成目标尺度的 32 倍降采样网格。
+      - class_path: geoacquire.postprocess.raster_align.RasterAlignToTargetPostprocessor
+        init_args:
+          output_suffix: cop
+          input_products: [dem]
+          output_dir: null
+          resample: true
+          target_scale: 32
+          resampling: bilinear
+          merge_method: first
+          window_size: 1024
+          skip_existing: true
+          vertical_datum_policy: warn_once
+          skip_without_target: true

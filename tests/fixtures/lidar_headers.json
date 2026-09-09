@@ -1,0 +1,1773 @@
+[
+  {
+    "workunit": "FL_ManateeCo_1_B25",
+    "project": "FL_ManateeCounty_B25",
+    "horiz_crs": "6443",
+    "rule": "FL_FDEM_5000ft_index",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/FL_ManateeCounty_B25/FL_ManateeCo_1_B25/LAZ",
+    "samples": [
+      ["USGS_LPC_FL_ManateeCounty_B25_LID2025_487729_W.laz",[640000,1039672.02,640327.99,1040000],"EPSG:6443"],
+      ["USGS_LPC_FL_ManateeCounty_B25_LID2025_477493_W.laz",[464672.44,1205000.03,464950.2,1205313.43],"EPSG:6443"],
+      ["USGS_LPC_FL_ManateeCounty_B25_LID2025_481400_W.laz",[495000,1140000,500000,1145000],"EPSG:6443"]
+    ]
+  },
+  {
+    "workunit": "CA_LAPostWildfire_Eaton_C25",
+    "project": "CA_2025LosAngelesPostWildfire_C25",
+    "horiz_crs": "6340",
+    "rule": "CA_PostWildfire_750m",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CA_2025LosAngelesPostWildfire_C25/CA_LAPostWildfire_Eaton_C25/LAZ",
+    "samples": [
+      ["USGS_LPC_CA_2025LosAngelesPostWildfire_C25_11SMT004072037852.laz",[407250,3785250,407348.59,3785537.2],null],
+      ["USGS_LPC_CA_2025LosAngelesPostWildfire_C25_11SLT003900037837.laz",[390643.58,3784331.19,390750,3784500],null],
+      ["USGS_LPC_CA_2025LosAngelesPostWildfire_C25_11SLT003990037807.laz",[399000,3780750,399750,3781500],null]
+    ]
+  },
+  {
+    "workunit": "UT_COUTAML_2_D24",
+    "project": "UT_COUTAML_D24",
+    "horiz_crs": "6342",
+    "rule": "UT_COUTAML_2_1km",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/UT_COUTAML_D24/UT_COUTAML_2_D24/LAZ",
+    "samples": [
+      ["USGS_LPC_UT_COUTAML_D24_13SBB630800.laz",[263217.99,4180369.15,263999.99,4180999.99],"EPSG:6342"],
+      ["USGS_LPC_UT_COUTAML_D24_13SCC200480.laz",[320000,4248000,320999.99,4248999.99],"EPSG:6342"],
+      ["USGS_LPC_UT_COUTAML_D24_13TDE690370.laz",[469000,4437000,469583.69,4437454.42],"EPSG:6342"]
+    ]
+  },
+  {
+    "workunit": "CA_LosAngeles_1_B23",
+    "project": "CA_LosAngeles_B23",
+    "horiz_crs": "6340",
+    "rule": "CA_LosAngeles_1km",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CA_LosAngeles_B23/CA_LosAngeles_1_B23/LAZ",
+    "samples": [
+      ["USGS_LPC_CA_LosAngeles_B23_11SMU044000380400.laz",[440000,3804000,440020.68,3804334.72],"EPSG:6340"],
+      ["USGS_LPC_CA_LosAngeles_B23_11SKT022900377200.laz",[229366.43,3772092.96,229999.99,3772999.98],null],
+      ["USGS_LPC_CA_LosAngeles_B23_11SLU036700380400.laz",[367000,3804000,367999.99,3804999.99],null]
+    ]
+  },
+  {
+    "workunit": "CA_NorthCoastRanges_2_B23",
+    "project": "CA_NorthCoastRanges_B23",
+    "horiz_crs": "6339",
+    "rule": "CA_NorthCoastRanges_1km",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CA_NorthCoastRanges_B23/CA_NorthCoastRanges_2_B23/LAZ",
+    "samples": [
+      ["USGS_LPC_CA_NorthCoastRanges_B23_466336.laz",[466921.62,4336862.97,467499.99,4337000],null],
+      ["USGS_LPC_CA_NorthCoastRanges_B23_542266.laz",[542500,4266000,543500,4266999.99],null],
+      ["USGS_LPC_CA_NorthCoastRanges_B23_587268.laz",[587500.01,4268000,587641.91,4268958],null]
+    ]
+  },
+  {
+    "workunit": "CA_CaliforniaGaps_3_B23",
+    "project": "CA_CaliforniaGaps_B23",
+    "horiz_crs": "6339",
+    "rule": "CA_Gaps_1km_absolute_MGRS",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CA_CaliforniaGaps_B23/CA_CaliforniaGaps_3_B23/LAZ",
+    "samples": [
+      ["USGS_LPC_CA_CaliforniaGaps_B23_10SGD725856.laz",[725000.01,3856000,726000,3856999.99],null],
+      ["USGS_LPC_CA_CaliforniaGaps_B23_10SGD774870.laz",[774000.01,3870000,774110.57,3870999.99],null],
+      ["USGS_LPC_CA_CaliforniaGaps_B23_10SEG542151.laz",[542995.57,4151996.09,542999.93,4151999.97],"EPSG:6339"]
+    ]
+  },
+  {
+    "workunit": "CA_NorthernCA_1_B22",
+    "project": "CA_NorthernCA_B22",
+    "horiz_crs": "6339",
+    "rule": "CA_UTM_1km_MGRS",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CA_NorthernCA_B22/CA_NorthernCA_1_B22/LAZ",
+    "samples": [
+      ["USGS_LPC_CA_NorthernCA_B22_10SEJ1500.laz",[515000.01,4300000,515979.01,4300266.4],null],
+      ["USGS_LPC_CA_NorthernCA_B22_10SDH5389.laz",[453918.03,4289964.5,453999.91,4290000],"EPSG:6339"],
+      ["USGS_LPC_CA_NorthernCA_B22_10SEH1099.laz",[510000,4299000,511000,4299999.99],null]
+    ]
+  },
+  {
+    "workunit": "CA_ContraCosta_1_2022",
+    "project": "CA_ContraCosta_B22",
+    "horiz_crs": "6339",
+    "rule": "CA_ContraCosta_1km",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CA_ContraCosta_B22/CA_ContraCosta_1_2022/LAZ",
+    "samples": [
+      ["USGS_LPC_CA_ContraCosta_B22_e0606n4193.laz",[606000.01,4193000,607000,4193999.99],null],
+      ["USGS_LPC_CA_ContraCosta_B22_e0594n4190.laz",[594776.86,4190454.65,595000,4190999.99],null],
+      ["USGS_LPC_CA_ContraCosta_B22_e0622n4186.laz",[622000.01,4186000,622104.78,4186477.8],null]
+    ]
+  },
+  {
+    "workunit": "CO_NWCO_2_2020",
+    "project": "CO_NorthwestCO_2020_D20",
+    "horiz_crs": "6430",
+    "rule": "CO_StatePlane_5k_axis",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CO_NorthwestCO_2020_D20/CO_NWCO_2_2020/LAZ",
+    "samples": [
+      ["USGS_LPC_CO_NorthwestCO_2020_D20_w2235n1470.laz",[2235000,1470000,2239999.999,1474999.998],"EPSG:6430"],
+      ["USGS_LPC_CO_NorthwestCO_2020_D20_w2730n1430.laz",[2730000,1430000,2734999.999,1434999.999],"EPSG:6430"],
+      ["USGS_LPC_CO_NorthwestCO_2020_D20_w3155n1600.laz",[3155000,1600000.009,3155327.375,1603180.936],"EPSG:6430"]
+    ]
+  },
+  {
+    "workunit": "CA_AlamedaCo_3_2021",
+    "project": "CA_AlamedaCounty_2021_B21",
+    "horiz_crs": "6420",
+    "rule": "CA_Alameda_3k",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CA_AlamedaCounty_2021_B21/CA_AlamedaCo_3_2021/LAZ",
+    "samples": [
+      ["USGS_LPC_CA_AlamedaCounty_2021_B21_w6162n2076.laz",[6162000,2076000,6164999.99,2078999.99],"EPSG:6420"],
+      ["USGS_LPC_CA_AlamedaCounty_2021_B21_w6027n2118.laz",[6029535.08,2118026.11,6029999.99,2120156.5],"EPSG:6420"],
+      ["USGS_LPC_CA_AlamedaCounty_2021_B21_w6225n2079.laz",[6225000,2079000,6225802.22,2079595.66],"EPSG:6420"]
+    ]
+  },
+  {
+    "workunit": "CA_SanJoaquin_1_2021",
+    "project": "CA_SanJoaquin_2021_A21",
+    "horiz_crs": "6420",
+    "rule": "CA_SanJoaquin_2500ft",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CA_SanJoaquin_2021_A21/CA_SanJoaquin_1_2021/LAZ",
+    "samples": [
+      ["USGS_LPC_CA_SanJoaquin_2021_A21_s63925w21150.laz",[6392500.01,2115000.01,6395000,2117500],null],
+      ["USGS_LPC_CA_SanJoaquin_2021_A21_s62225w21125.laz",[6223180.56,2113111.67,6225000,2115000],null],
+      ["USGS_LPC_CA_SanJoaquin_2021_A21_s65325w19700.laz",[6534000,1970000.01,6535000,1972475.63],null]
+    ]
+  },
+  {
+    "workunit": "CA_SanJoaquin_3_2021",
+    "project": "CA_SanJoaquin_2021_A21",
+    "horiz_crs": "6422",
+    "rule": "CA_SanJoaquin_2500ft",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CA_SanJoaquin_2021_A21/CA_SanJoaquin_3_2021/LAZ",
+    "samples": [
+      ["USGS_LPC_CA_SanJoaquin_2021_A21_s62575w21300.laz",[6257500.01,2130000.01,6260000,2132500],null],
+      ["USGS_LPC_CA_SanJoaquin_2021_A21_s60025w21450.laz",[6004000.01,2146000.01,6004999.99,2147500],null],
+      ["USGS_LPC_CA_SanJoaquin_2021_A21_s65075w20825.laz",[6507500.01,2082500.01,6508999.98,2085000],null]
+    ]
+  },
+  {
+    "workunit": "CA_SanJoaquin_7_2021",
+    "project": "CA_SanJoaquin_2021_A21",
+    "horiz_crs": "6424",
+    "rule": "CA_SanJoaquin_2500ft",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CA_SanJoaquin_2021_A21/CA_SanJoaquin_7_2021/LAZ",
+    "samples": [
+      ["USGS_LPC_CA_SanJoaquin_2021_A21_s60125w23500.laz",[6014000.01,2352000.01,6015000,2352500],null],
+      ["USGS_LPC_CA_SanJoaquin_2021_A21_s62150w22350.laz",[6215000.01,2235000.01,6217500,2237500],null],
+      ["USGS_LPC_CA_SanJoaquin_2021_A21_s63875w22950.laz",[6387500.01,2295000.01,6388000,2295999.99],null]
+    ]
+  },
+  {
+    "workunit": "CO_SanLuisJuanMiguel_4_2020",
+    "project": "CO_SanLuisJuanMiguel_2020_D20",
+    "horiz_crs": "6342",
+    "rule": "CO_UTM_1km_MGRS",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CO_SanLuisJuanMiguel_2020_D20/CO_SanLuisJuanMiguel_4_2020/LAZ",
+    "samples": [
+      ["USGS_LPC_CO_SanLuisJuanMiguel_2020_D20_13S_DC_5501.laz",[455000,4201000,455612.491,4201900.666],null],
+      ["USGS_LPC_CO_SanLuisJuanMiguel_2020_D20_13S_BB_3593.laz",[235540.533,4193310.788,236000,4194000],null],
+      ["USGS_LPC_CO_SanLuisJuanMiguel_2020_D20_13S_DB_0843.laz",[408000,4143000,408999.999,4143999.999],null]
+    ]
+  },
+  {
+    "workunit": "FL_HurricaneMichael_7_2020",
+    "project": "FL_HurricaneMichael_2020_D20",
+    "horiz_crs": "6441",
+    "rule": "FL_FDEM_5000ft_index",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/FL_HurricaneMichael_2020_D20/FL_HurricaneMichael_7_2020/LAZ",
+    "samples": [
+      ["USGS_LPC_FL_HurricaneMichael_2020_D20_LID2019_647650_N.laz",[1495000,525000,1500000,530000],"EPSG:6441"],
+      ["USGS_LPC_FL_HurricaneMichael_2020_D20_LID2019_657929_N.laz",[1590000,430000,1595000,435000],"EPSG:6441"],
+      ["USGS_LPC_FL_HurricaneMichael_2020_D20_LID2019_680106_N.laz",[1775000.01,225759.6,1780000,230000],"EPSG:6441"]
+    ]
+  },
+  {
+    "workunit": "CO_CentralEasternPlains_3_2020",
+    "project": "CO_CentralEasternPlains_2020_D20",
+    "horiz_crs": "6342",
+    "rule": "CO_UTM_1km_MGRS",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CO_CentralEasternPlains_2020_D20/CO_CentralEasternPlains_3_2020/LAZ",
+    "samples": [
+      ["USGS_LPC_CO_CentralEasternPlains_2020_D20_13S_GD_5634.laz",[756000,4334000.014,756068.644,4334702.565],null],
+      ["USGS_LPC_CO_CentralEasternPlains_2020_D20_13S_FD_5718.laz",[657917.504,4318150.593,657999.999,4318999.997],null],
+      ["USGS_LPC_CO_CentralEasternPlains_2020_D20_13S_GD_0855.laz",[708000,4355000.001,708999.999,4355999.999],null]
+    ]
+  },
+  {
+    "workunit": "CA_CarrHirzDeltaFires_1_2019",
+    "project": "CA_CarrHirzDeltaFires_2019_B19",
+    "horiz_crs": "6339",
+    "rule": "CA_CarrHirz_750m",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CA_CarrHirzDeltaFires_2019_B19/CA_CarrHirzDeltaFires_1_2019/LAZ",
+    "samples": [
+      ["USGS_LPC_CA_CarrHirzDeltaFires_2019_B19_10TDK0479244992.laz",[479686.61,4499923.3,479999.99,4499999.99],null],
+      ["USGS_LPC_CA_CarrHirzDeltaFires_2019_B19_10TEK0543744970.laz",[543750,4497000,544499.99,4497749.99],null],
+      ["USGS_LPC_CA_CarrHirzDeltaFires_2019_B19_10TEL0544545765.laz",[544500,4576500,545249.99,4576780.32],null]
+    ]
+  },
+  {
+    "workunit": "CA_UpperSouthAmerican_Eldorado_2019",
+    "project": "CA_UpperSouthAmerican_Eldorado_2019_B19",
+    "horiz_crs": "6418",
+    "rule": "CA_Eldorado_2500ft",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CA_UpperSouthAmerican_Eldorado_2019_B19/CA_UpperSouthAmerican_Eldorado_2019/LAZ",
+    "samples": [
+      ["USGS_LPC_CA_UpperSouthAmerican_Eldorado_2019_B19_11SKC183978.laz",[7182500.001,1979187.047,7182565.716,1979434.698],"EPSG:6418"],
+      ["USGS_LPC_CA_UpperSouthAmerican_Eldorado_2019_B19_10SFG663633.laz",[6664595.01,1632942.145,6664999.999,1634469.452],"EPSG:6418"],
+      ["USGS_LPC_CA_UpperSouthAmerican_Eldorado_2019_B19_10SFJ911066.laz",[6910000.001,2064999.998,6912499.999,2067500],"EPSG:6418"]
+    ]
+  },
+  {
+    "workunit": "FL_Peninsular_FDEM_Hamilton_2018",
+    "project": "FL_Peninsular_FDEM_2018_D19_DRRA",
+    "horiz_crs": "6441",
+    "rule": "FL_FDEM_5000ft_index",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/FL_Peninsular_FDEM_2018_D19_DRRA/FL_Peninsular_FDEM_Hamilton_2018/LAZ",
+    "samples": [
+      ["USGS_LPC_FL_Peninsular_FDEM_2018_D19_DRRA_LID2019_645679_N.laz",[2440000,545000,2445000,550000],"EPSG:6441"],
+      ["USGS_LPC_FL_Peninsular_FDEM_2018_D19_DRRA_LID2019_640262_N.laz",[2355000,595000,2360000,600000],"EPSG:6441"],
+      ["USGS_LPC_FL_Peninsular_FDEM_2018_D19_DRRA_LID2019_652717_N.laz",[2530000,480000,2535000,485000],"EPSG:6441"]
+    ]
+  },
+  {
+    "workunit": "CA_FEMAR9Fresno_2_2019",
+    "project": "CA_FEMAR9Fresno_2019_D20",
+    "horiz_crs": "6340",
+    "rule": "CA_Fresno_zone11_1km",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CA_FEMAR9Fresno_2019_D20/CA_FEMAR9Fresno_2_2019/LAZ",
+    "samples": [
+      ["USGS_LPC_CA_FEMAR9Fresno_2019_D20_11SKB630060.laz",[263000,4106000,263054.65,4106236.45],"EPSG:6340"],
+      ["USGS_LPC_CA_FEMAR9Fresno_2019_D20_10SKA310660.laz",[231907.78,4066000,232000,4066999.99],"EPSG:6340"],
+      ["USGS_LPC_CA_FEMAR9Fresno_2019_D20_11SKA570820.laz",[257000,4082000,257999.99,4082999.99],"EPSG:6340"]
+    ]
+  },
+  {
+    "workunit": "CA_YosemiteNP_2019",
+    "project": "CA_YosemiteNP_2019_D19",
+    "horiz_crs": "6340",
+    "rule": "CA_UTM_1km_MGRS",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CA_YosemiteNP_2019_D19/CA_YosemiteNP_2019/LAZ",
+    "samples": [
+      ["USGS_LPC_CA_YosemiteNP_2019_D19_11SKB9065.laz",[290000,4165000,290920.05,4166000],"EPSG:6340"],
+      ["USGS_LPC_CA_YosemiteNP_2019_D19_11SLC0100.laz",[301000,4200000,301529.06,4200957.03],"EPSG:6340"],
+      ["USGS_LPC_CA_YosemiteNP_2019_D19_11SKB4588.laz",[245946.96,4188506.77,246000,4188841.46],"EPSG:6340"]
+    ]
+  },
+  {
+    "workunit": "CO_Southwest_NRCS_B2_2018",
+    "project": "CO_Southwest_NRCS_2018_D18",
+    "horiz_crs": "6350",
+    "rule": "CO_Albers_1km_axis",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CO_Southwest_NRCS_2018_D18/CO_Southwest_NRCS_B2_2018/LAZ",
+    "samples": [
+      ["USGS_LPC_CO_Southwest_NRCS_2018_D18_w1079n1689.laz",[-1079000,1689000,-1078000,1690000],null],
+      ["USGS_LPC_CO_Southwest_NRCS_2018_D18_w0952n1732.laz",[-951999.99,1732000,-951000,1733000],null],
+      ["USGS_LPC_CO_Southwest_NRCS_2018_D18_w1002n1713.laz",[-1001999.99,1713000,-1001000,1714000],null]
+    ]
+  },
+  {
+    "workunit": "CO_NESEColorado_3_2019",
+    "project": "CO_NESEColorado_2019_C20",
+    "horiz_crs": "6432",
+    "rule": "CO_StatePlane_LD_central_south",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CO_NESEColorado_2019_C20/CO_NESEColorado_3_2019/LAZ",
+    "samples": [
+      ["USGS_LPC_CO_NESEColorado_2019_C20_LD38561369.laz",[3856000.003,1369000.001,3858999.998,1372000],null],
+      ["USGS_LPC_CO_NESEColorado_2019_C20_LD37061213.laz",[3707115.404,1214314.821,3709000,1215999.999],null],
+      ["USGS_LPC_CO_NESEColorado_2019_C20_LD40091165.laz",[4009000.002,1165000.002,4009096.517,1167470.863],"EPSG:6432"]
+    ]
+  },
+  {
+    "workunit": "CO_ParkFremontCuster_1_2018",
+    "project": "CO_ParkFremontCuster_2018_C21",
+    "horiz_crs": "6342",
+    "rule": "CO_UTM_1km_MGRS",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CO_ParkFremontCuster_2018_C21/CO_ParkFremontCuster_1_2018/LAZ",
+    "samples": [
+      ["USGS_LPC_CO_ParkFremontCuster_2018_C21_13SEC0663.laz",[506000,4263000.01,506285.29,4263212.41],"EPSG:6342"],
+      ["USGS_LPC_CO_ParkFremontCuster_2018_C21_13SCD9144.laz",[391911.46,4344081.25,391999.99,4344999.99],"EPSG:6342"],
+      ["USGS_LPC_CO_ParkFremontCuster_2018_C21_13SDC8309.laz",[483000.01,4209000.01,483999.99,4209999.99],"EPSG:6342"]
+    ]
+  },
+  {
+    "workunit": "FL_Peninsular_Lake_2018",
+    "project": "FL_Peninsular_2018_D18",
+    "horiz_crs": "6438",
+    "rule": "FL_FDEM_5000ft_index",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/FL_Peninsular_2018_D18/FL_Peninsular_Lake_2018/LAZ",
+    "samples": [
+      ["USGS_LPC_FL_Peninsular_2018_D18_LID2019_243357_E.laz",[450000.01,1775000,455000,1779999.99],"EPSG:6438"],
+      ["USGS_LPC_FL_Peninsular_2018_D18_LID2019_252654_E.laz",[435000.01,1620000,440000,1625000],"EPSG:6438"],
+      ["USGS_LPC_FL_Peninsular_2018_D18_LID2019_262255_E.laz",[440000,1460000.01,444999.99,1464999.96],"EPSG:6438"]
+    ]
+  },
+  {
+    "workunit": "FL_Peninsular_Marion_2018",
+    "project": "FL_Peninsular_2018_D18",
+    "horiz_crs": "6443",
+    "rule": "FL_FDEM_5000ft_index",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/FL_Peninsular_2018_D18/FL_Peninsular_Marion_2018/LAZ",
+    "samples": [
+      ["USGS_LPC_FL_Peninsular_2018_D18_LID2019_443901_W.laz",[500000,1765000,505000,1770000],"EPSG:6443"],
+      ["USGS_LPC_FL_Peninsular_2018_D18_LID2019_437332_W.laz",[655000,1875000.01,659999.99,1880000],"EPSG:6443"],
+      ["USGS_LPC_FL_Peninsular_2018_D18_LID2019_449053_W.laz",[760000,1680000,765000,1684999.99],"EPSG:6443"]
+    ]
+  },
+  {
+    "workunit": "FL_Southeast_B2_2018",
+    "project": "FL_Southeast_2018_D18_SUPPLEMENTAL",
+    "horiz_crs": "6350",
+    "rule": "FL_Conus_Albers_1km_axis",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/FL_Southeast_2018_D18_SUPPLEMENTAL/FL_Southeast_B2_2018/LAZ",
+    "samples": [
+      ["USGS_LPC_FL_Southeast_2018_D18_SUPPLEMENTAL_e1498n0432.laz",[1498900.15,432900.02,1499000,433000],"EPSG:6350"],
+      ["USGS_LPC_FL_Southeast_2018_D18_SUPPLEMENTAL_e1543n0454.laz",[1543000.01,454000.01,1544000,455000],"EPSG:6350"],
+      ["USGS_LPC_FL_Southeast_2018_D18_SUPPLEMENTAL_e1585n0497.laz",[1585000.01,497000.01,1586000,497100],"EPSG:6350"]
+    ]
+  },
+  {
+    "workunit": "CA_SoCal_Wildfires_B1_2018",
+    "project": "CA_SoCAL_Wildfires_2018_D18",
+    "horiz_crs": "6350",
+    "rule": "CA_Wildfires_Albers_1km",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CA_SoCAL_Wildfires_2018_D18/CA_SoCal_Wildfires_B1_2018/LAZ",
+    "samples": [
+      ["USGS_LPC_CA_SoCAL_Wildfires_2018_D18_w1879n1438.laz",[-1879000,1438000,-1878000.01,1438999.99],"EPSG:6350"],
+      ["USGS_LPC_CA_SoCAL_Wildfires_2018_D18_w1945n1399.laz",[-1945000,1399000,-1944000.01,1399999.99],"EPSG:6350"],
+      ["USGS_LPC_CA_SoCAL_Wildfires_2018_D18_w2016n1422.laz",[-2016000,1422000,-2015000.01,1422999.99],"EPSG:6350"]
+    ]
+  },
+  {
+    "workunit": "CO_Eastern_B6_2018",
+    "project": "CO_EasternColorado_2018_A18",
+    "horiz_crs": "6432",
+    "rule": "CO_StatePlane_LD_central_south",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CO_EasternColorado_2018_A18/CO_Eastern_B6_2018/LAZ",
+    "samples": [
+      ["USGS_LPC_CO_EasternColorado_2018_A18_LD29951336.laz",[2997829.594,1337344.733,2997999.999,1338999.972],null],
+      ["USGS_LPC_CO_EasternColorado_2018_A18_LD32111339.laz",[3211000,1339000.001,3213999.999,1341999.999],null],
+      ["USGS_LPC_CO_EasternColorado_2018_A18_LD33401222.laz",[3340000.003,1222000.001,3340062.932,1222611.312],"EPSG:6432"]
+    ]
+  },
+  {
+    "workunit": "CO_Eastern_B1_2018",
+    "project": "CO_EasternColorado_2018_A18",
+    "horiz_crs": "6430",
+    "rule": "CO_StatePlane_LD_north",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CO_EasternColorado_2018_A18/CO_Eastern_B1_2018/LAZ",
+    "samples": [
+      ["USGS_LPC_CO_EasternColorado_2018_A18_LD31501468.laz",[3153998.719,1470087.719,3153999.999,1471379.263],"EPSG:6430"],
+      ["USGS_LPC_CO_EasternColorado_2018_A18_LD33481537.laz",[3349000.002,1538000.001,3352000,1540999.999],null],
+      ["USGS_LPC_CO_EasternColorado_2018_A18_LD35641438.laz",[3565000.01,1439000.001,3565421.053,1440222.624],null]
+    ]
+  },
+  {
+    "workunit": "FL_Upper_Saint_Johns_2017",
+    "project": "FL_Upper_Saint_Johns_Lidar_2017_B17",
+    "horiz_crs": "6438",
+    "rule": "FL_FDEM_5000ft_index",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/FL_Upper_Saint_Johns_Lidar_2017_B17/FL_Upper_Saint_Johns_2017/LAZ",
+    "samples": [
+      ["USGS_LPC_FL_Upper_Saint_Johns_Lidar_2017_B17_050300_E.laz",[665000,1660000,670000,1665000],"EPSG:6438"],
+      ["USGS_LPC_FL_Upper_Saint_Johns_Lidar_2017_B17_258096.laz",[645000,1530000,650000,1535000],"EPSG:6438"],
+      ["USGS_LPC_FL_Upper_Saint_Johns_Lidar_2017_B17_268019.laz",[760000,1365000,765000,1370000],"EPSG:6438"]
+    ]
+  },
+  {
+    "workunit": "FL_Panhandle_B1_2018",
+    "project": "FL_Panhandle_2018_B18",
+    "horiz_crs": "6350",
+    "rule": "FL_Conus_Albers_1km_axis",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/FL_Panhandle_2018_B18/FL_Panhandle_B1_2018/LAZ",
+    "samples": [
+      ["USGS_LPC_FL_Panhandle_2018_B18_e0853n0913.laz",[853900.02,913900.07,854000,914000],null],
+      ["USGS_LPC_FL_Panhandle_2018_B18_e0905n0924.laz",[905000.01,924000.01,906000,925000],null],
+      ["USGS_LPC_FL_Panhandle_2018_B18_e1227n0835.laz",[1227000.01,835000.01,1227099.88,835099.96],"EPSG:6350"]
+    ]
+  },
+  {
+    "workunit": "CA_FEMA_Z4_B2_2018",
+    "project": "CA_AZ_FEMA_R9_Lidar_2017_D18",
+    "horiz_crs": "6422",
+    "rule": "CA_FEMA_Z4_4500ft",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CA_AZ_FEMA_R9_Lidar_2017_D18/CA_FEMA_Z4_B2_2018/LAZ",
+    "samples": [
+      ["USGS_LPC_CA_AZ_FEMA_R9_Lidar_2017_D18_57012002.laz",[5704652.21,2004906.16,5705999.99,2006999.99],"EPSG:6422"],
+      ["USGS_LPC_CA_AZ_FEMA_R9_Lidar_2017_D18_60031728.laz",[6003000,1728000,6007499.99,1732499.99],"EPSG:6422"],
+      ["USGS_LPC_CA_AZ_FEMA_R9_Lidar_2017_D18_62011629.laz",[6201000,1629000,6201574.44,1630258.86],"EPSG:6422"]
+    ]
+  },
+  {
+    "workunit": "CA_Central_Valley_2017",
+    "project": "CA_Central_Valley_LiDAR_2016_D16",
+    "horiz_crs": "6343",
+    "rule": "CA_CentralValley_1500m",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CA_Central_Valley_LiDAR_2016_D16/CA_Central_Valley_2017/LAZ",
+    "samples": [
+      ["USGS_LPC_CA_Central_Valley_LiDAR_2016_D16_10SFG705820.laz",[671985.35,4183288.46,671999.99,4183499.97],"EPSG:6339"],
+      ["USGS_LPC_CA_Central_Valley_LiDAR_2016_D16_10SGF875965.laz",[787500,4096500,788009.58,4097336.93],"EPSG:6339"],
+      ["USGS_LPC_CA_Central_Valley_LiDAR_2016_D16_10SGG830010.laz",[783000,4101000,784183.59,4101741.66],"EPSG:6339"]
+    ]
+  },
+  {
+    "workunit": "CA_E_SanDiegoCo_2016",
+    "project": "CA_Eastern_San_Diego_Co_Lidar_2016_B16",
+    "horiz_crs": "6426",
+    "rule": "CA_SanDiego_5k",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CA_Eastern_San_Diego_Co_Lidar_2016_B16/CA_E_SanDiegoCo_2016/LAZ",
+    "samples": [
+      ["USGS_LPC_CA_Eastern_San_Diego_Co_Lidar_2016_B16_175120.laz",[6175000,2120000,6179999.99,2124999.99],null],
+      ["USGS_LPC_CA_Eastern_San_Diego_Co_Lidar_2016_B16_540055.laz",[6540000,2055000,6544999.99,2059999.99],null],
+      ["USGS_LPC_CA_Eastern_San_Diego_Co_Lidar_2016_B16_610995.laz",[6610000.01,1995000,6615000,1999999.99],null]
+    ]
+  },
+  {
+    "workunit": "CA_SanDiego_2015_C17_1",
+    "project": "CA_SanDiego_2015_C17",
+    "horiz_crs": "6426",
+    "rule": "CA_SanDiego_5k",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CA_SanDiego_2015_C17/CA_SanDiego_2015_C17_1/LAZ",
+    "samples": [
+      ["USGS_LPC_CA_SanDiego_2015_C17_245055.laz",[6249735.82,2056797.85,6250000,2059999.99],null],
+      ["USGS_LPC_CA_SanDiego_2015_C17_410995.laz",[6410000,1995000,6414999.99,1999999.99],null],
+      ["USGS_LPC_CA_SanDiego_2015_C17_550800.laz",[6550000,1800000.01,6550564.07,1801576.79],null]
+    ]
+  },
+  {
+    "workunit": "CO_Central_Western_2016",
+    "project": "CO_Central_and_WesternCO_2016_A16",
+    "horiz_crs": "6428",
+    "rule": "CO_StatePlane_LD_central_south",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CO_Central_and_WesternCO_2016_A16/CO_Central_Western_2016/LAZ",
+    "samples": [
+      ["USGS_LPC_CO_Central_and_WesternCO_2016_A16_LD19951578.laz",[1996389.125,1578032.203,1997999.999,1580999.998],"EPSG:6428"],
+      ["USGS_LPC_CO_Central_and_WesternCO_2016_A16_LD25681620.laz",[2568000,1620000.001,2570999.999,1622999.999],"EPSG:6428"],
+      ["USGS_LPC_CO_Central_and_WesternCO_2016_A16_LD32371497.laz",[3237000.002,1497000.006,3237733.944,1499577.502],"EPSG:6428"]
+    ]
+  },
+  {
+    "workunit": "CO_MesaCo_QL2_2015",
+    "project": "CO_MesaCounty_2015",
+    "horiz_crs": "6341",
+    "rule": "CO_Mesa_1500m",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CO_MesaCounty_2015/CO_MesaCo_QL2_2015/LAZ",
+    "samples": [
+      ["USGS_LPC_CO_MesaCounty_2015_12SXH675660.laz",[668974.53,4266381.01,668999.99,4267499.99],"EPSG:6341"],
+      ["USGS_LPC_CO_MesaCounty_2015_12SYH155870.laz",[715500,4287000,716999.99,4288499.99],"EPSG:6341"],
+      ["USGS_LPC_CO_MesaCounty_2015_12SYJ590440.laz",[759000,4344000,760499.99,4345499.99],"EPSG:6341"]
+    ]
+  },
+  {
+    "workunit": "CO_MesaCo_QL2_UTM13_2015",
+    "project": "CO_MesaCounty_2015",
+    "horiz_crs": "6342",
+    "rule": "CO_Mesa_1500m",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CO_MesaCounty_2015/CO_MesaCo_QL2_UTM13_2015/LAZ",
+    "samples": [
+      ["USGS_LPC_CO_MesaCounty_2015_13SBD385245.laz",[238500.01,4324725.13,239999.99,4325999.99],"EPSG:6342"],
+      ["USGS_LPC_CO_MesaCounty_2015_13SBD595560.laz",[259500,4356000,260999.99,4357499.99],"EPSG:6342"],
+      ["USGS_LPC_CO_MesaCounty_2015_13SBD940500.laz",[294000,4350000,294809.22,4350520.54],"EPSG:6342"]
+    ]
+  },
+  {
+    "workunit": "CO_SoPlatteRiver_Lot2a_2013",
+    "project": "South_Platte_River_Flood_LiDAR",
+    "horiz_crs": "26913",
+    "rule": "CO_SouthPlatte_1500m",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/South_Platte_River_Flood_LiDAR/CO_SoPlatteRiver_Lot2a_2013/LAZ",
+    "samples": [
+      ["USGS_LPC_South_Platte_River_Flood_LiDAR_13TDE450452.laz",[451316.21,4452586.7,451500,4453499.99],"EPSG:26913"],
+      ["USGS_LPC_South_Platte_River_Flood_LiDAR_13TDE496461.laz",[496500,4461000,498000,4462499.99],"EPSG:26913"],
+      ["USGS_LPC_South_Platte_River_Flood_LiDAR_13TEE561473.laz",[561000,4473000.01,562500,4473582.37],"EPSG:26913"]
+    ]
+  },
+  {
+    "workunit": "FL_MiamiDade_1_D23",
+    "project": "FL_MiamiDade_D23",
+    "horiz_crs": "6438",
+    "rule": "FL_FDEM_5000ft_index",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/FL_MiamiDade_D23/FL_MiamiDade_1_D23/LAZ",
+    "samples": [
+      ["USGS_LPC_FL_MiamiDade_D23_LID2024_313031_0901.laz",[824765.04,615000,824999.99,615083.81],"EPSG:6438"],
+      ["USGS_LPC_FL_MiamiDade_D23_LID2024_318450_0901.laz",[915000,525000,920000,529999.99],"EPSG:6438"],
+      ["USGS_LPC_FL_MiamiDade_D23_LID2024_332834_0901.laz",[835023.19,289919.42,835056.78,289956.85],"EPSG:6438"]
+    ]
+  },
+  {
+    "workunit": "CA_CaliforniaGaps_4_B23",
+    "project": "CA_CaliforniaGaps_B23",
+    "horiz_crs": "6340",
+    "rule": "CA_Gaps_1km_absolute_MGRS",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CA_CaliforniaGaps_B23/CA_CaliforniaGaps_4_B23/LAZ",
+    "samples": [
+      ["USGS_LPC_CA_CaliforniaGaps_B23_11SKU225851.laz",[225348.51,3851776.47,225999.99,3851999.99],null],
+      ["USGS_LPC_CA_CaliforniaGaps_B23_11SNT594740.laz",[594000.01,3740000,595000,3740999.99],null],
+      ["USGS_LPC_CA_CaliforniaGaps_B23_11SQT731767.laz",[731000.01,3767000,731205.53,3767910.24],null]
+    ]
+  },
+  {
+    "workunit": "CO_ArapahoRooseveltPikeNF_1_D23",
+    "project": "CO_ArapahoRooseveltPikeNF_D23",
+    "horiz_crs": "6342",
+    "rule": "CO_Arapaho_1km",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CO_ArapahoRooseveltPikeNF_D23/CO_ArapahoRooseveltPikeNF_1_D23/LAZ",
+    "samples": [
+      ["USGS_LPC_CO_ArapahoRooseveltPikeNF_D23_40204449.laz",[402748.98,4449415.45,402999.99,4449999.99],"EPSG:6342"],
+      ["USGS_LPC_CO_ArapahoRooseveltPikeNF_D23_45804489.laz",[458000.01,4489000.01,458999.99,4489999.99],"EPSG:6342"],
+      ["USGS_LPC_CO_ArapahoRooseveltPikeNF_D23_51104292.laz",[511000.01,4292000.01,511568.99,4292639.72],"EPSG:6342"]
+    ]
+  },
+  {
+    "workunit": "CA_SanFrancisco_1_B23",
+    "project": "CA_SanFrancisco_B23",
+    "horiz_crs": "7131",
+    "rule": "CA_SanFrancisco_500ft",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CA_SanFrancisco_B23/CA_SanFrancisco_1_B23/LAZ",
+    "samples": [
+      ["USGS_LPC_CA_SanFrancisco_B23_04200245.laz",[42452.86,24770.5,42500,24999.99],null],
+      ["USGS_LPC_CA_SanFrancisco_B23_04900265.laz",[49000,26500,49500,26999.99],null],
+      ["USGS_LPC_CA_SanFrancisco_B23_05850320.laz",[58500,32000,58875.94,32131.39],null]
+    ]
+  },
+  {
+    "workunit": "CA_SolanoCounty_1_A23",
+    "project": "CA_SolanoCounty_A23",
+    "horiz_crs": "6418",
+    "rule": "CA_Solano_2640ft",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CA_SolanoCounty_A23/CA_SolanoCounty_1_A23/LAZ",
+    "samples": [
+      ["USGS_LPC_CA_SolanoCounty_A23_64420E18162N.laz",[6444396.69,1818151.87,6444640,1818879.99],"EPSG:6418"],
+      ["USGS_LPC_CA_SolanoCounty_A23_65792E19429N.laz",[6579280,1942960,6581920,1945600],"EPSG:6418"],
+      ["USGS_LPC_CA_SolanoCounty_A23_66769E18743N.laz",[6676960,1874320,6678570.71,1876403.5],"EPSG:6418"]
+    ]
+  },
+  {
+    "workunit": "CA_SaltonSea_EarthMRI_3_D21",
+    "project": "CA_SaltonSea_EarthMRI_2021_D21",
+    "horiz_crs": "6340",
+    "rule": "CA_UTM_1km_MGRS",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CA_SaltonSea_EarthMRI_2021_D21/CA_SaltonSea_EarthMRI_3_D21/LAZ",
+    "samples": [
+      ["USGS_LPC_CA_SaltonSea_EarthMRI_2021_D21_11SNS500870.laz",[550887.45,3687067.58,551000,3688000],"EPSG:6340"],
+      ["USGS_LPC_CA_SaltonSea_EarthMRI_2021_D21_11SNT770330.laz",[577000,3733000,578000,3734000],"EPSG:6340"],
+      ["USGS_LPC_CA_SaltonSea_EarthMRI_2021_D21_11SPT060220.laz",[606000,3722000,606145.38,3722065.79],"EPSG:6340"]
+    ]
+  },
+  {
+    "workunit": "CA_SierraNevada_14_B22",
+    "project": "CA_SierraNevada_B22",
+    "horiz_crs": "6340",
+    "rule": "CA_UTM_1km_MGRS",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CA_SierraNevada_B22/CA_SierraNevada_14_B22/LAZ",
+    "samples": [
+      ["USGS_LPC_CA_SierraNevada_B22_11SKA6783.laz",[267390.81,4083220.93,267999.99,4083999.99],"EPSG:6340"],
+      ["USGS_LPC_CA_SierraNevada_B22_11SLA4656.laz",[346000,4056000,346999.99,4056999.99],"EPSG:6340"],
+      ["USGS_LPC_CA_SierraNevada_B22_11SMA0742.laz",[407000,4042000,407129.36,4042280.01],"EPSG:6340"]
+    ]
+  },
+  {
+    "workunit": "CA_SierraNevada_12_B22",
+    "project": "CA_SierraNevada_B22",
+    "horiz_crs": "6339",
+    "rule": "CA_UTM_1km_MGRS",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CA_SierraNevada_B22/CA_SierraNevada_12_B22/LAZ",
+    "samples": [
+      ["USGS_LPC_CA_SierraNevada_B22_10SGG0984.laz",[709800.95,4184810.49,709999.99,4184999.99],"EPSG:6339"],
+      ["USGS_LPC_CA_SierraNevada_B22_10SGG5437.laz",[754000,4137000,754999.99,4137999.99],"EPSG:6339"],
+      ["USGS_LPC_CA_SierraNevada_B22_11SQC6423.laz",[764000,4223000,764999.99,4223999.99],"EPSG:6339"]
+    ]
+  },
+  {
+    "workunit": "CO_CameronPkFire_1_2021",
+    "project": "CO_CameronPeakWildfire_2021_D21",
+    "horiz_crs": "6430",
+    "rule": "CO_StatePlane_5k_axis",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CO_CameronPeakWildfire_2021_D21/CO_CameronPkFire_1_2021/LAZ",
+    "samples": [
+      ["USGS_LPC_CO_CameronPeakWildfire_2021_D21_w2945n1475.laz",[2947339.346,1478354.509,2949999.999,1479999.999],"EPSG:6430"],
+      ["USGS_LPC_CO_CameronPeakWildfire_2021_D21_w3030n1565.laz",[3030000.001,1565000,3034999.998,1566203.018],"EPSG:6430"],
+      ["USGS_LPC_CO_CameronPeakWildfire_2021_D21_w3170n1375.laz",[3170000,1375000.008,3171765.115,1379328.054],"EPSG:6430"]
+    ]
+  },
+  {
+    "workunit": "CO_DRCOG_3_2020",
+    "project": "CO_DRCOG_2020_B20",
+    "horiz_crs": "6342",
+    "rule": "CO_DRCOG_1500m",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CO_DRCOG_2020_B20/CO_DRCOG_3_2020/LAZ",
+    "samples": [
+      ["USGS_LPC_CO_DRCOG_2020_B20_w0385n4417.laz",[386714.986,4418154.604,386999.998,4418999.999],"EPSG:6342"],
+      ["USGS_LPC_CO_DRCOG_2020_B20_w0439n4425.laz",[439500.001,4425000,440999.998,4426499.999],"EPSG:6342"],
+      ["USGS_LPC_CO_DRCOG_2020_B20_w0462n4458.laz",[462000,4458000,463205.086,4458240.17],"EPSG:6342"]
+    ]
+  },
+  {
+    "workunit": "CO_SanLuisJuanMiguel_5_2020",
+    "project": "CO_SanLuisJuanMiguel_2020_D20",
+    "horiz_crs": "6341",
+    "rule": "CO_UTM_1km_MGRS",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CO_SanLuisJuanMiguel_2020_D20/CO_SanLuisJuanMiguel_5_2020/LAZ",
+    "samples": [
+      ["USGS_LPC_CO_SanLuisJuanMiguel_2020_D20_12S_XG_7099.laz",[670870.69,4199110.032,671000,4199999.985],null],
+      ["USGS_LPC_CO_SanLuisJuanMiguel_2020_D20_12S_YH_1232.laz",[712000.001,4232000,712999.999,4232999.999],null],
+      ["USGS_LPC_CO_SanLuisJuanMiguel_2020_D20_12S_YH_6407.laz",[764000.001,4207000.017,764020.331,4207627.734],null]
+    ]
+  },
+  {
+    "workunit": "CA_SantaClaraCounty_2020",
+    "project": "CA_SantaClaraCounty_2020_A20",
+    "horiz_crs": "6420",
+    "rule": "CA_SantaClara_2500ft",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CA_SantaClaraCounty_2020_A20/CA_SantaClaraCounty_2020/LAZ",
+    "samples": [
+      ["USGS_LPC_CA_SantaClaraCounty_2020_A20_05259500.laz",[6053952.843,1951118.647,6054999.999,1952499.999],"EPSG:6420"],
+      ["USGS_LPC_CA_SantaClaraCounty_2020_A20_22009175.laz",[6220000,1917500,6222499.999,1919999.999],"EPSG:6420"],
+      ["USGS_LPC_CA_SantaClaraCounty_2020_A20_36758450.laz",[6367500,1845000.002,6367837.934,1846257.183],"EPSG:6420"]
+    ]
+  },
+  {
+    "workunit": "CA_SantaCruzCounty_2020",
+    "project": "CA_SantaCruzCounty_2020_A20",
+    "horiz_crs": "6420",
+    "rule": "CA_SantaCruz_2500ft",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CA_SantaCruzCounty_2020_A20/CA_SantaCruzCounty_2020/LAZ",
+    "samples": [
+      ["USGS_LPC_CA_SantaCruzCounty_2020_A20_027887.laz",[6029650.61,1888701.22,6029999.99,1889999.99],null],
+      ["USGS_LPC_CA_SantaCruzCounty_2020_A20_102865.laz",[6102500,1865000,6104999.99,1867499.99],null],
+      ["USGS_LPC_CA_SantaCruzCounty_2020_A20_227787.laz",[6227500,1787500,6229439.91,1788688.04],null]
+    ]
+  },
+  {
+    "workunit": "FL_Peninsular_FDEM_Polk_2018",
+    "project": "FL_Peninsular_FDEM_2018_D19_DRRA",
+    "horiz_crs": "6443",
+    "rule": "FL_FDEM_5000ft_index",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/FL_Peninsular_FDEM_2018_D19_DRRA/FL_Peninsular_FDEM_Polk_2018/LAZ",
+    "samples": [
+      ["USGS_LPC_FL_Peninsular_FDEM_2018_D19_DRRA_LID2019_462241_W.laz",[700000.01,1460000,704999.99,1464999.98],"EPSG:6443"],
+      ["USGS_LPC_FL_Peninsular_FDEM_2018_D19_DRRA_LID2019_471549_W.laz",[740000.01,1305000,745000,1310000],"EPSG:6443"],
+      ["USGS_LPC_FL_Peninsular_FDEM_2018_D19_DRRA_LID2019_477864_W.laz",[815000,1200000.01,819999.99,1204999.99],"EPSG:6443"]
+    ]
+  },
+  {
+    "workunit": "FL_Peninsular_FDEM_Highlands_2018",
+    "project": "FL_Peninsular_FDEM_2018_D19_DRRA",
+    "horiz_crs": "6438",
+    "rule": "FL_FDEM_5000ft_index",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/FL_Peninsular_FDEM_2018_D19_DRRA/FL_Peninsular_FDEM_Highlands_2018/LAZ",
+    "samples": [
+      ["USGS_LPC_FL_Peninsular_FDEM_2018_D19_DRRA_LID2019_277862_E.laz",[475000,1200000,479999.99,1204999.99],"EPSG:6438"],
+      ["USGS_LPC_FL_Peninsular_FDEM_2018_D19_DRRA_LID2019_284487_E.laz",[600000,1090000,604999.99,1094999.99],"EPSG:6438"],
+      ["USGS_LPC_FL_Peninsular_FDEM_2018_D19_DRRA_LID2019_290779_E.laz",[560000,985000,564999.99,989999.99],"EPSG:6438"]
+    ]
+  },
+  {
+    "workunit": "CO_WestCentral_2019",
+    "project": "CO_WestCentral_2019_A19",
+    "horiz_crs": "6350",
+    "rule": "CO_Albers_1km_axis",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CO_WestCentral_2019_A19/CO_WestCentral_2019/LAZ",
+    "samples": [
+      ["USGS_LPC_CO_WestCentral_2019_A19_w0876n1756.laz",[-876000,1756000,-875000.01,1756999.99],"EPSG:6350"],
+      ["USGS_LPC_CO_WestCentral_2019_A19_w0951n1793.laz",[-951000,1793000,-950000.01,1793999.99],"EPSG:6350"],
+      ["USGS_LPC_CO_WestCentral_2019_A19_w1032n1780.laz",[-1032000,1780000,-1031000.01,1780999.99],"EPSG:6350"]
+    ]
+  },
+  {
+    "workunit": "CO_NESEColorado_4_2019",
+    "project": "CO_NESEColorado_2019_C20",
+    "horiz_crs": "6340",
+    "rule": "CO_StatePlane_LD_north",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CO_NESEColorado_2019_C20/CO_NESEColorado_4_2019/LAZ",
+    "samples": [
+      ["USGS_LPC_CO_NESEColorado_2019_C20_LD35281498.laz",[3531983.047,1500983.019,3531999.999,1501999.966],"EPSG:6430"],
+      ["USGS_LPC_CO_NESEColorado_2019_C20_LD37501579.laz",[3751000.001,1580000,3753999.999,1582999.999],null],
+      ["USGS_LPC_CO_NESEColorado_2019_C20_LD39601393.laz",[3961000.008,1394000.15,3961057.662,1395483.802],"EPSG:6430"]
+    ]
+  },
+  {
+    "workunit": "CA_NoCAL_Wildfires_B2_2018",
+    "project": "CA_NoCAL_3DEP_Supp_Funding_2018_D18",
+    "horiz_crs": "6350",
+    "rule": "CA_Wildfires_Albers_1km",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CA_NoCAL_3DEP_Supp_Funding_2018_D18/CA_NoCAL_Wildfires_B2_2018/LAZ",
+    "samples": [
+      ["USGS_LPC_CA_NoCAL_3DEP_Supp_Funding_2018_D18_w2125n2076.laz",[-2124999.99,2076000,-2124000,2077000],"EPSG:6350"],
+      ["USGS_LPC_CA_NoCAL_3DEP_Supp_Funding_2018_D18_w2193n2197.laz",[-2192999.99,2197000,-2192000,2198000],"EPSG:6350"],
+      ["USGS_LPC_CA_NoCAL_3DEP_Supp_Funding_2018_D18_w2247n2063.laz",[-2246999.99,2063000,-2245999.99,2064000],"EPSG:6350"]
+    ]
+  },
+  {
+    "workunit": "CO_Eastern_ElPaso_2018",
+    "project": "CO_EasternColorado_2018_A18",
+    "horiz_crs": "6428",
+    "rule": "CO_StatePlane_LD_central_south",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CO_EasternColorado_2018_A18/CO_Eastern_ElPaso_2018/LAZ",
+    "samples": [
+      ["USGS_LPC_CO_EasternColorado_2018_A18_LD31201350.laz",[3121536.214,1351717.649,3122999.993,1353000],null],
+      ["USGS_LPC_CO_EasternColorado_2018_A18_LD32761365.laz",[3276000.001,1365000,3279000,1367999.998],null]
+    ]
+  },
+  {
+    "workunit": "IL_4County_Cook_2017",
+    "project": "IL_4_County_QL1_LiDAR_2016_B16",
+    "horiz_crs": "6455",
+    "rule": "IL_4County_2500ft",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/IL_4_County_QL1_LiDAR_2016_B16/IL_4County_Cook_2017/LAZ",
+    "samples": [
+      ["USGS_LPC_IL_4_County_QL1_LiDAR_2016_B16_LAS_00258275.laz",[1002500,1827500,1005000,1830000],"EPSG:6455"],
+      ["USGS_LPC_IL_4_County_QL1_LiDAR_2016_B16_LAS_12508525.laz",[1125000,1852500,1127500,1855000],"EPSG:6455"],
+      ["USGS_LPC_IL_4_County_QL1_LiDAR_2016_B16_LAS_21507775.laz",[1215000,1777500,1217500,1780000],"EPSG:6455"]
+    ]
+  },
+  {
+    "workunit": "IL_4County_McHenry_2018",
+    "project": "IL_4_County_QL1_LiDAR_2016_B16",
+    "horiz_crs": "6455",
+    "rule": "IL_McHenry_2500ft",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/IL_4_County_QL1_LiDAR_2016_B16/IL_4County_McHenry_2018/LAZ",
+    "samples": [
+      ["USGS_LPC_IL_4_County_QL1_LiDAR_2016_B16_LAS_00000000.laz",[1000000,2000000,1002500,2002500],"EPSG:6455"],
+      ["USGS_LPC_IL_4_County_QL1_LiDAR_2016_B16_LAS_92250300.laz",[922500,2030000,925000,2032500],"EPSG:6455"],
+      ["USGS_LPC_IL_4_County_QL1_LiDAR_2016_B16_LAS_99751225.laz",[997500,2122500,1000000,2125000],"EPSG:6455"]
+    ]
+  },
+  {
+    "workunit": "CA_SierraNevada_9_2022",
+    "project": "CA_SierraNevada_B22",
+    "horiz_crs": "6340",
+    "rule": "CA_UTM_1km_MGRS",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CA_SierraNevada_B22/CA_SierraNevada_9_2022/LAZ",
+    "samples": [
+      ["USGS_LPC_CA_SierraNevada_B22_11SMV1971.laz",[419000,3971000,419253.22,3971770.7],"EPSG:6340"],
+      ["USGS_LPC_CA_SierraNevada_B22_11SLA1109.laz",[311999.11,4009997.84,311999.99,4009999.94],"EPSG:6340"]
+    ]
+  },
+  {
+    "workunit": "CA_SierraNevada_10_2022",
+    "project": "CA_SierraNevada_B22",
+    "horiz_crs": "6340",
+    "rule": "CA_UTM_1km_MGRS",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CA_SierraNevada_B22/CA_SierraNevada_10_2022/LAZ",
+    "samples": [
+      ["USGS_LPC_CA_SierraNevada_B22_11SLU2464.laz",[324775.33,3864447.58,324999.99,3864999.99],"EPSG:6340"],
+      ["USGS_LPC_CA_SierraNevada_B22_11SLV4313.laz",[343000,3913000,343999.99,3913999.99],"EPSG:6340"],
+      ["USGS_LPC_CA_SierraNevada_B22_11SMV2049.laz",[420000,3949000,420017.79,3949877.62],"EPSG:6340"]
+    ]
+  },
+  {
+    "workunit": "CA_SierraNevada_11_B22",
+    "project": "CA_SierraNevada_B22",
+    "horiz_crs": "6340",
+    "rule": "CA_UTM_1km_MGRS",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CA_SierraNevada_B22/CA_SierraNevada_11_B22/LAZ",
+    "samples": [
+      ["USGS_LPC_CA_SierraNevada_B22_10SBG3212.laz",[232367.32,4112383.93,232999.99,4112999.99],"EPSG:6340"],
+      ["USGS_LPC_CA_SierraNevada_B22_11SKB5612.laz",[256000,4112000,256999.99,4112999.99],"EPSG:6340"],
+      ["USGS_LPC_CA_SierraNevada_B22_11SKC7228.laz",[272000,4228863.71,272126.63,4228999.98],"EPSG:6340"]
+    ]
+  },
+  {
+    "workunit": "CA_SierraNevada_8_2022",
+    "project": "CA_SierraNevada_B22",
+    "horiz_crs": "6340",
+    "rule": "CA_UTM_1km_MGRS",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CA_SierraNevada_B22/CA_SierraNevada_8_2022/LAZ",
+    "samples": [
+      ["USGS_LPC_CA_SierraNevada_B22_10SBH3630.laz",[236000,4230000.01,236999.99,4230999.99],"EPSG:6340"],
+      ["USGS_LPC_CA_SierraNevada_B22_11SKC7839.laz",[278000,4239000,278999.99,4239999.99],"EPSG:6340"],
+      ["USGS_LPC_CA_SierraNevada_B22_11TKE4536.laz",[245000,4436000,245184.24,4436030.39],"EPSG:6340"]
+    ]
+  },
+  {
+    "workunit": "CA_SierraNevada_7_2022",
+    "project": "CA_SierraNevada_B22",
+    "horiz_crs": "6339",
+    "rule": "CA_UTM_1km_MGRS",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CA_SierraNevada_B22/CA_SierraNevada_7_2022/LAZ",
+    "samples": [
+      ["USGS_LPC_CA_SierraNevada_B22_10SGK5031.laz",[750000.01,4431000.01,750999.99,4431999.99],"EPSG:6339"],
+      ["USGS_LPC_CA_SierraNevada_B22_10TFK4481.laz",[644000,4481000,644999.99,4481999.99],"EPSG:6339"],
+      ["USGS_LPC_CA_SierraNevada_B22_11TQE5735.laz",[757000,4435000,757853.58,4435999.99],"EPSG:6339"]
+    ]
+  },
+  {
+    "workunit": "CA_SierraNevada_5_2022",
+    "project": "CA_SierraNevada_B22",
+    "horiz_crs": "6339",
+    "rule": "CA_UTM_1km_MGRS",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CA_SierraNevada_B22/CA_SierraNevada_5_2022/LAZ",
+    "samples": [
+      ["USGS_LPC_CA_SierraNevada_B22_10SGH6076.laz",[760000,4276000,760999.99,4276999.99],"EPSG:6339"],
+      ["USGS_LPC_CA_SierraNevada_B22_11SQD6115.laz",[761000,4315000,761999.99,4315999.99],"EPSG:6339"],
+      ["USGS_LPC_CA_SierraNevada_B22_10SFJ9966.laz",[699000.01,4366000.01,699999.99,4366999.99],"EPSG:6339"]
+    ]
+  },
+  {
+    "workunit": "CA_SierraNevada_6_2022",
+    "project": "CA_SierraNevada_B22",
+    "horiz_crs": "6339",
+    "rule": "CA_UTM_1km_MGRS",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CA_SierraNevada_B22/CA_SierraNevada_6_2022/LAZ",
+    "samples": [
+      ["USGS_LPC_CA_SierraNevada_B22_10SFJ8499.laz",[684000.01,4399000.01,684999.99,4399999.99],"EPSG:6339"],
+      ["USGS_LPC_CA_SierraNevada_B22_10SGJ5277.laz",[752000,4377000,752999.99,4377999.99],"EPSG:6339"],
+      ["USGS_LPC_CA_SierraNevada_B22_11SQE5719.laz",[757000,4419000,757011.05,4419528.47],"EPSG:6339"]
+    ]
+  },
+  {
+    "workunit": "CA_SierraNevada_4_2022",
+    "project": "CA_SierraNevada_B22",
+    "horiz_crs": "6339",
+    "rule": "CA_UTM_1km_MGRS",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CA_SierraNevada_B22/CA_SierraNevada_4_2022/LAZ",
+    "samples": [
+      ["USGS_LPC_CA_SierraNevada_B22_10SFJ4599.laz",[645000.01,4399000.01,645999.99,4399999.99],"EPSG:6339"],
+      ["USGS_LPC_CA_SierraNevada_B22_10TGK2453.laz",[724000.01,4453000.01,724941.12,4453508.17],"EPSG:6339"]
+    ]
+  },
+  {
+    "workunit": "CA_SierraNevada_2_2022",
+    "project": "CA_SierraNevada_B22",
+    "horiz_crs": "6339",
+    "rule": "CA_UTM_1km_MGRS",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CA_SierraNevada_B22/CA_SierraNevada_2_2022/LAZ",
+    "samples": [
+      ["USGS_LPC_CA_SierraNevada_B22_10SGJ1000.laz",[710000,4300000,710999.99,4300999.99],"EPSG:6339"]
+    ]
+  },
+  {
+    "workunit": "CA_SierraNevada_1_2022",
+    "project": "CA_SierraNevada_B22",
+    "horiz_crs": "6339",
+    "rule": "CA_UTM_1km_MGRS",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CA_SierraNevada_B22/CA_SierraNevada_1_2022/LAZ",
+    "samples": [
+      ["USGS_LPC_CA_SierraNevada_B22_10SEK9805.laz",[598233.75,4405346.72,598999.99,4405999.99],"EPSG:6339"],
+      ["USGS_LPC_CA_SierraNevada_B22_10SFJ4791.laz",[647000,4391000,647999.99,4391999.99],"EPSG:6339"],
+      ["USGS_LPC_CA_SierraNevada_B22_10SFK4400.laz",[644000,4400000,644999.99,4400999.99],"EPSG:6339"]
+    ]
+  },
+  {
+    "workunit": "CO_NESEColorado_1_2019",
+    "project": "CO_NESEColorado_2019_C20",
+    "horiz_crs": "6432",
+    "rule": "CO_StatePlane_LD_central_south",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CO_NESEColorado_2019_C20/CO_NESEColorado_1_2019/LAZ",
+    "samples": [
+      ["USGS_LPC_CO_NESEColorado_2019_C20_LD39941552.laz",[3994000,1552000.027,3994097.84,1554401.248],"EPSG:6432"],
+      ["USGS_LPC_CO_NESEColorado_2019_C20_LD37841630.laz",[3784000.001,1630000,3786999.999,1632999.997],null]
+    ]
+  },
+  {
+    "workunit": "CO_Eastern_South_Priority2_2018",
+    "project": "CO_EasternColorado_2018_A18",
+    "horiz_crs": "6432",
+    "rule": "CO_StatePlane_LD_central_south",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CO_EasternColorado_2018_A18/CO_Eastern_South_Priority2_2018/LAZ",
+    "samples": [
+      ["USGS_LPC_CO_EasternColorado_2018_A18_LD30671363.laz",[3067000,1363000.001,3069999.999,1366000],null],
+      ["USGS_LPC_CO_EasternColorado_2018_A18_LD31271396.laz",[3127000.001,1396000.001,3130000,1398999.993],null],
+      ["USGS_LPC_CO_EasternColorado_2018_A18_LD32111354.laz",[3211000.001,1354000.002,3213999.999,1356999.999],null]
+    ]
+  },
+  {
+    "workunit": "CO_Eastern_B2_QL2_North_2018",
+    "project": "CO_EasternColorado_2018_A18",
+    "horiz_crs": "6430",
+    "rule": "CO_StatePlane_LD_north",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CO_EasternColorado_2018_A18/CO_Eastern_B2_QL2_North_2018/LAZ",
+    "samples": [
+      ["USGS_LPC_CO_EasternColorado_2018_A18_LD33901159.laz",[3391000,1160000.001,3393999.998,1162999.996],null],
+      ["USGS_LPC_CO_EasternColorado_2018_A18_LD35671264.laz",[3568000.004,1265000.009,3568032.338,1266287.25],"EPSG:6430"]
+    ]
+  },
+  {
+    "workunit": "CO_Eastern_B4_2018",
+    "project": "CO_EasternColorado_2018_A18",
+    "horiz_crs": "6428",
+    "rule": "CO_StatePlane_LD_central_south",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CO_EasternColorado_2018_A18/CO_Eastern_B4_2018/LAZ",
+    "samples": [
+      ["USGS_LPC_CO_EasternColorado_2018_A18_LD34141251.laz",[3414000.007,1253849.707,3416999.957,1253999.999],null],
+      ["USGS_LPC_CO_EasternColorado_2018_A18_LD35371419.laz",[3537000.001,1419000,3539999.989,1421999.996],null]
+    ]
+  },
+  {
+    "workunit": "CO_Eastern_B2_QL2_Central_2018",
+    "project": "CO_EasternColorado_2018_A18",
+    "horiz_crs": "6428",
+    "rule": "CO_StatePlane_LD_central_south",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CO_EasternColorado_2018_A18/CO_Eastern_B2_QL2_Central_2018/LAZ",
+    "samples": [
+      ["USGS_LPC_CO_EasternColorado_2018_A18_LD31591584.laz",[3161923.682,1584781.358,3162000,1586999.991],null],
+      ["USGS_LPC_CO_EasternColorado_2018_A18_LD32101590.laz",[3210000.008,1590000.013,3210102.394,1592815.482],"EPSG:6428"]
+    ]
+  },
+  {
+    "workunit": "CA_SierraNevada_3_2022",
+    "project": "CA_SierraNevada_B22",
+    "horiz_crs": "6339",
+    "rule": "CA_UTM_1km_MGRS",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CA_SierraNevada_B22/CA_SierraNevada_3_2022/LAZ",
+    "samples": [
+      ["USGS_LPC_CA_SierraNevada_B22_10SGH0004.laz",[700000,4204000,700999.99,4204999.99],"EPSG:6339"],
+      ["USGS_LPC_CA_SierraNevada_B22_10SGH3915.laz",[739000,4215278.97,739999.99,4215999.99],"EPSG:6339"]
+    ]
+  },
+  {
+    "workunit": "CO_Eastern_B5_2018",
+    "project": "CO_EasternColorado_2018_A18",
+    "horiz_crs": "6432",
+    "rule": "CO_StatePlane_LD_central_south",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CO_EasternColorado_2018_A18/CO_Eastern_B5_2018/LAZ",
+    "samples": [
+      ["USGS_LPC_CO_EasternColorado_2018_A18_LD36071363.laz",[3607000.005,1363000.17,3607036.334,1365372.219],"EPSG:6432"]
+    ]
+  },
+  {
+    "workunit": "IL_19County_3_D24",
+    "project": "IL_19County_D24",
+    "horiz_crs": "6457",
+    "rule": "IL_modern_west_2k_number_pair",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/IL_19County_D24/IL_19County_3_D24/LAZ",
+    "samples": [
+      ["USGS_LPC_IL_19County_D24_2155_1269.laz",[2154000,1268000,2156000,1270000],null],
+      ["USGS_LPC_IL_19County_D24_2343_1177.laz",[2342000,1176000,2344000,1178000],null],
+      ["USGS_LPC_IL_19County_D24_2563_1185.laz",[2562000,1184000,2564000,1186000],null]
+    ]
+  },
+  {
+    "workunit": "KY_15County_1_A25",
+    "project": "KY_15County_A25",
+    "horiz_crs": "6473",
+    "rule": "KY_StatePlane_5k_NE_grid",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/KY_15County_A25/KY_15County_1_A25/LAZ",
+    "samples": [
+      ["USGS_LPC_KY_15County_A25_N034E315.laz",[5350000.01,4190000,5355000,4194999.99],null],
+      ["USGS_LPC_KY_15County_A25_N065E396.laz",[5755000,4035000,5760000,4040000],null],
+      ["USGS_LPC_KY_15County_A25_N115E298.laz",[5265000,3789672.01,5265327.77,3789999.99],"EPSG:6473"]
+    ]
+  },
+  {
+    "workunit": "IL_19County_5_D24",
+    "project": "IL_19County_D24",
+    "horiz_crs": "6455",
+    "rule": "IL_modern_east_2k_number_pair",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/IL_19County_D24/IL_19County_5_D24/LAZ",
+    "samples": [
+      ["USGS_LPC_IL_19County_D24_1001_1775.laz",[1001000,1775000,1003000,1777000],null],
+      ["USGS_LPC_IL_19County_D24_8770_1881.laz",[877000,1881000,879000,1883000],null],
+      ["USGS_LPC_IL_19County_D24_9990_1999.laz",[999000,1999000,1001000,2001000],null]
+    ]
+  },
+  {
+    "workunit": "ME_WesternMtns_1_B24",
+    "project": "ME_WesternMtns_B24",
+    "horiz_crs": "6348",
+    "rule": "ME_north_1500m_tokens",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/ME_WesternMtns_B24/ME_WesternMtns_1_B24/LAZ",
+    "samples": [
+      ["USGS_LPC_ME_WesternMtns_B24_19TDK405974.laz",[405000,4974000,406499.99,4975499.99],null],
+      ["USGS_LPC_ME_WesternMtns_B24_19TDL486023.laz",[486000.01,5023500.01,486100,5023849.87],null],
+      ["USGS_LPC_ME_WesternMtns_B24_19TCJ339885.laz",[339275.01,4886025.01,340499.99,4886999.99],null]
+    ]
+  },
+  {
+    "workunit": "AZ_USFSR3_1_D23",
+    "project": "AZ_USFSR3_D23",
+    "horiz_crs": "6341",
+    "rule": "AZ_UTM_1km_axis",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/AZ_USFSR3_D23/AZ_USFSR3_1_D23/LAZ",
+    "samples": [
+      ["USGS_LPC_AZ_USFSR3_D23_w0520n3796.laz",[520000,3796000,520999.99,3796999.99],"EPSG:6341"],
+      ["USGS_LPC_AZ_USFSR3_D23_w0643n3648.laz",[643000.01,3648000,644000,3648999.99],"EPSG:6341"]
+    ]
+  },
+  {
+    "workunit": "IL_10CoNRCS_2_D23",
+    "project": "IL_10CountyNRCS_D23",
+    "horiz_crs": "6457",
+    "rule": "IL_10CountyNRCS_2k",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/IL_10CountyNRCS_D23/IL_10CoNRCS_2_D23/LAZ",
+    "samples": [
+      ["USGS_LPC_IL_10CountyNRCS_D23_2215_1045.laz",[2214000,1044000,2216000,1046000],null],
+      ["USGS_LPC_IL_10CountyNRCS_D23_2573_1713.laz",[2572000,1712000.03,2572004.6,1712144.44],"EPSG:6457"]
+    ]
+  },
+  {
+    "workunit": "GA_9County_1_D24",
+    "project": "GA_9County_D24",
+    "horiz_crs": "6345",
+    "rule": "GA_AL_modern_1km_MGRS",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/GA_9County_D24/GA_9County_1_D24/LAZ",
+    "samples": [
+      ["USGS_LPC_GA_9County_D24_16S_GA_1286.laz",[712000,3586000,713000,3587000],null],
+      ["USGS_LPC_GA_9County_D24_16S_GB_8104.laz",[781004.44,3604000,781255.98,3604193.67],null],
+      ["USGS_LPC_GA_9County_D24_16R_FA_7517.laz",[675804.01,3517439.69,676000,3518000],null]
+    ]
+  },
+  {
+    "workunit": "KY_CentralEast_3_A23",
+    "project": "KY_CentralEast_A23",
+    "horiz_crs": "6473",
+    "rule": "KY_StatePlane_5k_NE_grid",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/KY_CentralEast_A23/KY_CentralEast_3_A23/LAZ",
+    "samples": [
+      ["USGS_LPC_KY_CentralEast_A23_N139E381.laz",[5680000.02,3665000.01,5684999.98,3669999.97],null],
+      ["USGS_LPC_KY_CentralEast_A23_N197E350.laz",[5525000,3377266.37,5528110.17,3379999.99],null]
+    ]
+  },
+  {
+    "workunit": "IN_HamiltonCo_1_A25",
+    "project": "IN_HamiltonCounty_A25",
+    "horiz_crs": "6459",
+    "rule": "IN_Hamilton_1250ft",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/IN_HamiltonCounty_A25/IN_HamiltonCo_1_A25/LAZ",
+    "samples": [
+      ["USGS_LPC_IN_HamiltonCounty_A25_IN2024_01611701_03.laz",[161250,1701250,162500,1702500],"EPSG:6459"],
+      ["USGS_LPC_IN_HamiltonCounty_A25_IN2024_02191701_03.laz",[220000,1701250,221250,1702500],"EPSG:6459"],
+      ["USGS_LPC_IN_HamiltonCounty_A25_IN2024_02771814_03.laz",[277500,1815000,278750,1816250],"EPSG:6459"]
+    ]
+  },
+  {
+    "workunit": "KS_4Area_2_D23",
+    "project": "KS_4Area_D23",
+    "horiz_crs": "6343",
+    "rule": "KS_4Area_1km_MGRS",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/KS_4Area_D23/KS_4Area_2_D23/LAZ",
+    "samples": [
+      ["USGS_LPC_KS_4Area_D23_14SMF990940.laz",[499845.76,4094746.86,500000,4095000],"EPSG:6343"],
+      ["USGS_LPC_KS_4Area_D23_14SQG200080.laz",[720000,4108000,720012.49,4108356.56],"EPSG:6343"]
+    ]
+  },
+  {
+    "workunit": "ID_NCentral_6_D22",
+    "project": "ID_NorthCentral_D22",
+    "horiz_crs": "6340",
+    "rule": "ID_standard_1km_MGRS",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/ID_NorthCentral_D22/ID_NCentral_6_D22/LAZ",
+    "samples": [
+      ["USGS_LPC_ID_NorthCentral_D22_11TNJ840990.laz",[584705.84,4899108.39,585000,4900000],"EPSG:6340"],
+      ["USGS_LPC_ID_NorthCentral_D22_11TPK560520.laz",[656000,4952000,657000,4953000],"EPSG:6340"],
+      ["USGS_LPC_ID_NorthCentral_D22_11TQK200650.laz",[720000,4965000,720959.6,4965722.54],"EPSG:6340"]
+    ]
+  },
+  {
+    "workunit": "ID_2023BlaineCaribou_1_C25",
+    "project": "ID_2023BlaineCaribou_C25",
+    "horiz_crs": "6451",
+    "rule": "ID_BlaineCaribou_3k",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/ID_2023BlaineCaribou_C25/ID_2023BlaineCaribou_1_C25/LAZ",
+    "samples": [
+      ["USGS_LPC_ID_2023BlaineCaribou_C25_757492.laz",[760610.1,493338.64,760902.99,493660.25],null],
+      ["USGS_LPC_ID_2023BlaineCaribou_C25_886471.laz",[886903,471564.99,889903,474564.99],null],
+      ["USGS_LPC_ID_2023BlaineCaribou_C25_955492.laz",[955903,492565,956416.97,494966.55],null]
+    ]
+  },
+  {
+    "workunit": "NV_USFSR4_4_D23",
+    "project": "NV_USFSR4_D23",
+    "horiz_crs": "6350",
+    "rule": "NV_USFSR4_1km_Albers",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/NV_USFSR4_D23/NV_USFSR4_4_D23/LAZ",
+    "samples": [
+      ["USGS_LPC_NV_USFSR4_D23_1592_2460.laz",[-1592000,2460000,-1591000.01,2460999.99],"EPSG:6350"],
+      ["USGS_LPC_NV_USFSR4_D23_1646_2601.laz",[-1645512.29,2601000,-1645000,2601743.94],"EPSG:6350"],
+      ["USGS_LPC_NV_USFSR4_D23_1560_2474.laz",[-1560000,2474070.03,-1559993.04,2475000],"EPSG:6350"]
+    ]
+  },
+  {
+    "workunit": "AZ_Southwest_1_D23",
+    "project": "AZ_SouthWest_D23",
+    "horiz_crs": "6341",
+    "rule": "AZ_SouthWest_1500m",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/AZ_SouthWest_D23/AZ_Southwest_1_D23/LAZ",
+    "samples": [
+      ["USGS_LPC_AZ_SouthWest_D23_2995_7110.laz",[299500,3711000,301000,3712500],null],
+      ["USGS_LPC_AZ_SouthWest_D23_3865_6690.laz",[386500,3669000,387467.22,3669817.06],null]
+    ]
+  },
+  {
+    "workunit": "ME_MidCentral_1_B23",
+    "project": "ME_MidCentral_B23",
+    "horiz_crs": "6348",
+    "rule": "ME_MidCentral_B23_1km_tokens",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/ME_MidCentral_B23/ME_MidCentral_1_B23/LAZ",
+    "samples": [
+      ["USGS_LPC_ME_MidCentral_B23_19TDK408980.laz",[408932.27,4980622.08,408999.99,4980959.99],null],
+      ["USGS_LPC_ME_MidCentral_B23_19TDK494986.laz",[494000,4986000.01,495000,4986999.99],null],
+      ["USGS_LPC_ME_MidCentral_B23_19TEL547004.laz",[547000.01,5004000,547025.28,5004007.24],"EPSG:6348"]
+    ]
+  },
+  {
+    "workunit": "AZ_NavajoNation_1_D22",
+    "project": "AZ_NavajoNation_D22",
+    "horiz_crs": "6341",
+    "rule": "AZ_NavajoNation_1500m_absolute_MGRS",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/AZ_NavajoNation_D22/AZ_NavajoNation_1_D22/LAZ",
+    "samples": [
+      ["USGS_LPC_AZ_NavajoNation_D22_12SWE593993.laz",[593622.62,3993208.55,593999.99,3994499.99],"EPSG:6341"],
+      ["USGS_LPC_AZ_NavajoNation_D22_12SXF668067.laz",[667499.99,4066500,667528.06,4067928.64],"EPSG:6341"],
+      ["USGS_LPC_AZ_NavajoNation_D22_12SXE645984.laz",[645000,3984000,646499.99,3985500],"EPSG:6341"]
+    ]
+  },
+  {
+    "workunit": "NV_ClarkCo_2_B22",
+    "project": "NV_ClarkCounty_B22",
+    "horiz_crs": "6521",
+    "rule": "NV_ClarkCounty_5280ft",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/NV_ClarkCounty_B22/NV_ClarkCo_2_B22/LAZ",
+    "samples": [
+      ["USGS_LPC_NV_ClarkCounty_B22_578000_26678960.laz",[582557.634,26683537.99,583279.999,26684239.997],null],
+      ["USGS_LPC_NV_ClarkCounty_B22_768080_26821520.laz",[768080,26821520.001,773359.999,26824221.203],null],
+      ["USGS_LPC_NV_ClarkCounty_B22_958160_26409680.laz",[958160,26409680.002,958821.624,26413153.852],null]
+    ]
+  },
+  {
+    "workunit": "IL_MidNorth_3_D22",
+    "project": "IL_MidNorth_D22",
+    "horiz_crs": "6455",
+    "rule": "IL_MidNorth_east_2k",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/IL_MidNorth_D22/IL_MidNorth_3_D22/LAZ",
+    "samples": [
+      ["USGS_LPC_IL_MidNorth_D22_72101315.laz",[721000.001,1315000,722999.999,1316999.999],null],
+      ["USGS_LPC_IL_MidNorth_D22_85901407.laz",[859000,1407000,860999.998,1408999.999],null],
+      ["USGS_LPC_IL_MidNorth_D22_94901439.laz",[949000,1439000.001,950999.995,1440999.999],null]
+    ]
+  },
+  {
+    "workunit": "IL_MidNorth_2_D22",
+    "project": "IL_MidNorth_D22",
+    "horiz_crs": "6457",
+    "rule": "IL_MidNorth_west_2k",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/IL_MidNorth_D22/IL_MidNorth_2_D22/LAZ",
+    "samples": [
+      ["USGS_LPC_IL_MidNorth_D22_23181310.laz",[2318000,1310000,2319999.999,1311999.999],null],
+      ["USGS_LPC_IL_MidNorth_D22_24641550.laz",[2464000,1550000.001,2465999.999,1551999.999],null],
+      ["USGS_LPC_IL_MidNorth_D22_26401502.laz",[2640000,1502000,2641999.999,1503999.999],null]
+    ]
+  },
+  {
+    "workunit": "ME_MidCoast_2_2021",
+    "project": "ME_MidCoast_2021_B21",
+    "horiz_crs": "6348",
+    "rule": "ME_south_1500m_tokens",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/ME_MidCoast_2021_B21/ME_MidCoast_2_2021/LAZ",
+    "samples": [
+      ["USGS_LPC_ME_MidCoast_2021_B21_19TDJ463899.laz",[464627.48,4899912.43,464999.99,4900499.99],null],
+      ["USGS_LPC_ME_MidCoast_2021_B21_19TEJ504894.laz",[504000,4894500.19,505499.98,4895999.99],null],
+      ["USGS_LPC_ME_MidCoast_2021_B21_19TEK544906.laz",[544500.01,4906500,546000,4907999.99],null]
+    ]
+  },
+  {
+    "workunit": "ME_SouthCentral_1_B22",
+    "project": "ME_SouthCentral_B22",
+    "horiz_crs": "6348",
+    "rule": "ME_south_1500m_tokens",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/ME_SouthCentral_B22/ME_SouthCentral_1_B22/LAZ",
+    "samples": [
+      ["USGS_LPC_ME_SouthCentral_B22_19TCH339798.laz",[339000,4799000,340499.99,4799999.99],null],
+      ["USGS_LPC_ME_SouthCentral_B22_19TCJ373818.laz",[373500,4818000,374999.99,4819499.99],null],
+      ["USGS_LPC_ME_SouthCentral_B22_19TDK468933.laz",[468000,4933500,469499.99,4933999.99],null]
+    ]
+  },
+  {
+    "workunit": "KY_Western_1_A22",
+    "project": "KY_WesternKY_A22",
+    "horiz_crs": "6473",
+    "rule": "KY_StatePlane_5k_NE_grid",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/KY_WesternKY_A22/KY_Western_1_A22/LAZ",
+    "samples": [
+      ["USGS_LPC_KY_WesternKY_A22_N011E284.laz",[5199430.89,4305000,5199999.99,4305516.79],"EPSG:6473"],
+      ["USGS_LPC_KY_WesternKY_A22_N126E173.laz",[4639999.99,3729999.99,4644999.99,3734999.99],null],
+      ["USGS_LPC_KY_WesternKY_A22_N195E181.laz",[4681746.1,3389880.44,4682854.78,3389999.99],"EPSG:6473"]
+    ]
+  },
+  {
+    "workunit": "AZ_MaricopaPinal_1_2020",
+    "project": "AZ_MaricopaPinal_2020_B20",
+    "horiz_crs": "6341",
+    "rule": "AZ_UTM_1km_axis",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/AZ_MaricopaPinal_2020_B20/AZ_MaricopaPinal_1_2020/LAZ",
+    "samples": [
+      ["USGS_LPC_AZ_MaricopaPinal_2020_B20_w0333n3689.laz",[333895.607,3689359.791,334000,3689999.999],"EPSG:6341"],
+      ["USGS_LPC_AZ_MaricopaPinal_2020_B20_w0420n3646.laz",[420000,3646000.001,420999.999,3647000],"EPSG:6341"],
+      ["USGS_LPC_AZ_MaricopaPinal_2020_B20_w0493n3640.laz",[493000,3640000.001,493018.288,3640114.073],"EPSG:6341"]
+    ]
+  },
+  {
+    "workunit": "AZ_Yavapai_2_2021",
+    "project": "AZ_Yavapai_2021_B21",
+    "horiz_crs": "6341",
+    "rule": "AZ_standard_1km_MGRS",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/AZ_Yavapai_2021_B21/AZ_Yavapai_2_2021/LAZ",
+    "samples": [
+      ["USGS_LPC_AZ_Yavapai_2021_B21_12S_UC_4760.laz",[347000.001,3760537.876,348000,3761000],null],
+      ["USGS_LPC_AZ_Yavapai_2021_B21_12S_UD_7329.laz",[373000,3829000.001,373999.999,3830000],null],
+      ["USGS_LPC_AZ_Yavapai_2021_B21_12S_WC_0947.laz",[509000.001,3747000,509625.494,3747777.903],null]
+    ]
+  },
+  {
+    "workunit": "AZ_PimaCo_2_2021",
+    "project": "AZ_PimaCounty_2021_B21",
+    "horiz_crs": "6341",
+    "rule": "AZ_PimaCounty_1km",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/AZ_PimaCounty_2021_B21/AZ_PimaCo_2_2021/LAZ",
+    "samples": [
+      ["USGS_LPC_AZ_PimaCounty_2021_B21_419492.laz",[420204.53,3493701.7,420265.99,3493724.99],"EPSG:6341"],
+      ["USGS_LPC_AZ_PimaCounty_2021_B21_513582.laz",[513266,3582725,514266,3583724.99],null],
+      ["USGS_LPC_AZ_PimaCounty_2021_B21_575589.laz",[575266.01,3589725.01,575281.82,3589776.51],"EPSG:6341"]
+    ]
+  },
+  {
+    "workunit": "IL_SouthCentral_2_2021",
+    "project": "IL_SouthCentral_2021_D21",
+    "horiz_crs": "6457",
+    "rule": "IL_SouthCentral_west_2k",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/IL_SouthCentral_2021_D21/IL_SouthCentral_2_2021/LAZ",
+    "samples": [
+      ["USGS_LPC_IL_SouthCentral_2021_D21_2079_9930.laz",[2078000,992000.01,2079999.99,993999.99],"EPSG:6457"],
+      ["USGS_LPC_IL_SouthCentral_2021_D21_2497_5450.laz",[2496000,544000,2497999.99,545999.99],"EPSG:6457"],
+      ["USGS_LPC_IL_SouthCentral_2021_D21_2599_5230.laz",[2598000,522000,2599999.99,523999.99],"EPSG:6457"]
+    ]
+  },
+  {
+    "workunit": "IL_SouthCentral_1_2021",
+    "project": "IL_SouthCentral_2021_D21",
+    "horiz_crs": "6455",
+    "rule": "IL_SouthCentral_east_2k",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/IL_SouthCentral_2021_D21/IL_SouthCentral_1_2021/LAZ",
+    "samples": [
+      ["USGS_LPC_IL_SouthCentral_2021_D21_1001_7030.laz",[1001000,703000,1002999.99,704999.99],"EPSG:6455"],
+      ["USGS_LPC_IL_SouthCentral_2021_D21_8130_7650.laz",[813000,765000,814999.99,766999.99],"EPSG:6455"],
+      ["USGS_LPC_IL_SouthCentral_2021_D21_9990_7930.laz",[999000,793000,1000999.99,794999.99],"EPSG:6455"]
+    ]
+  },
+  {
+    "workunit": "IA_Western_2_2020",
+    "project": "IA_WesternIA_2020_D21",
+    "horiz_crs": "6344",
+    "rule": "IA_UTM_1km_axis",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/IA_WesternIA_2020_D21/IA_Western_2_2020/LAZ",
+    "samples": [
+      ["USGS_LPC_IA_WesternIA_2020_D21_w2490n4609.laz",[249859.86,4609000,249999.99,4609999.99],"EPSG:6344"],
+      ["USGS_LPC_IA_WesternIA_2020_D21_w2850n4609.laz",[285000,4609000,285999.99,4609999.99],"EPSG:6344"],
+      ["USGS_LPC_IA_WesternIA_2020_D21_w3570n4607.laz",[357000,4607000,357366.69,4607012.09],"EPSG:6344"]
+    ]
+  },
+  {
+    "workunit": "IA_Western_1_2020",
+    "project": "IA_WesternIA_2020_D21",
+    "horiz_crs": "6343",
+    "rule": "IA_UTM_1km_axis",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/IA_WesternIA_2020_D21/IA_Western_1_2020/LAZ",
+    "samples": [
+      ["USGS_LPC_IA_WesternIA_2020_D21_w7270n4786.laz",[727000,4786000,727999.99,4786999.99],"EPSG:6343"],
+      ["USGS_LPC_IA_WesternIA_2020_D21_w7500n4612.laz",[750000,4612000,750035.05,4612999.38],"EPSG:6343"]
+    ]
+  },
+  {
+    "workunit": "KY_Statewide_1_2021",
+    "project": "KY_Statewide_2021_A21",
+    "horiz_crs": "6473",
+    "rule": "KY_StatePlane_5k_NE_grid",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/KY_Statewide_2021_A21/KY_Statewide_1_2021/LAZ",
+    "samples": [
+      ["USGS_LPC_KY_Statewide_2021_A21_N031E283.laz",[5190000,4205000,5194999.99,4209249.82],null],
+      ["USGS_LPC_KY_Statewide_2021_A21_N120E389.laz",[5720000,3759999.99,5725000,3764999.99],null]
+    ]
+  },
+  {
+    "workunit": "GA_SW_Georgia_B4_2017",
+    "project": "GA_SW_Georgia_22_County_Lidar_2017_B17",
+    "horiz_crs": "6447",
+    "rule": "GA_SW_Georgia_West_5k",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/GA_SW_Georgia_22_County_Lidar_2017_B17/GA_SW_Georgia_B4_2017/LAZ",
+    "samples": [
+      ["USGS_LPC_GA_SW_Georgia_22_County_Lidar_2017_B17_GAW_24506100.laz",[2450000,610000.11,2455000,615000.56],"EPSG:6447"],
+      ["USGS_LPC_GA_SW_Georgia_22_County_Lidar_2017_B17_GAW_22658300.laz",[2268724.03,834787.5,2269999.97,835000.4],"EPSG:6447"]
+    ]
+  },
+  {
+    "workunit": "IL_HicksDome_FluorsparDist_2_2019",
+    "project": "IL_HicksDome_FluorsparDistrict_2019_D19",
+    "horiz_crs": "6455",
+    "rule": "IL_HicksDome_east_2k",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/IL_HicksDome_FluorsparDistrict_2019_D19/IL_HicksDome_FluorsparDist_2_2019/LAZ",
+    "samples": [
+      ["USGS_LPC_IL_HicksDome_FluorsparDistrict_2019_D19_9990_7070.laz",[999000.01,707000,1000999.88,707241.2],"EPSG:6455"],
+      ["USGS_LPC_IL_HicksDome_FluorsparDistrict_2019_D19_1001_2850.laz",[1001000.01,286218.03,1002999.99,286999.99],"EPSG:6455"]
+    ]
+  },
+  {
+    "workunit": "IL_HicksDome_FluorsparDist_3_2019",
+    "project": "IL_HicksDome_FluorsparDistrict_2019_D19",
+    "horiz_crs": "6457",
+    "rule": "IL_HicksDome_west_2k",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/IL_HicksDome_FluorsparDistrict_2019_D19/IL_HicksDome_FluorsparDist_3_2019/LAZ",
+    "samples": [
+      ["USGS_LPC_IL_HicksDome_FluorsparDistrict_2019_D19_2235_5750.laz",[2235290.66,575402.16,2235999.99,575999.99],"EPSG:6457"]
+    ]
+  },
+  {
+    "workunit": "AZ_CochiseCounty_3_2020",
+    "project": "AZ_CochiseCounty_2020_B20",
+    "horiz_crs": "6341",
+    "rule": "AZ_standard_1km_MGRS",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/AZ_CochiseCounty_2020_B20/AZ_CochiseCounty_3_2020/LAZ",
+    "samples": [
+      ["USGS_LPC_AZ_CochiseCounty_2020_B20_12R_WA_6400.laz",[564063.784,3500000.001,564999.999,3500504.591],null],
+      ["USGS_LPC_AZ_CochiseCounty_2020_B20_12S_XA_6142.laz",[661000,3542000,661335.691,3542727.776],null]
+    ]
+  },
+  {
+    "workunit": "IA_NorthCentral_3_2020",
+    "project": "IA_NorthCentral_2020_D20",
+    "horiz_crs": "6344",
+    "rule": "IA_UTM_1km_axis",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/IA_NorthCentral_2020_D20/IA_NorthCentral_3_2020/LAZ",
+    "samples": [
+      ["USGS_LPC_IA_NorthCentral_2020_D20_w4190n4692.laz",[419000,4692000,419999.99,4692999.99],"EPSG:6344"],
+      ["USGS_LPC_IA_NorthCentral_2020_D20_w5350n4750.laz",[535000,4750000,535765.32,4750999.99],"EPSG:6344"]
+    ]
+  },
+  {
+    "workunit": "IA_Eastern_2_2019",
+    "project": "IA_EasternIA_2019_B19",
+    "horiz_crs": "6344",
+    "rule": "IA_Eastern_1km_MGRS",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/IA_EasternIA_2019_B19/IA_Eastern_2_2019/LAZ",
+    "samples": [
+      ["USGS_LPC_IA_EasternIA_2019_B19_15TXG830920.laz",[683000,4692000,683999.99,4692999.99],"EPSG:6344"],
+      ["USGS_LPC_IA_EasternIA_2019_B19_15TYH040000.laz",[704000,4700000,704210.86,4700584.72],"EPSG:6344"]
+    ]
+  },
+  {
+    "workunit": "IL_8County_PlusChampaign_B2_2019",
+    "project": "IL_8County_PlusChampaign_2019_B19",
+    "horiz_crs": "6350",
+    "rule": "IL_8CountyPlusChampaign_1km",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/IL_8County_PlusChampaign_2019_B19/IL_8County_PlusChampaign_B2_2019/LAZ",
+    "samples": [
+      ["USGS_LPC_IL_8County_PlusChampaign_2019_B19_w4080n2045.laz",[408900.01,2045900,408999.97,2045999.99],"EPSG:6350"],
+      ["USGS_LPC_IL_8County_PlusChampaign_2019_B19_w5840n2098.laz",[584000,2098000,584100,2098099.99],"EPSG:6350"]
+    ]
+  },
+  {
+    "workunit": "ID_NorthForkPayette_1_2020",
+    "project": "ID_NorthForkPayette_2020_B20",
+    "horiz_crs": "6340",
+    "rule": "ID_NorthForkPayette_750m_absolute_MGRS",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/ID_NorthForkPayette_2020_B20/ID_NorthForkPayette_1_2020/LAZ",
+    "samples": [
+      ["USGS_LPC_ID_NorthForkPayette_2020_B20_11TLL37050010.laz",[370837.46,5001266.34,371249.99,5001749.99],null],
+      ["USGS_LPC_ID_NorthForkPayette_2020_B20_11TNK59109860.laz",[591000,4986000,591749.99,4986749.99],null],
+      ["USGS_LPC_ID_NorthForkPayette_2020_B20_11TPL62100160.laz",[621000,5016000,621035.68,5016156.36],"EPSG:6340"]
+    ]
+  },
+  {
+    "workunit": "ID_SouthernID_12_2018",
+    "project": "ID_SouthernID_2018_D19",
+    "horiz_crs": "6340",
+    "rule": "ID_Southern_1500m_MGRS",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/ID_SouthernID_2018_D19/ID_SouthernID_12_2018/LAZ",
+    "samples": [
+      ["USGS_LPC_ID_SouthernID_2018_D19_11TNJ700885.laz",[571463.01,4889837.68,571499.99,4889999.99],"EPSG:6340"],
+      ["USGS_LPC_ID_SouthernID_2018_D19_11TQL350235.laz",[735000,5023500,735195.03,5024478.6],"EPSG:6340"]
+    ]
+  },
+  {
+    "workunit": "ID_NorthernID_2_2019",
+    "project": "ID_NorthernID_2019_D19",
+    "horiz_crs": "6340",
+    "rule": "ID_Adams_Northern_1500m_absolute_MGRS",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/ID_NorthernID_2019_D19/ID_NorthernID_2_2019/LAZ",
+    "samples": [
+      ["USGS_LPC_ID_NorthernID_2019_D19_11UNQ05705400.laz",[570000,5400000,570158.55,5400712.74],null],
+      ["USGS_LPC_ID_NorthernID_2019_D19_11TMN04955260.laz",[496031.61,5260629.81,496499.99,5261898.79],null]
+    ]
+  },
+  {
+    "workunit": "AZ_NavajoCorridor_1_2020",
+    "project": "AZ_NavajoCorridor_2020_D20",
+    "horiz_crs": "6341",
+    "rule": "AZ_standard_1km_MGRS",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/AZ_NavajoCorridor_2020_D20/AZ_NavajoCorridor_1_2020/LAZ",
+    "samples": [
+      ["USGS_LPC_AZ_NavajoCorridor_2020_D20_12S_WD_2182.laz",[521932.431,3882355.097,521999.999,3882873.149],null],
+      ["USGS_LPC_AZ_NavajoCorridor_2020_D20_12S_WD_8466.laz",[584000,3866000.001,584052.045,3866324.436],null]
+    ]
+  },
+  {
+    "workunit": "ID_AdamsCo_2_2019",
+    "project": "ID_AdamsCounty_2019_B19",
+    "horiz_crs": "6340",
+    "rule": "ID_Adams_Northern_1500m_absolute_MGRS",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/ID_AdamsCounty_2019_B19/ID_AdamsCo_2_2019/LAZ",
+    "samples": [
+      ["USGS_LPC_ID_AdamsCounty_2019_B19_11TNK05054963.laz",[506182.56,4964162.37,506999.99,4965000],null],
+      ["USGS_LPC_ID_AdamsCounty_2019_B19_11TNL05535005.laz",[553500.01,5005500.01,553665.95,5006233.45],null]
+    ]
+  },
+  {
+    "workunit": "KS_Statewide_B9_2018",
+    "project": "KS_Statewide_2018_A18",
+    "horiz_crs": "3744",
+    "rule": "KS_Statewide_5km_MGRS",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/KS_Statewide_2018_A18/KS_Statewide_B9_2018/LAZ",
+    "samples": [
+      ["USGS_LPC_KS_Statewide_2018_A18_14S_MF_4095.laz",[440000,4095000,444999.999,4099999.999],"EPSG:3744"],
+      ["USGS_LPC_KS_Statewide_2018_A18_14S_NJ_0545.laz",[505000.001,4345000,510000,4349999.999],"EPSG:3744"]
+    ]
+  },
+  {
+    "workunit": "GA_Central_2_2019",
+    "project": "GA_Central_2019_B19",
+    "horiz_crs": "6350",
+    "rule": "GA_Conus_Albers_1km_axis",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/GA_Central_2019_B19/GA_Central_2_2019/LAZ",
+    "samples": [
+      ["USGS_LPC_GA_Central_2019_B19_e0958n1118.laz",[958000.001,1118000.001,959000,1119000],"EPSG:6350"],
+      ["USGS_LPC_GA_Central_2019_B19_e1157n1073.laz",[1157000.001,1073000.001,1158000,1074000],"EPSG:6350"]
+    ]
+  },
+  {
+    "workunit": "ME_SouthCoastal_1_2020",
+    "project": "ME_SouthCoastal_2020_A20",
+    "horiz_crs": "6348",
+    "rule": "ME_south_1500m_tokens",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/ME_SouthCoastal_2020_A20/ME_SouthCoastal_1_2020/LAZ",
+    "samples": [
+      ["USGS_LPC_ME_SouthCoastal_2020_A20_19TCH360797.laz",[361138.46,4797264.39,361499.99,4798499.99],null]
+    ]
+  },
+  {
+    "workunit": "IL_8County_B1_2020",
+    "project": "IL_8County_2020_A20",
+    "horiz_crs": "6455",
+    "rule": "IL_8County_B1_2k",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/IL_8County_2020_A20/IL_8County_B1_2020/LAZ",
+    "samples": [
+      ["USGS_LPC_IL_8County_2020_A20_99909990.laz",[999000,999000.001,1000999.999,1000999.999],null]
+    ]
+  },
+  {
+    "workunit": "IN_Statewide_Opt2_B6_2017",
+    "project": "IN_Indiana_Statewide_LiDAR_2017_B17",
+    "horiz_crs": "2968",
+    "rule": "IN_Statewide_5k",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/IN_Indiana_Statewide_LiDAR_2017_B17/IN_Statewide_Opt2_B6_2017/LAZ",
+    "samples": [
+      ["USGS_LPC_IN_Indiana_Statewide_LiDAR_2017_B17_in2018_26550965_12.laz",[2655000,965000,2659999.99,969999.99],"EPSG:2968"],
+      ["USGS_LPC_IN_Indiana_Statewide_LiDAR_2017_B17_in2018_30001170_12.laz",[2999999.02,1169999.65,3005000.38,1175000.32],"EPSG:2968"]
+    ]
+  },
+  {
+    "workunit": "AZ_LowerColoradoRiver_B2_2018",
+    "project": "AZ_LowerColoradoRiver_2018_B18",
+    "horiz_crs": "6350",
+    "rule": "AZ_Albers_1km_axis",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/AZ_LowerColoradoRiver_2018_B18/AZ_LowerColoradoRiver_B2_2018/LAZ",
+    "samples": [
+      ["USGS_LPC_AZ_LowerColoradoRiver_2018_B18_w1748n1223.laz",[-1747067.2,1223000,-1747000.01,1223212.71],"EPSG:6350"],
+      ["USGS_LPC_AZ_LowerColoradoRiver_2018_B18_w1688n1375.laz",[-1688000,1375000,-1687000.01,1375999.99],"EPSG:6350"]
+    ]
+  },
+  {
+    "workunit": "AZ_Coconino_B1_2019",
+    "project": "AZ_Coconino_2019_B19",
+    "horiz_crs": "6350",
+    "rule": "AZ_Albers_1km_axis",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/AZ_Coconino_2019_B19/AZ_Coconino_B1_2019/LAZ",
+    "samples": [
+      ["USGS_LPC_AZ_Coconino_2019_B19_w1438n1447.laz",[-1437099.203,1447000.001,-1437000,1447100.804],"EPSG:6350"]
+    ]
+  },
+  {
+    "workunit": "AZ_BrawleyRillito_FEMA_2018",
+    "project": "AZ_BrawleyRillito_2018_D19",
+    "horiz_crs": "6341",
+    "rule": "AZ_standard_1km_MGRS",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/AZ_BrawleyRillito_2018_D19/AZ_BrawleyRillito_FEMA_2018/LAZ",
+    "samples": [
+      ["USGS_LPC_AZ_BrawleyRillito_2018_D19_12S_WA_5342.laz",[553000,3542000,553535.238,3542997.234],"EPSG:6341"],
+      ["USGS_LPC_AZ_BrawleyRillito_2018_D19_12R_VA_4000.laz",[440000,3500000,440999.999,3500999.999],"EPSG:6341"]
+    ]
+  },
+  {
+    "workunit": "GA_Statewide_B2_2018",
+    "project": "GA_Statewide_2018_B18_DRRA",
+    "horiz_crs": "6350",
+    "rule": "GA_Conus_Albers_1km_axis",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/GA_Statewide_2018_B18_DRRA/GA_Statewide_B2_2018/LAZ",
+    "samples": [
+      ["USGS_LPC_GA_Statewide_2018_B18_DRRA_e0989n1381.laz",[989000.01,1381000.01,990000,1382000],"EPSG:6350"],
+      ["USGS_LPC_GA_Statewide_2018_B18_DRRA_e1031n1345.laz",[1031000.01,1345000.01,1032000,1346000],"EPSG:6350"]
+    ]
+  },
+  {
+    "workunit": "KY_Eastern_B2_2019",
+    "project": "KY_Eastern_2019_A19",
+    "horiz_crs": "6350",
+    "rule": "KY_Eastern_1km_axis",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/KY_Eastern_2019_A19/KY_Eastern_B2_2019/LAZ",
+    "samples": [
+      ["USGS_LPC_KY_Eastern_2019_A19_e1141n1711.laz",[1141000,1711000,1142000,1712000],null],
+      ["USGS_LPC_KY_Eastern_2019_A19_e1224n1702.laz",[1224000,1702000,1224999.99,1703000],null]
+    ]
+  },
+  {
+    "workunit": "AZ_VerdeKaibab_B2_2018",
+    "project": "AZ_VerdeKaibab_2018_B18",
+    "horiz_crs": "6350",
+    "rule": "AZ_Albers_1km_axis",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/AZ_VerdeKaibab_2018_B18/AZ_VerdeKaibab_B2_2018/LAZ",
+    "samples": [
+      ["USGS_LPC_AZ_VerdeKaibab_2018_B18_w1406n1479.laz",[-1406000,1479013.39,-1405618.58,1479999.99],null],
+      ["USGS_LPC_AZ_VerdeKaibab_2018_B18_w1494n1437.laz",[-1494000,1436999.99,-1493000,1437999.99],null]
+    ]
+  },
+  {
+    "workunit": "ID_FEMAHQ_2018",
+    "project": "ID_FEMAHQ_2018_D18",
+    "horiz_crs": "5070",
+    "rule": "ID_FEMAHQ_1km_axis",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/ID_FEMAHQ_2018_D18/ID_FEMAHQ_2018/LAZ",
+    "samples": [
+      ["USGS_LPC_ID_FEMAHQ_2018_D18_w1567n2466.laz",[-1566999.99,2466000,-1565999.99,2467000],null]
+    ]
+  },
+  {
+    "workunit": "ME_CrownofMaine_B1_2018",
+    "project": "ME_CrownofMaine_2018_A18",
+    "horiz_crs": "6348",
+    "rule": "ME_north_1500m_tokens",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/ME_CrownofMaine_2018_A18/ME_CrownofMaine_B1_2018/LAZ",
+    "samples": [
+      ["USGS_LPC_ME_CrownofMaine_2018_A18_19TEM525184.laz",[525000,5184000.01,526499.99,5185500],null],
+      ["USGS_LPC_ME_CrownofMaine_2018_A18_19TEN580224.laz",[580500.01,5224500,582000,5226000],null]
+    ]
+  },
+  {
+    "workunit": "IN_Statewide_Opt1_B4_2017",
+    "project": "IN_Indiana_Statewide_LiDAR_2017_B17",
+    "horiz_crs": "2967",
+    "rule": "IN_Statewide_5k",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/IN_Indiana_Statewide_LiDAR_2017_B17/IN_Statewide_Opt1_B4_2017/LAZ",
+    "samples": [
+      ["USGS_LPC_IN_Indiana_Statewide_LiDAR_2017_B17_in2018_01251380_12.laz",[125000,1380000,129999.99,1384999.99],"EPSG:2967"],
+      ["USGS_LPC_IN_Indiana_Statewide_LiDAR_2017_B17_in2018_03501370_12.laz",[350000,1370000,354999.99,1374999.99],"EPSG:2967"],
+      ["USGS_LPC_IN_Indiana_Statewide_LiDAR_2017_B17_in2018_05801325_12.laz",[580000,1325000,584999.99,1329999.99],"EPSG:2967"]
+    ]
+  },
+  {
+    "workunit": "IL_LaSalle_B2_2017",
+    "project": "IL_LaSalle_County_QL2_Plus_Lidar_2017_B17",
+    "horiz_crs": "6455",
+    "rule": "IL_LaSalle_2k",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/USGS_LPC_IL_LaSalle_B2_2017_LAS_2019/laz",
+    "samples": [
+      ["USGS_LPC_IL_LaSalle_B2_2017_91101897_LAS_2019.laz",[911000,1897000,911562.51,1898999.99],"EPSG:6455"],
+      ["USGS_LPC_IL_LaSalle_B2_2017_99901841_LAS_2019.laz",[999000,1841000,1000999.99,1842523.65],"EPSG:6455"]
+    ]
+  },
+  {
+    "workunit": "AZ_Safford_QL2_2016",
+    "project": "AZ_Fredonia_Safford_LiDAR_2016_D16",
+    "horiz_crs": "6341",
+    "rule": "AZ_standard_1km_MGRS",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/AZ_Fredonia_Safford_LiDAR_2016_D16/AZ_Safford_QL2_2016/LAZ",
+    "samples": [
+      ["USGS_LPC_AZ_Fredonia_Safford_LiDAR_2016_D16_12SWB890250.laz",[589848.23,3625572.98,589999.99,3625999.99],"EPSG:6341"],
+      ["USGS_LPC_AZ_Fredonia_Safford_LiDAR_2016_D16_12SXB140220.laz",[614000,3622000,614999.99,3622999.99],"EPSG:6341"],
+      ["USGS_LPC_AZ_Fredonia_Safford_LiDAR_2016_D16_12SXB310430.laz",[631000,3643000,631259.34,3643531.81],"EPSG:6341"]
+    ]
+  },
+  {
+    "workunit": "ME_Eastern_B1_2017",
+    "project": "ME_EasternME_2017_A17",
+    "horiz_crs": "6348",
+    "rule": "ME_north_1500m_tokens",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/USGS_LPC_ME_Eastern_B1_2017_LAS_2019/laz",
+    "samples": [
+      ["USGS_LPC_ME_Eastern_B1_2017_19TDL442086_LAS_2019.laz",[442500,5086500,443999.99,5087999.99],null],
+      ["USGS_LPC_ME_Eastern_B1_2017_19TEL531079_LAS_2019.laz",[531000,5079000,532499.99,5080499.99],null],
+      ["USGS_LPC_ME_Eastern_B1_2017_19TFL607052_LAS_2019.laz",[607500,5052000,608999.99,5053499.99],null]
+    ]
+  },
+  {
+    "workunit": "ID_Franklin_Bear_2017",
+    "project": "ID_Franklin_Bear_Lidar_2017_D17",
+    "horiz_crs": "6341",
+    "rule": "ID_standard_1km_MGRS",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/USGS_LPC_ID_Franklin_Bear_2017_LAS_2018/laz",
+    "samples": [
+      ["USGS_LPC_ID_Franklin_Bear_2017_12TVM0446_LAS_2018.laz",[404000,4646000,404999.99,4646999.99],"EPSG:6341"],
+      ["USGS_LPC_ID_Franklin_Bear_2017_12TVM5791_LAS_2018.laz",[457000,4691000,457999.99,4691999.99],"EPSG:6341"],
+      ["USGS_LPC_ID_Franklin_Bear_2017_12TVN9606_LAS_2018.laz",[496000,4706000,496999.99,4706999.99],"EPSG:6341"]
+    ]
+  },
+  {
+    "workunit": "ID_NezPerce_QL2_2016",
+    "project": "ID_Nez_Perce_LiDAR_2016_B16",
+    "horiz_crs": "6340",
+    "rule": "ID_NezPerce_1500m_absolute_MGRS",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/ID_Nez_Perce_LiDAR_2016_B16/ID_NezPerce_QL2_2016/LAZ",
+    "samples": [
+      ["USGS_LPC_ID_Nez_Perce_LiDAR_2016_B16_QL1_QL2_11TMM496142_NW.laz",[496500,5142750,497249.99,5143499.99],null],
+      ["USGS_LPC_ID_Nez_Perce_LiDAR_2016_B16_QL2_11TNM517193.laz",[517500,5193000,518999.99,5194499.99],null],
+      ["USGS_LPC_ID_Nez_Perce_LiDAR_2016_B16_QL2_11TPL622076.laz",[622500,5076000,623999.99,5077499.99],null]
+    ]
+  },
+  {
+    "workunit": "IN_Central_MarionCo_2016",
+    "project": "IN_Central_3_County_2016_A16",
+    "horiz_crs": "6459",
+    "rule": "IN_Central_3County_5k",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/IN_Central_3_County_2016_A16/IN_Central_MarionCo_2016/LAZ",
+    "samples": [
+      ["USGS_LPC_IN_Central_3_County_2016_A16_MC_01351590.laz",[135381.24,1591588.25,139999.99,1594999.99],"EPSG:6459"],
+      ["USGS_LPC_IN_Central_3_County_2016_A16_MC_01951610.laz",[195000,1610000,199999.99,1614999.99],"EPSG:6459"],
+      ["USGS_LPC_IN_Central_3_County_2016_A16_MC_02551710.laz",[255000.02,1710000,258723.09,1710926.24],"EPSG:6459"]
+    ]
+  },
+  {
+    "workunit": "KS_SCentral_L1_2015",
+    "project": "S_Central_NE_NW_Kansas_Lidar",
+    "horiz_crs": "3745",
+    "rule": "KS_legacy_5km_fixed_MGRS",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/S_Central_NE_NW_Kansas_Lidar/KS_SCentral_L1_2015/LAZ",
+    "samples": [
+      ["USGS_LPC_S_Central_NE_NW_Kansas_Lidar_TC7585.laz",[279900.01,4289900.01,280000,4289999.99],"EPSG:3745"],
+      ["USGS_LPC_S_Central_NE_NW_Kansas_Lidar_TD8520.laz",[285000.01,4320000,289999.99,4324999.99],null],
+      ["USGS_LPC_S_Central_NE_NW_Kansas_Lidar_UD2520.laz",[325000.01,4320000.01,325099.99,4320099.99],"EPSG:3745"]
+    ]
+  },
+  {
+    "workunit": "AZ_Eastern_PimaCO_2015",
+    "project": "Eastern_Pima_County_Lidar",
+    "horiz_crs": "6405",
+    "rule": "AZ_EasternPima_5k",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/Eastern_Pima_County_Lidar/AZ_Eastern_PimaCO_2015/LAZ",
+    "samples": [
+      ["USGS_LPC_Eastern_Pima_County_Lidar_000263.laz",[1000112.76,265306.58,1005112.75,268427.79],null],
+      ["USGS_LPC_Eastern_Pima_County_Lidar_880463.laz",[880112.76,463427.82,885112.75,468427.8],null],
+      ["USGS_LPC_Eastern_Pima_County_Lidar_995578.laz",[995112.76,578427.81,1000112.75,583427.79],null]
+    ]
+  },
+  {
+    "workunit": "IL_22County_5_D25",
+    "project": "IL_22County_D25",
+    "horiz_crs": "6457",
+    "rule": "IL_modern_west_2k_number_pair",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/IL_22County_D25/IL_22County_5_D25/LAZ",
+    "samples": [
+      ["USGS_LPC_IL_22County_D25_2525_4310.laz",[2524000,430000,2526000,432000],null],
+      ["USGS_LPC_IL_22County_D25_2659_2370.laz",[2658000,236000,2658327.98,236327.97],null]
+    ]
+  },
+  {
+    "workunit": "AL_19Co_5_B24",
+    "project": "AL_19County_B24",
+    "horiz_crs": "6345",
+    "rule": "GA_AL_modern_1km_MGRS",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/AL_19County_B24/AL_19Co_5_B24/LAZ",
+    "samples": [
+      ["USGS_LPC_AL_19County_B24_16S_FA_1466.laz",[613999.96,3566811.12,615000.01,3567000.04],null],
+      ["USGS_LPC_AL_19County_B24_16S_FB_2945.laz",[629000,3644999.96,630000.08,3646000.04],null],
+      ["USGS_LPC_AL_19County_B24_16S_FC_5804.laz",[658000,3704000.01,658003.81,3704022.31],"EPSG:6345"]
+    ]
+  },
+  {
+    "workunit": "GA_SW_Georgia_B5_2017",
+    "project": "GA_SW_Georgia_22_County_Lidar_2017_B17",
+    "horiz_crs": "6445",
+    "rule": "GA_SW_Georgia_East_5k",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/GA_SW_Georgia_22_County_Lidar_2017_B17/GA_SW_Georgia_B5_2017/LAZ",
+    "samples": [
+      ["USGS_LPC_GA_SW_Georgia_22_County_Lidar_2017_B17_GAE_50507000.laz",[505000,700000.59,505872.22,702443.87],null]
+    ]
+  },
+  {
+    "workunit": "ID_SouthernID_20_2018",
+    "project": "ID_SouthernID_2018_D19",
+    "horiz_crs": "6341",
+    "rule": "ID_Southern_1500m_MGRS",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/ID_SouthernID_2018_D19/ID_SouthernID_20_2018/LAZ",
+    "samples": [
+      ["USGS_LPC_ID_SouthernID_2018_D19_12TVP080525.laz",[408000,4852500,409499.99,4853999.99],"EPSG:6341"]
+    ]
+  },
+  {
+    "workunit": "IA_SouthCentral_1_2020",
+    "project": "IA_SouthCentral_2020_D20",
+    "horiz_crs": "6344",
+    "rule": "IA_UTM_1km_axis",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/IA_SouthCentral_2020_D20/IA_SouthCentral_1_2020/LAZ",
+    "samples": [
+      ["USGS_LPC_IA_SouthCentral_2020_D20_w3560n4572.laz",[356609.504,4572169.348,356999.998,4572999.999],"EPSG:6344"]
+    ]
+  },
+  {
+    "workunit": "KY_Western_1_2020",
+    "project": "KY_2020Western_C22",
+    "horiz_crs": "6473",
+    "rule": "KY_StatePlane_5k_NE_grid",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/KY_2020Western_C22/KY_Western_1_2020/LAZ",
+    "samples": [
+      ["USGS_LPC_KY_2020Western_C22_N096E124.laz",[4395095.7,3882427.18,4395372.63,3882771.33],"EPSG:6473"]
+    ]
+  },
+  {
+    "workunit": "CA_FEMA_R9_Upper_Pit_2017",
+    "project": "CA_FEMA_R9_Lidar_2016_D17",
+    "horiz_crs": "6416",
+    "rule": "CA_UpperPit_5k",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CA_FEMA_R9_Lidar_2016_D17/CA_FEMA_R9_Upper_Pit_2017/LAZ",
+    "samples": [
+      ["USGS_LPC_CA_FEMA_R9_Lidar_2016_D17_10TFL381619.laz",[6740000,2320000,6744999.99,2324999.99],"EPSG:6416"],
+      ["USGS_LPC_CA_FEMA_R9_Lidar_2016_D17_10TFL839594.laz",[6890000,2310000,6894999.99,2314999.99],"EPSG:6416"],
+      ["USGS_LPC_CA_FEMA_R9_Lidar_2016_D17_10TGM276056.laz",[7035000,2460000,7039999.9,2464999.99],"EPSG:6416"],
+      ["USGS_LPC_CA_FEMA_R9_Lidar_2016_D17_10TFL699866.laz",[6845000,2400000,6849999.99,2404999.99],"EPSG:6416"],
+      ["USGS_LPC_CA_FEMA_R9_Lidar_2016_D17_10TFL411665.laz",[6750000,2335000,6754999.99,2339999.99],"EPSG:6416"],
+      ["USGS_LPC_CA_FEMA_R9_Lidar_2016_D17_10TFL583347.laz",[6805000,2230000,6809999.99,2234999.99],"EPSG:6416"]
+    ]
+  },
+  {
+    "workunit": "ID_SouthernID_15_2018",
+    "project": "ID_SouthernID_2018_D19",
+    "horiz_crs": "6340",
+    "rule": "ID_Southern_15_local_repairs",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/ID_SouthernID_2018_D19/ID_SouthernID_15_2018/LAZ",
+    "samples": [
+      ["USGS_LPC_ID_SouthernID_2018_D19_11TNH000505.laz",[600000,4750618.88,601499.99,4751999.99],"EPSG:6340"],
+      ["USGS_LPC_ID_SouthernID_2018_D19_11TPH465715.laz",[646500,4771500,647999.97,4772999.99],"EPSG:6340"],
+      ["USGS_LPC_ID_SouthernID_2018_D19_11TTM470980.laz",[747000,4698000,747012.73,4698360.93],"EPSG:6340"],
+      ["USGS_LPC_ID_SouthernID_2018_D19_11TNH000775.laz",[600000,4777500,601499.99,4778999.99],"EPSG:6340"],
+      ["USGS_LPC_ID_SouthernID_2018_D19_11TTM470965.laz",[747000,4696500,747065.85,4697999.99],"EPSG:6340"]
+    ]
+  },
+  {
+    "workunit": "IN_JohnsonCo_2011",
+    "project": "Central_Indiana_LiDAR_Legacy_Data",
+    "horiz_crs": "2965",
+    "rule": "IN_Johnson_2011_5k",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/Central_Indiana_LiDAR/IN_JohnsonCo_2011/LAZ",
+    "samples": [
+      ["USGS_LPC_Central_Indiana_LiDAR_in2011_01601495_12.laz",[162000,1495000.01,164999.98,1499999.98],"EPSG:2965"],
+      ["USGS_LPC_Central_Indiana_LiDAR_in2011_02051495_12.laz",[205000.01,1495000.01,209999.98,1499999.98],"EPSG:2965"],
+      ["USGS_LPC_Central_Indiana_LiDAR_in2011_02451590_12.laz",[245000.01,1590000.01,249999.98,1594999.98],"EPSG:2965"]
+    ]
+  },
+  {
+    "workunit": "CA_FEMA_Z4_B1_2018",
+    "project": "CA_AZ_FEMA_R9_Lidar_2017_D18",
+    "horiz_crs": "6422",
+    "rule": "CA_FEMA_Z4_4500ft",
+    "url_prefix": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CA_AZ_FEMA_R9_Lidar_2017_D18/CA_FEMA_Z4_B1_2018/LAZ",
+    "samples": [
+      ["USGS_LPC_CA_AZ_FEMA_R9_Lidar_2017_D18_56252313.laz",[5628631.62,2314455.21,5629499.99,2317499.99],"EPSG:6422"],
+      ["USGS_LPC_CA_AZ_FEMA_R9_Lidar_2017_D18_60972007.laz",[6097500,2007000.01,6097525.6,2007586.55],"EPSG:6422"],
+      ["USGS_LPC_CA_AZ_FEMA_R9_Lidar_2017_D18_58322011.laz",[5832000,2011500,5836499.99,2015999.99],"EPSG:6422"]
+    ]
+  }
+]

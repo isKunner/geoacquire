@@ -1,0 +1,26 @@
+# 可直接编辑的 USGS 3DEP LiDAR 下载示例。
+# 放在 configs/default.yaml 后加载；只需修改 source 和两个 output_dir。
+# source 可以是 bbox、单个目标 TIF 或目标 TIF 目录。
+#
+#   python run.py -c configs/default.yaml configs/examples/usgs_lidar.yaml --check
+
+region:
+  init_args:
+    source: ./examples/USA_SanJuan_Example/input/USA_SanJuan_Example.tif
+    region: null
+    # 只用于 bbox；目标 TIF 会提供自己的 CRS。
+    crs: EPSG:4326
+
+pipelines:
+  - name: usgs_lidar
+    enable: true
+    acquire:
+      output_dir: ./examples/USA_SanJuan_Example/downloads/usgs_lidar
+    postprocess:
+      - init_args:
+          # 用于 TIF/TIF 目录输入；纯 bbox 输入会跳过目标对齐。
+          output_dir: ./examples/USA_SanJuan_Example/results/usgs_lidar
+
+reporting:
+  log_path: ./examples/USA_SanJuan_Example/logs/usgs_lidar.log
+  json_path: ./examples/USA_SanJuan_Example/logs/usgs_lidar_run.json

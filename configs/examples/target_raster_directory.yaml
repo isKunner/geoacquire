@@ -1,0 +1,15 @@
+# Region-only override. Every selected .tif/.tiff becomes an independent named Region.
+# `region` can be null (derive names) or a list matching sorted raster files.
+# `crs` is ignored because each raster supplies its own CRS and target-grid metadata.
+# Source parameters come from default.yaml; this file changes only Region input.
+
+region:
+  class_path: geoacquire.regions.bounds.BoundsRegionProvider
+  init_args:
+    source: ./examples/USA_SanJuan_Example/input
+    region: null  # null | [region_name_1, region_name_2, ...]
+    crs: EPSG:4326
+    # Inherits the built-in generated-raster exclusions from default.yaml.
+    # Write exclude_suffixes: [] only when generated outputs should also be targets.
+    # These outputs are auto-excluded and can mark a target complete before acquisition begins.
+    skip_existing_suffixes: null  # e.g. [lidar]

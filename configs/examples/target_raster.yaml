@@ -1,0 +1,12 @@
+# Region-only override. Combine it with default.yaml and enable a pipeline.
+# `region` can be null (use the filename stem) or one explicit output-region name.
+# `crs` is ignored here because CRS and target-grid metadata are read from the raster.
+# Enable a default Source with, for example:
+#   --set pipelines.google.enable=true
+
+region:
+  class_path: geoacquire.regions.bounds.BoundsRegionProvider
+  init_args:
+    source: ./examples/USA_SanJuan_Example/input/USA_SanJuan_Example.tif
+    region: null  # null | custom_region_name
+    crs: EPSG:4326
