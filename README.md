@@ -25,7 +25,7 @@ GeoAcquire 根据指定的地理范围下载高程、LiDAR 和影像数据。输
 USGS 数据主要覆盖美国，LINZ 数据覆盖新西兰；Google、Wayback 和 Copernicus 的实际结果取决于
 各服务的覆盖情况。Copernicus DEM 需要 CDSE 账号。
 
-每个数据源的类型、源分辨率、国家或地区范围、官方下载入口和相关文献，统一整理在
+每个数据源的类型、源分辨率、采集或发布时间、国家或地区范围、官方下载入口和相关文献，统一整理在
 [`docs/DATA_SOURCES.md`](docs/DATA_SOURCES.md)。其中既包括项目已经接入的数据，也包括暂时需要
 从官方网页手动下载、以后可以继续接入的补充数据。
 
@@ -229,7 +229,7 @@ python run.py -c configs/default.yaml configs/examples/google.yaml --set region.
 | 文档 | 读者和用途 |
 | --- | --- |
 | [README.md](README.md) | 新人入口：选择数据源、修改 YAML 中的输入输出并开始下载 |
-| [docs/DATA_SOURCES.md](docs/DATA_SOURCES.md) | 数据目录：数据类型、源分辨率、国家范围、官方下载入口和来源文献 |
+| [docs/DATA_SOURCES.md](docs/DATA_SOURCES.md) | 数据目录：数据类型、源分辨率、时间、国家范围、官方下载入口和来源文献 |
 | [docs/REFERENCE.md](docs/REFERENCE.md) | 完整运行参考：参数、默认值、配置合并、日志、续跑和 LiDAR 审计 |
 | [docs/DEVELOPER_HANDOFF.md](docs/DEVELOPER_HANDOFF.md) | 开发与继续扩展：架构边界、新增 Source/Postprocessor、并发约束、LiDAR 规则和提交检查 |
 | [docs/PROJECT_REPORT.md](docs/PROJECT_REPORT.md) | 历史与证据：设计决定、规则补全、验证结果和未解决问题 |
