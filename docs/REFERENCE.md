@@ -70,7 +70,8 @@ python run.py `
 缓存到 `cache/linz/nz_dem_1m_stac.json`；后续运行直接使用缓存。无需 LINZ 账号、API Key
 或 AWS 凭证。下载单位是完整的 LINZ 1:50,000 图幅 COG，不是服务器端裁剪后的 bbox。
 
-CopDEM 账号密码按项目要求直接放在被 `.gitignore` 排除的私有 YAML 中：
+CopDEM 账号密码按项目要求放在被 `.gitignore` 排除的私有 YAML 中。先复制仓库中的
+`configs/private_copdem.example.yaml` 并重命名为 `configs/private_copdem.yaml`，再填写：
 
 ```yaml
 pipelines:
@@ -88,7 +89,8 @@ configs/
 ├── default.yaml                 # 英文完整参数目录，默认主配置
 ├── default_zh.yaml              # 参数值完全相同的中文版本，二选一
 ├── usgs_lidar_projects.yaml     # 已审核的 USGS LiDAR 项目命名规则
-├── private_copdem.yaml          # 私有凭证，不提交
+├── private_copdem.example.yaml  # 可提交的凭证结构模板，仅含占位值
+├── private_copdem.yaml          # 用户复制后填写的真实凭证，不提交
 ├── examples/                    # 可编辑的数据源下载示例和通用输入覆盖
 │   ├── target_raster.yaml
 │   ├── target_raster_directory.yaml

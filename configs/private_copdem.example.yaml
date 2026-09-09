@@ -1,0 +1,13 @@
+# Copernicus DEM（CDSE）凭证模板。
+#
+# 1. 复制本文件并重命名为 configs/private_copdem.yaml。
+# 2. 只在复制后的文件中填写真实账号和密码。
+# 3. private_copdem.yaml 已被 .gitignore 排除，不要把真实凭证提交到 Git。
+
+pipelines:
+  - name: copdem
+    enable: true
+    source:
+      init_args:
+        username: REPLACE_WITH_CDSE_EMAIL
+        password: REPLACE_WITH_CDSE_PASSWORD

@@ -36,6 +36,8 @@ examples/USA_SanJuan_Example/logs/
 
 # Private credentials such as the Copernicus DEM account.
 configs/private*.yaml
+# Safe placeholder templates are documentation and must remain versioned.
+!configs/private*.example.yaml
 
 # Intentionally versioned project assets:
 # - tests/ contains regression code and reviewed LiDAR header fixtures.

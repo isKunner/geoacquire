@@ -1,5 +1,6 @@
 # 可直接编辑的 Copernicus DEM 下载示例。
 # 放在 configs/default.yaml 后加载，并把 configs/private_copdem.yaml 放在最后。
+# 第一次使用时，先复制 configs/private_copdem.example.yaml、重命名并填写真实凭证。
 # 修改 source 和两个 output_dir；source 可以是 bbox、单个目标 TIF 或目标 TIF 目录。
 #
 #   python run.py -c configs/default.yaml configs/examples/copdem.yaml configs/private_copdem.yaml --check

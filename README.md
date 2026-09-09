@@ -159,7 +159,20 @@ python run.py -c configs/default.yaml configs/examples/google.yaml --check
 python run.py -c configs/default.yaml configs/examples/google.yaml
 ```
 
-Copernicus DEM 需要把私有凭证配置放在最后加载：
+Copernicus DEM 第一次使用时，先复制
+[`configs/private_copdem.example.yaml`](configs/private_copdem.example.yaml)，将副本重命名为
+`configs/private_copdem.yaml`。然后只修改副本中的两个值：
+
+```yaml
+pipelines:
+  - name: copdem
+    source:
+      init_args:
+        username: your_cdse_email
+        password: your_cdse_password
+```
+
+运行时把私有凭证配置放在最后加载：
 
 ```bash
 python run.py -c configs/default.yaml configs/examples/copdem.yaml configs/private_copdem.yaml --check
@@ -210,10 +223,11 @@ python run.py -c configs/default.yaml configs/examples/google.yaml --set region.
 - `geodar_state_lidar.yaml`：GeoDAR 按州正式下载 LiDAR；
 - `geodar_state_lidar_audit.yaml`：只检查项目命名规则，不下载 LAZ。
 
-### `configs/private_copdem.yaml`
+### `configs/private_copdem.example.yaml` 与 `configs/private_copdem.yaml`
 
-这里保存 Copernicus DEM 的账号密码，已被 `.gitignore` 排除。使用 CopDEM 时把它作为最后一份
-配置加载；不要把凭证写进 default、examples 或文档。
+仓库上传 `private_copdem.example.yaml`，让用户看到凭证的 YAML 位置，但其中只有占位值。使用时复制
+并重命名为 `private_copdem.yaml`，再填写真实的 CDSE 账号密码。真实文件已被 `.gitignore` 排除；
+使用 CopDEM 时把它作为最后一份配置加载，不要把凭证写进 default、examples 或文档。
 
 ### `configs/usgs_lidar_projects.yaml`
 

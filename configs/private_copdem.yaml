@@ -1,9 +1,0 @@
-# Private CopDEM override. This file is excluded by .gitignore.
-
-pipelines:
-  - name: copdem
-    enable: true
-    source:
-      init_args:
-        username: ""
-        password: ""
