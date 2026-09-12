@@ -1,10 +1,11 @@
 # GeoAcquire
 
-GeoAcquire 根据指定的地理范围下载高程、LiDAR 和影像数据。输入支持三种形式：
+GeoAcquire 根据指定的地理范围下载高程、LiDAR 和影像数据。输入支持四种形式：
 
 1. 坐标范围 `[minx, miny, maxx, maxy]`；
 2. 单个目标 GeoTIFF；
-3. 直接包含多个目标 GeoTIFF 的目录。
+3. 直接包含多个目标 GeoTIFF 的目录；
+4. 包含多个 Polygon/MultiPolygon 要素的 Shapefile 或其他 GeoPandas 可读矢量文件。
 
 目标 GeoTIFF 只提供覆盖范围、坐标系和目标网格，不会被修改。
 
@@ -13,17 +14,23 @@ GeoAcquire 根据指定的地理范围下载高程、LiDAR 和影像数据。输
 每个数据源都有一份可以直接编辑的示例 YAML。新人推荐修改 YAML 中的输入输出路径，然后运行
 对应 YAML；常规使用不需要写一长串命令行参数。
 
-| 数据 | Pipeline 名称 | 下载内容 | 直接编辑的示例 YAML |
-| --- | --- | --- | --- |
-| USGS 3DEP LiDAR | `usgs_lidar` | LAZ、DSM、DTM | [`configs/examples/usgs_lidar.yaml`](configs/examples/usgs_lidar.yaml) |
-| USGS 3DEP 1 m DEM | `usgs_dem_1m` | GeoTIFF DEM | [`configs/examples/usgs_dem_1m.yaml`](configs/examples/usgs_dem_1m.yaml) |
-| LINZ New Zealand LiDAR 1 m DEM | `linz_nz_dem_1m` | 原生 COG DEM | [`configs/examples/linz_nz_dem_1m.yaml`](configs/examples/linz_nz_dem_1m.yaml) |
-| Google XYZ 影像 | `google` | 影像及地理配准 GeoTIFF | [`configs/examples/google.yaml`](configs/examples/google.yaml) |
-| Esri Wayback 影像 | `wayback` | 历史影像及地理配准 GeoTIFF | [`configs/examples/wayback.yaml`](configs/examples/wayback.yaml) |
-| Copernicus DEM | `copdem` | 30 m 或 90 m DEM | [`configs/examples/copdem.yaml`](configs/examples/copdem.yaml) |
+| 数据 | Pipeline 名称 | 下载内容 | 源数据坐标系 / 高程基准 | 直接编辑的示例 YAML |
+| --- | --- | --- | --- | --- |
+| USGS 3DEP LiDAR | `usgs_lidar` | LAZ、DSM、DTM | 随项目 / workunit 变化；通常为 NAD83 系列的 UTM、State Plane 或 Albers，也可能采用当地基准；以 WESM 和 LAZ 文件头为准 | [`configs/examples/usgs_lidar.yaml`](configs/examples/usgs_lidar.yaml) |
+| USGS 3DEP 1 m DEM | `usgs_dem_1m` | GeoTIFF DEM | NAD83 / UTM，分区随位置变化；通常为 NAVD88 高程，美国部分领地采用当地高程基准；以 GeoTIFF 文件头为准 | [`configs/examples/usgs_dem_1m.yaml`](configs/examples/usgs_dem_1m.yaml) |
+| LINZ New Zealand LiDAR 1 m DEM | `linz_nz_dem_1m` | 原生 COG DEM | NZTM2000（EPSG:2193）；NZVD2016 高程（EPSG:7839） | [`configs/examples/linz_nz_dem_1m.yaml`](configs/examples/linz_nz_dem_1m.yaml) |
+| Spain CNIG/PNOA MDT50 cm | `cnig_spain_mdt50cm` | 第三期原生 COG DTM | ETRS89 / 相应 UTM 分区；加那利群岛为 REGCAN95 / UTM 28N；正高 | [`configs/examples/cnig_spain_mdt50cm.yaml`](configs/examples/cnig_spain_mdt50cm.yaml) |
+| Google XYZ 影像 | `google` | 影像及地理配准 GeoTIFF | XYZ Web Mercator；GeoAcquire 落地 GeoTIFF 为 EPSG:3857 | [`configs/examples/google.yaml`](configs/examples/google.yaml) |
+| Esri Wayback 影像 | `wayback` | 历史影像及地理配准 GeoTIFF | WMTS / Web Mercator；GeoAcquire 落地 GeoTIFF 为 EPSG:3857 | [`configs/examples/wayback.yaml`](configs/examples/wayback.yaml) |
+| PE3D 1 m MDT | `pe3d_dtm_1m` | 1:5,000 原生 GeoTIFF 裸地高程图幅 | SIRGAS 2000 / UTM 24S 或 25S（EPSG:31984 / 31985）；垂直基准未声明 | [范围示例](configs/examples/pe3d_dtm_1m.yaml) / [多 Polygon SHP 示例](configs/examples/pe3d_dtm_1m_shapefile.yaml) |
+| Copernicus DEM | `copdem` | 30 m 或 90 m DEM | WGS 84 经纬度（EPSG:4326）；EGM2008 正高（EPSG:3855） | [`configs/examples/copdem.yaml`](configs/examples/copdem.yaml) |
 
-USGS 数据主要覆盖美国，LINZ 数据覆盖新西兰；Google、Wayback 和 Copernicus 的实际结果取决于
-各服务的覆盖情况。Copernicus DEM 需要 CDSE 账号。
+USGS 数据主要覆盖美国，LINZ 数据覆盖新西兰，CNIG/PNOA 数据覆盖当前已发布的西班牙区域；
+Google、Wayback 和 Copernicus 的实际结果取决于各服务的覆盖情况。Copernicus DEM 需要 CDSE
+账号。CNIG 当前允许匿名下载最多 20 个文件，账号登录尚未接入，因此首版用于小范围验证。
+
+表中的坐标系是下载或落地后的**源数据坐标系**。如果配置了目标 GeoTIFF，最终对齐结果使用
+目标 GeoTIFF 的水平坐标系和网格；当前流程只做水平重投影，不会自动转换不同的垂直高程基准。
 
 每个数据源的类型、源分辨率、采集或发布时间、国家或地区范围、官方下载入口和相关文献，统一整理在
 [`docs/DATA_SOURCES.md`](docs/DATA_SOURCES.md)。其中既包括项目已经接入的数据，也包括暂时需要
@@ -85,7 +92,7 @@ D:/GeoAcquire/cache/wesm/WESM.gpkg
 ```
 
 它位于美国 San Juan，CRS 为 `EPSG:26912`，WGS84 范围约为
-`[-109.860992, 38.112812, -109.855819, 38.116899]`。六份数据源 YAML 默认都读取这个文件，
+`[-109.860992, 38.112812, -109.855819, 38.116899]`。美国适用的数据源 YAML 默认读取这个文件，
 下载、结果和日志统一放在 `examples/USA_SanJuan_Example/` 下。完整目录说明见
 [`examples/USA_SanJuan_Example/README.md`](examples/USA_SanJuan_Example/README.md)。
 
@@ -178,13 +185,47 @@ pipelines:
 python run.py -c configs/default.yaml configs/examples/copdem.yaml configs/private_copdem.yaml --check
 ```
 
+PE3D 同样把账号密码放在私有配置中。复制
+[`configs/private_pe3d.example.yaml`](configs/private_pe3d.example.yaml) 为
+`configs/private_pe3d.yaml`，只在副本里填写真实账号。运行时程序会把当次 CAPTCHA 保存到
+`cache/pe3d/captcha.png` 并在终端等待人工输入；验证码不会写入 YAML 或日志：
+
+```bash
+python run.py -c configs/default.yaml configs/examples/pe3d_dtm_1m.yaml configs/private_pe3d.yaml --check
+python run.py -c configs/default.yaml configs/examples/pe3d_dtm_1m.yaml configs/private_pe3d.yaml
+```
+
+多个 Polygon 必须放在同一次运行中，才能共用一次 CAPTCHA 会话并对重复图幅全局去重。Brazil
+PE3D 测试 SHP 的 CRS 已修正为 SIRGAS 2000 / UTM 24S（EPSG:31984），示例会直接读取 `.prj`：
+
+```bash
+python run.py -c configs/default.yaml configs/examples/pe3d_dtm_1m_shapefile.yaml configs/private_pe3d.yaml
+```
+
+每个要素会保留真实 Polygon/MultiPolygon，而不是只使用外包矩形。PE3D 会先汇总全部相交图幅、
+全局去重，再登录一次并按 `batch_size` 分批取得链接；一个图幅即使服务多个 Polygon 也只下载一次。
+`min_intersection_fraction` 默认 0，表示保留所有正面积相交；已有 PE3D 图幅边缘本身带窄重叠时，
+可像 SHP 示例一样设为 `0.05`，忽略不足较小几何面积 5% 的边缘条带。
+
+当前 PE3D pipeline 只下载并安全解压 1:5,000 的 `MDT Raster`（产品代码 4）。它通过下载链接中的
+`1_5000/4_MDT_RASTER/MDT-*.zip` 三项约束排除 0.5 m 城区产品；不进行拼接、裁剪、重采样或重投影。
+PE3D 服务器当前没有发送完整的 ZeroSSL 中间证书链，因此浏览器能访问时，Requests 仍可能报
+`CERTIFICATE_VERIFY_FAILED`。下载器默认使用随代码提供的 PE3D 专用 ZeroSSL/Sectigo CA 链，
+登录、目录查询和 ZIP 下载都保持 TLS 校验；如需使用自己的 CA 文件，可设置 `ca_bundle_path`，
+不应把 `verify_tls` 改为 `false`。
+
+LINZ 和 CNIG/PNOA 同样会使用矢量输入中的真实 Polygon/MultiPolygon，并把多个要素命中的同一
+源文件合并成一次物理下载。LINZ 从公开静态 STAC 取得图幅 footprint；CNIG 通过门户的 POST
+查询接口取得当前 MDT50 cm 文件及其 GeoJSON footprint。CNIG 首版保留原生 COG，不裁剪、拼接、
+重采样或重投影，并遵守官网注明的匿名 20 文件上限。
+
 ## `default.yaml`、示例 YAML 和命令行的关系
 
 程序按从左到右的顺序合并配置：
 
 ```text
 configs/default.yaml
-        ↓ 完整基础配置：Region、Reporting、六个 Pipeline 和全部参数
+        ↓ 完整基础配置：Region、Reporting、七个 Pipeline 和全部参数
 configs/examples/某个数据源.yaml
         ↓ 本次运行：输入、输出目录、启用哪个 Pipeline
 --set 配置路径=新值
@@ -208,8 +249,10 @@ python run.py -c configs/default.yaml configs/examples/google.yaml --set region.
 
 这里放的是可以复制、编辑和运行的示例覆盖配置，不是第二份 default：
 
-- `usgs_lidar.yaml`、`usgs_dem_1m.yaml`、`linz_nz_dem_1m.yaml`、`google.yaml`、
-  `wayback.yaml`、`copdem.yaml`：每个数据源一份下载模板，已经包含输入和两个输出目录；
+- `usgs_lidar.yaml`、`usgs_dem_1m.yaml`、`linz_nz_dem_1m.yaml`、`cnig_spain_mdt50cm.yaml`、
+  `google.yaml`、`wayback.yaml`、`pe3d_dtm_1m.yaml`、`pe3d_dtm_1m_shapefile.yaml`、`copdem.yaml`：每个数据源
+  一份下载模板；PE3D 首版只设置
+  下载目录，其他示例同时设置下载和结果目录；
 - `target_raster.yaml`：只演示单个目标 TIF 的 Region 输入；
 - `target_raster_directory.yaml`：只演示目标 TIF 目录输入；
 - `target_training_data.yaml`：一次启用 LiDAR、Google、Wayback 和 CopDEM 的多数据源示例。
@@ -228,6 +271,11 @@ python run.py -c configs/default.yaml configs/examples/google.yaml --set region.
 仓库上传 `private_copdem.example.yaml`，让用户看到凭证的 YAML 位置，但其中只有占位值。使用时复制
 并重命名为 `private_copdem.yaml`，再填写真实的 CDSE 账号密码。真实文件已被 `.gitignore` 排除；
 使用 CopDEM 时把它作为最后一份配置加载，不要把凭证写进 default、examples 或文档。
+
+### `configs/private_pe3d.example.yaml` 与 `configs/private_pe3d.yaml`
+
+用途与 CopDEM 私有配置相同。PE3D 的 CAPTCHA 与当前 HTTP 会话绑定，因此不保存在私有 YAML；
+真正需要远程查询时由程序生成图片并要求人工输入。已经解压到下载目录的图幅可以直接复用，不会登录。
 
 ### `configs/usgs_lidar_projects.yaml`
 

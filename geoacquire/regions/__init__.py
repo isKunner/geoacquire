@@ -7,5 +7,6 @@
 
 from .base import BaseRegionProvider
 from .bounds import BoundsRegionProvider
+from .vector import VectorRegionProvider
 
-__all__ = ['BaseRegionProvider', 'BoundsRegionProvider']
+__all__ = ['BaseRegionProvider', 'BoundsRegionProvider', 'VectorRegionProvider']

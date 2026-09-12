@@ -33,8 +33,11 @@ geoacquire/services/              Source-neutral HTTP 下载能力
   run_reporting.py               终端、单 TIF log、原子 JSON 和轻量磁盘快照
 geoacquire/sources/usgs/          WESM、项目规则、LiDAR/DEM
 geoacquire/sources/linz/          LINZ 静态 STAC 索引、新西兰 1 m DEM
+geoacquire/sources/cnig/          CNIG Polygon 查询、footprint 缓存与西班牙 0.5 m DTM
 geoacquire/sources/rs/            XYZ、Google、Wayback、地理参考
 geoacquire/sources/copdem/        CDSE stateful client
+geoacquire/sources/pe3d/          PE3D 分幅、CAPTCHA 会话、链接过滤与 ZIP 解包
+geoacquire/regions/vector.py      Polygon/MultiPolygon 矢量文件 Region Provider
 geoacquire/postprocess/           目标导向本地处理
 configs/default.yaml              英文内置参数目录，默认主配置
 configs/default_zh.yaml           与 default.yaml 等值的中文参数目录
@@ -46,6 +49,9 @@ tests/test_streaming.py           A/B 调度、共享文件、失败隔离、早
 tests/test_boundaries.py          续传完整性、缓存隔离、栅格网格等边界回归
 tests/test_lidar_rules.py         文件头样本、命名边界和规则回归
 tests/test_linz.py                静态 STAC 解析/缓存、footprint 选片回归
+tests/test_cnig.py                门户 HTML、真实几何、UTM 分区去重与 20 文件上限
+tests/test_pe3d.py                分幅命名、登录边界、链接过滤和安全解包回归
+                                  含真实几何过滤、全局图幅批处理与错误 CRS 回归
 tests/test_reporting.py           三级输出、错误落盘、十分位和磁盘续接回归
 tests/fixtures/lidar_headers.json 已核对的官方样本：来源、bounds、CRS 编号
 tests/fixtures/lidar_headers_mn.json M–N 批次，包含独立复核和针对性补查样本

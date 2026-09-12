@@ -1,0 +1,25 @@
+# PE3D 1 m bare-earth DTM download example.
+# Load after configs/default.yaml and load configs/private_pe3d.yaml last:
+#   python run.py -c configs/default.yaml configs/examples/pe3d_dtm_1m.yaml configs/private_pe3d.yaml
+#
+# This small WGS84 bbox lies inside the verified sample sheet
+# SC-24-X-B-IV-1-NE-D-I. GeoAcquire downloads and extracts the native tile;
+# this pipeline intentionally performs no crop, mosaic, or reprojection.
+
+region:
+  init_args:
+    source: [-37.300, -8.556, -37.290, -8.548]
+    region: pe3d_sample_d_i
+    crs: EPSG:4326
+
+pipelines:
+  - name: pe3d_dtm_1m
+    enable: true
+    acquire:
+      output_dir: ./output/pe3d_dtm_1m
+    postprocess: []
+
+reporting:
+  log_path: ./logs/pe3d_dtm_1m.log
+  json_path: ./logs/pe3d_dtm_1m_run.json
+

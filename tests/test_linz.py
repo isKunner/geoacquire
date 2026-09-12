@@ -11,8 +11,10 @@ import tempfile
 import unittest
 from unittest.mock import Mock, patch
 
+from shapely.geometry import Polygon
+
 from geoacquire.core.geo import transform_bounds
-from geoacquire.core.models import Region
+from geoacquire.core.models import Region, RegionMetadataKey
 from geoacquire.sources.linz.catalog import LINZSTACTile, LINZStaticSTACCatalog
 from geoacquire.sources.linz.dem_1m import LINZDEM1mSource
 
@@ -88,6 +90,38 @@ class LINZSourceTests(unittest.TestCase):
         requests = list(source.build_requests({'projected': region}))
 
         self.assertEqual([request.filename for request in requests], ['BQ31.tiff'])
+
+    def test_source_uses_true_vector_polygon_instead_of_its_bounding_box(self):
+        source = LINZDEM1mSource(collection_url=self.COLLECTION_URL, filename_suffix=None)
+        source.catalog.list_tiles = Mock(return_value=(
+            self._tile('inside', (0.10, 0.10, 0.20, 0.20)),
+            self._tile('bbox-only', (1.70, 1.70, 1.80, 1.80)),
+        ))
+        triangle = Polygon([(0.0, 0.0), (2.0, 0.0), (0.0, 2.0)])
+        region = Region(
+            'triangle',
+            triangle.bounds,
+            metadata={RegionMetadataKey.GEOMETRY_WKB_HEX: triangle.wkb_hex},
+        )
+
+        requests = list(source.build_requests({'triangle': region}))
+
+        self.assertEqual([request.filename for request in requests], ['inside.tiff'])
+
+    def test_source_plans_one_shared_cog_for_multiple_vector_features(self):
+        source = LINZDEM1mSource(collection_url=self.COLLECTION_URL, filename_suffix=None)
+        source.catalog.list_tiles = Mock(return_value=(
+            self._tile('shared', (174.70, -41.40, 174.90, -41.20)),
+        ))
+        regions = {
+            'first': Region('first', (174.75, -41.35, 174.80, -41.30)),
+            'second': Region('second', (174.80, -41.30, 174.85, -41.25)),
+        }
+
+        requests = list(source.build_requests(regions))
+
+        self.assertEqual(len(requests), 1)
+        self.assertEqual(requests[0].target_region_ids, ('first', 'second'))
 
     def test_static_stac_refresh_resolves_links_and_reuses_disk_cache(self):
         collection = {

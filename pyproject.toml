@@ -24,3 +24,6 @@ dependencies = [
 
 [tool.setuptools.packages.find]
 include = ["geoacquire*"]
+
+[tool.setuptools.package-data]
+"geoacquire.sources.pe3d" = ["certs/*.pem"]

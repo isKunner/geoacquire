@@ -30,7 +30,7 @@ region:
     crs: EPSG:4326
     # 扫描目标目录时排除内置生成栅格；每项写不写开头下划线效果相同。
     # null 和 [] 都会关闭排除；这里故意给出具体默认列表，避免结果被再次当成目标。
-    exclude_suffixes: [lidar, dsm, dtm, usgs_dem_1m, nz_dem_1m, google, wayback, copdem, cop]
+    exclude_suffixes: [lidar, dsm, dtm, usgs_dem_1m, nz_dem_1m, cnig_mdt50cm, google, wayback, copdem, cop]
     # 例如 [lidar, cop]：同时存在 0_lidar.tif 和 0_cop.tif 时跳过 0.tif；
     # 这些结果文件也会自动从目标扫描中排除。null 表示不按已有结果跳过。
     skip_existing_suffixes: null
@@ -213,6 +213,43 @@ pipelines:
           vertical_datum_policy: warn_once
           skip_without_target: true
 
+  # 西班牙 CNIG/PNOA 第三期 0.5 米 MDT：Polygon 接口 -> 原生 COG GeoTIFF。
+  - name: cnig_spain_mdt50cm
+    enable: false
+    postprocess_workers: 1
+    source:
+      class_path: geoacquire.sources.cnig.source.CNIGMDTSource
+      init_args:
+        # 当前只开放已核验的第三期 0.5 米 MDT。
+        product: mdt50cm
+        footprint_cache_path: ./cache/cnig/mdt50cm_footprints.json
+        # 合并一批 Polygon 查询，再用每个文件的真实 footprint 做本地精确相交。
+        query_batch_size: 100
+        footprint_workers: 4
+        request_timeout: 60.0
+    # CNIG 匿名下载最多 20 个文件；账号登录完成并验证前，Source 会主动遵守这个限制。
+    acquire:
+      output_dir: null
+      skip_existing: true
+      max_retries: 3
+      max_workers: 2
+      chunk_size: 1048576
+      retry_delay: 2.0
+    postprocess:
+      - class_path: geoacquire.postprocess.raster_align.RasterAlignToTargetPostprocessor
+        init_args:
+          output_suffix: cnig_mdt50cm
+          input_products: [dtm]
+          output_dir: null
+          resample: true
+          target_scale: 1
+          resampling: bilinear
+          merge_method: first
+          window_size: 1024
+          skip_existing: true
+          vertical_datum_policy: warn_once
+          skip_without_target: true
+
   # Google 卫星影像 XYZ 瓦片。
   - name: google
     enable: false
@@ -299,6 +336,50 @@ pipelines:
           skip_existing: true
           vertical_datum_policy: ignore
           skip_without_target: true
+
+  # PE3D：CAPTCHA 登录 -> 1:5,000 图幅检索 -> 1 m MDT ZIP -> 原生 TIF。
+  - name: pe3d_dtm_1m
+    enable: false
+    postprocess_workers: 1
+    source:
+      class_path: geoacquire.sources.pe3d.source.PE3DSource
+      init_args:
+        # 与 CopDEM 一样，真实凭证放入被忽略的 configs/private_pe3d.yaml。
+        # 只有确实需要远程检索时，程序才在终端要求输入当次 CAPTCHA。
+        username: REPLACE_WITH_PE3D_EMAIL
+        password: REPLACE_WITH_PE3D_PASSWORD
+        # 六类门户产品共用一份产品表；当前只启用代码 4 的 dtm_raster，
+        # 其他类型要等各自压缩包格式核验后再开放。
+        product: dtm_raster
+        captcha_path: ./cache/pe3d/captcha.png
+        # 官网公开图幅 GeoJSON 缓存，提供真实门户 id 和范围；文件名分幅算法用于交叉校验。
+        catalog_cache_path: ./cache/pe3d/quadriculas_pe.json
+        catalog_cache_days: 10.0
+        auth_attempts: 3
+        # 每次链接检索提交的图幅编号数。
+        batch_size: 100
+        # false 表示原生 TIF 和 TFW 安全提取成功后删除 ZIP。
+        keep_archive: false
+        # 保持 TLS 证书校验；不沿用参考 QGIS 插件的 verify=False。
+        verify_tls: true
+        # 可选的替代 CA 文件；null 使用随程序提供的 PE3D ZeroSSL/Sectigo 证书链，
+        # 因为当前门户响应没有发送中间证书。
+        ca_bundle_path: null
+        # 门户按图幅选择的表单值；当前不使用按市镇整批下载。
+        quadrangle_mode: quad
+        # 真实 Polygon 相交比例过滤。0 保留所有正面积相交；像已有 PE3D 图幅边缘
+        # 这类窄重叠可在运行配置中设为 0.05。
+        min_intersection_fraction: 0.0
+    acquire:
+      output_dir: null
+      skip_existing: true
+      max_retries: 3
+      max_workers: 4
+      chunk_size: 1048576
+      retry_delay: 2.0
+    # Acquisition 直接返回原生 1 m MDT GeoTIFF 图幅；首版不拼接、裁剪、
+    # 重采样或重投影。
+    postprocess: []
 
   # Copernicus DEM：CDSE 登录 -> 产品检索 -> ZIP 下载 -> DEM TIF 提取。
   - name: copdem

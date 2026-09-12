@@ -147,7 +147,10 @@ class GeoAcquireCoreTests(unittest.TestCase):
         self.assertEqual(english, chinese)
         self.assertEqual(
             english['region']['init_args']['exclude_suffixes'],
-            ['lidar', 'dsm', 'dtm', 'usgs_dem_1m', 'nz_dem_1m', 'google', 'wayback', 'copdem', 'cop'],
+            [
+                'lidar', 'dsm', 'dtm', 'usgs_dem_1m', 'nz_dem_1m', 'cnig_mdt50cm',
+                'google', 'wayback', 'copdem', 'cop',
+            ],
         )
         pipelines = {item['name']: item for item in english['pipelines']}
         self.assertEqual(
@@ -1276,7 +1279,7 @@ class GeoAcquireCoreTests(unittest.TestCase):
                 'pipelines.google.acquire.max_workers=2',
             ],
         )
-        self.assertEqual(len(config.pipelines), 6)
+        self.assertEqual(len(config.pipelines), 8)
         enabled = [pipeline for pipeline in config.pipelines if pipeline.enable]
         self.assertEqual([pipeline.name for pipeline in enabled], ['google'])
         self.assertEqual(enabled[0].source.zoom, 17)
@@ -1288,6 +1291,8 @@ class GeoAcquireCoreTests(unittest.TestCase):
             os.path.join(self.project_root, 'run.py'),
             '-c',
             default_path,
+            '-c',
+            example_path,
             '--set',
             'pipelines.google.enable=true',
             '--check',

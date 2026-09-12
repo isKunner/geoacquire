@@ -33,7 +33,7 @@ region:
     # Ignore built-in generated rasters while discovering target directories.
     # Entries with or without a leading underscore have identical meaning.
     # null and [] both disable this filter; the concrete default is intentional.
-    exclude_suffixes: [lidar, dsm, dtm, usgs_dem_1m, nz_dem_1m, google, wayback, copdem, cop]
+    exclude_suffixes: [lidar, dsm, dtm, usgs_dem_1m, nz_dem_1m, cnig_mdt50cm, google, wayback, copdem, cop]
     # Example [lidar, cop]: skip 0.tif only when both 0_lidar.tif and 0_cop.tif exist;
     # those output files are also excluded from target discovery. null disables this skip.
     skip_existing_suffixes: null
@@ -224,6 +224,44 @@ pipelines:
           vertical_datum_policy: warn_once
           skip_without_target: true
 
+  # Spain CNIG/PNOA third-coverage 0.5 m DTM: polygon API -> native COG GeoTIFF.
+  - name: cnig_spain_mdt50cm
+    enable: false
+    postprocess_workers: 1
+    source:
+      class_path: geoacquire.sources.cnig.source.CNIGMDTSource
+      init_args:
+        # Only the reviewed 0.5 m third-coverage DTM is enabled.
+        product: mdt50cm
+        footprint_cache_path: ./cache/cnig/mdt50cm_footprints.json
+        # Batch Polygon queries, then verify every returned footprint locally.
+        query_batch_size: 100
+        footprint_workers: 4
+        request_timeout: 60.0
+    # CNIG allows at most 20 anonymous downloads. The Source enforces this limit
+    # until account login is implemented and verified.
+    acquire:
+      output_dir: null
+      skip_existing: true
+      max_retries: 3
+      max_workers: 2
+      chunk_size: 1048576
+      retry_delay: 2.0
+    postprocess:
+      - class_path: geoacquire.postprocess.raster_align.RasterAlignToTargetPostprocessor
+        init_args:
+          output_suffix: cnig_mdt50cm
+          input_products: [dtm]
+          output_dir: null
+          resample: true
+          target_scale: 1
+          resampling: bilinear
+          merge_method: first
+          window_size: 1024
+          skip_existing: true
+          vertical_datum_policy: warn_once
+          skip_without_target: true
+
   # Google satellite imagery XYZ tiles.
   - name: google
     enable: false
@@ -311,6 +349,51 @@ pipelines:
           skip_existing: true
           vertical_datum_policy: ignore
           skip_without_target: true
+
+  # PE3D: CAPTCHA login -> 1:5,000 quadrangle discovery -> 1 m MDT ZIP -> native TIF.
+  - name: pe3d_dtm_1m
+    enable: false
+    postprocess_workers: 1
+    source:
+      class_path: geoacquire.sources.pe3d.source.PE3DSource
+      init_args:
+        # Keep credentials in ignored configs/private_pe3d.yaml, like CopDEM.
+        # CAPTCHA text is requested interactively only when remote discovery is needed.
+        username: REPLACE_WITH_PE3D_EMAIL
+        password: REPLACE_WITH_PE3D_PASSWORD
+        # The six portal products are modelled in one catalogue. Only dtm_raster
+        # (portal code 4) is enabled until the other archive formats are verified.
+        product: dtm_raster
+        captcha_path: ./cache/pe3d/captcha.png
+        # Public official quadrangle GeoJSON cache. It supplies portal IDs and
+        # exact map footprints; the filename-derived grid is retained as validation.
+        catalog_cache_path: ./cache/pe3d/quadriculas_pe.json
+        catalog_cache_days: 10.0
+        auth_attempts: 3
+        # Number of quadrangle IDs submitted in one link-discovery request.
+        batch_size: 100
+        # false deletes each ZIP only after its native TIF and TFW are safely extracted.
+        keep_archive: false
+        # Keep certificate verification enabled; never copy the QGIS plugin's verify=False.
+        verify_tls: true
+        # Optional replacement CA bundle. null uses the packaged PE3D ZeroSSL/Sectigo
+        # chain because the portal currently omits its intermediate certificate.
+        ca_bundle_path: null
+        # Portal form value for quadrangle selection; municipality mode is not used.
+        quadrangle_mode: quad
+        # True Polygon intersection filter. 0 keeps every positive-area overlap;
+        # a small value such as 0.05 can ignore narrow source-tile edge overlaps.
+        min_intersection_fraction: 0.0
+    acquire:
+      output_dir: null
+      skip_existing: true
+      max_retries: 3
+      max_workers: 4
+      chunk_size: 1048576
+      retry_delay: 2.0
+    # Acquisition returns native 1 m MDT GeoTIFF sheets. This initial pipeline
+    # deliberately does not mosaic, crop, resample, or reproject them.
+    postprocess: []
 
   # Copernicus DEM: CDSE login -> catalogue search -> ZIP download -> DEM TIF extraction.
   - name: copdem

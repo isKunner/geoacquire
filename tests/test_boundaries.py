@@ -84,6 +84,26 @@ class BoundaryTests(unittest.TestCase):
         self.assertEqual(self.read(self.destination), b'abcdef')
         self.assertFalse(os.path.exists(self.part))
 
+    def test_http_post_download_sends_form_body(self):
+        request = DownloadRequest(
+            '0',
+            'post-tile',
+            'https://example.invalid/download',
+            'post.bin',
+            method='post',
+            data={'file': '123'},
+        )
+        with patch(
+            'geoacquire.services.http_download.requests.post',
+            return_value=response(200, b'payload', **{'Content-Length': '7'}),
+        ) as post:
+            result = HTTPDownloadService._download_one(request, self.root, True, 2)
+
+        self.assertEqual(result.status, 'success')
+        self.assertEqual(self.read(os.path.join(self.root, 'post.bin')), b'payload')
+        self.assertEqual(post.call_args.kwargs['data'], {'file': '123'})
+        self.assertEqual(request.method, 'POST')
+
     def test_http_ignored_range_rewrites_instead_of_appending(self):
         self.write(self.part, b'abc')
         result = self.transfer(response(200, b'abcdef', **{'Content-Length': '6'}))

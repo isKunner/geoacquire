@@ -47,6 +47,7 @@ class RegionMetadataKey(StrEnum):
     TARGET_PATH = 'target_path'
     SHAPE = 'shape'
     TRANSFORM = 'transform'
+    GEOMETRY_WKB_HEX = 'geometry_wkb_hex'
 
 
 def validate_product_type(value: str, label: str = 'product') -> str:
@@ -136,6 +137,12 @@ class Region:
         value = self.metadata.get(RegionMetadataKey.TRANSFORM)
         return tuple(value) if value is not None else None
 
+    @property
+    def geometry_wkb_hex(self) -> str | None:
+        """Original-CRS Polygon/MultiPolygon geometry supplied by a vector input."""
+        value = self.metadata.get(RegionMetadataKey.GEOMETRY_WKB_HEX)
+        return str(value) if value else None
+
 
 # Runtime configuration boundary: one instance is created from each pipeline's
 # `acquire` YAML section and passed to the selected Source.
@@ -198,11 +205,15 @@ class DownloadRequest:
             Built-in Sources use ProductType; custom Sources may use other
             non-empty strings. Product is not inferred from filename or kind.
         headers: Optional request-specific HTTP headers.
+        method: HTTP transfer method. Built-in requests use GET or POST.
+        data: Optional form body used by POST-based download endpoints.
         metadata: Source information that must survive into the LocalAsset, such
             as XYZ coordinates or source tile keys.
         target_region_ids: Every Region that consumes this physical destination.
             Empty input is normalized to ``(region_id,)``. The HTTP service owns
             dependency registration and destination deduplication.
+        verify_tls: True for the default CA store, False to disable certificate
+            checks, or a CA bundle path for a source-specific verified chain.
     """
 
     region_id: str
@@ -212,8 +223,11 @@ class DownloadRequest:
     kind: AssetKind = AssetKind.FILE
     product: str = ProductType.GENERIC
     headers: dict[str, str] = field(default_factory=dict)
+    method: str = 'GET'
+    data: dict[str, str] = field(default_factory=dict)
     metadata: dict[str, Any] = field(default_factory=dict)
     target_region_ids: tuple[str, ...] = ()
+    verify_tls: bool | str = True
 
     def __post_init__(self) -> None:
         validate_path_component(self.region_id, 'region_id')
@@ -224,6 +238,10 @@ class DownloadRequest:
             raise ValueError('url must not be empty')
         object.__setattr__(self, 'kind', AssetKind(self.kind))
         validate_product_type(self.product)
+        method = self.method.upper()
+        if method not in {'GET', 'POST'}:
+            raise ValueError(f'HTTP method must be GET or POST, got: {self.method!r}')
+        object.__setattr__(self, 'method', method)
         targets = tuple(dict.fromkeys(self.target_region_ids or (self.region_id,)))
         for target in targets:
             validate_path_component(target, 'target_region_id')

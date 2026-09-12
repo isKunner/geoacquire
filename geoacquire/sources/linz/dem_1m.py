@@ -9,11 +9,13 @@ import os
 from collections.abc import Iterable
 from urllib.parse import urlparse
 
-from shapely.geometry import box, shape
+from shapely.geometry import shape
+from shapely.geometry.base import BaseGeometry
 from shapely.strtree import STRtree
 
-from geoacquire.core.geo import transform_bounds
+from geoacquire.core.acquisition import AcquisitionProgress
 from geoacquire.core.models import AssetKind, AssetSpec, DownloadRequest, ProductType, Region
+from geoacquire.core.region_geometry import positive_area_intersection, region_polygon
 from geoacquire.core.source import HTTPSource
 
 from .catalog import LINZSTACTile, LINZStaticSTACCatalog
@@ -51,49 +53,70 @@ class LINZDEM1mSource(HTTPSource):
             max_workers=catalog_workers,
         )
         self._tiles: tuple[LINZSTACTile, ...] | None = None
+        self._tile_geometries: tuple[BaseGeometry, ...] | None = None
         self._tile_index: STRtree | None = None
 
     def build_requests(self, regions: dict[str, Region]) -> Iterable[DownloadRequest]:
-        tiles, tile_index = self._spatial_index()
+        tiles, tile_geometries, tile_index = self._spatial_index()
+        target_regions: dict[int, list[str]] = {}
         for region_id, region in regions.items():
-            bounds_wgs84 = transform_bounds(region.bounds, region.crs, 'EPSG:4326')
-            target = box(*bounds_wgs84)
+            target = region_polygon(region, 'EPSG:4326')
             matched = 0
             for tile_index_value in sorted(int(value) for value in tile_index.query(target, predicate='intersects')):
-                tile = tiles[tile_index_value]
+                if not positive_area_intersection(target, tile_geometries[tile_index_value]):
+                    continue
                 matched += 1
-                original = os.path.basename(urlparse(tile.url).path) or f'{tile.tile_id}.tiff'
-                filename = self._add_suffix(original, self.filename_suffix)
-                yield DownloadRequest(
-                    region_id=region_id,
-                    asset_id=f'linz:nz_dem_1m:{tile.tile_id}',
-                    url=tile.url,
-                    filename=filename,
-                    kind=AssetKind.RASTER,
-                    product=ProductType.DEM,
-                    metadata={
-                        'tile_id': tile.tile_id,
-                        'bounds_wgs84': tile.bounds_wgs84,
-                        'item_url': tile.item_url,
-                        'capture_start': tile.start_datetime,
-                        'capture_end': tile.end_datetime,
-                        'checksum': tile.checksum,
-                        'resolution': 1.0,
-                        'source_crs': 'EPSG:2193',
-                        'vertical_crs': 'EPSG:7839',
-                        'vertical_datum': 'NZVD2016',
-                        'license': 'CC BY 4.0',
-                    },
-                )
+                target_regions.setdefault(tile_index_value, []).append(region_id)
             if matched == 0:
                 print(f'[linz/dem_1m] no STAC tiles intersect region={region_id}')
 
-    def _spatial_index(self) -> tuple[tuple[LINZSTACTile, ...], STRtree]:
+        for tile_index_value in sorted(target_regions):
+            tile = tiles[tile_index_value]
+            targets = tuple(dict.fromkeys(target_regions[tile_index_value]))
+            original = os.path.basename(urlparse(tile.url).path) or f'{tile.tile_id}.tiff'
+            filename = self._add_suffix(original, self.filename_suffix)
+            yield DownloadRequest(
+                region_id=targets[0],
+                asset_id=f'linz:nz_dem_1m:{tile.tile_id}',
+                url=tile.url,
+                filename=filename,
+                kind=AssetKind.RASTER,
+                product=ProductType.DEM,
+                metadata={
+                    'tile_id': tile.tile_id,
+                    'bounds_wgs84': tile.bounds_wgs84,
+                    'item_url': tile.item_url,
+                    'capture_start': tile.start_datetime,
+                    'capture_end': tile.end_datetime,
+                    'checksum': tile.checksum,
+                    'resolution': 1.0,
+                    'source_crs': 'EPSG:2193',
+                    'vertical_crs': 'EPSG:7839',
+                    'vertical_datum': 'NZVD2016',
+                    'license': 'CC BY 4.0',
+                },
+                target_region_ids=targets,
+            )
+
+    def plan_requests(
+        self,
+        regions: dict[str, Region],
+        progress: AcquisitionProgress,
+    ) -> Iterable[DownloadRequest]:
+        """Plan all Regions together so one COG is transferred only once."""
+        yield from self.build_requests(regions)
+        for region_id in regions:
+            progress.close_region(region_id)
+
+    def _spatial_index(
+        self,
+    ) -> tuple[tuple[LINZSTACTile, ...], tuple[BaseGeometry, ...], STRtree]:
         """Build one real R-tree for repeated Region-to-LINZ-tile searches."""
-        if self._tiles is None or self._tile_index is None:
+        if self._tiles is None or self._tile_geometries is None or self._tile_index is None:
             self._tiles = tuple(self.catalog.list_tiles())
-            self._tile_index = STRtree([shape(tile.geometry) for tile in self._tiles])
-        return self._tiles, self._tile_index
+            self._tile_geometries = tuple(shape(tile.geometry) for tile in self._tiles)
+            self._tile_index = STRtree(self._tile_geometries)
+        return self._tiles, self._tile_geometries, self._tile_index
 
     @staticmethod
     def _add_suffix(filename: str, suffix: str | None) -> str:

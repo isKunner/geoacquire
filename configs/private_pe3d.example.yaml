@@ -1,0 +1,14 @@
+# PE3D credentials template.
+#
+# 1. Copy this file to configs/private_pe3d.yaml.
+# 2. Enter the real account values only in that ignored private file.
+# 3. CAPTCHA text is requested interactively and is never stored in YAML.
+
+pipelines:
+  - name: pe3d_dtm_1m
+    enable: true
+    source:
+      init_args:
+        username: REPLACE_WITH_PE3D_EMAIL
+        password: REPLACE_WITH_PE3D_PASSWORD
+

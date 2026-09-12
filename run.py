@@ -41,7 +41,14 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description='Acquire geospatial source data from class_path-based YAML pipelines.'
     )
-    parser.add_argument('-c', '--config', nargs='+', required=True, help='YAML files merged in order')
+    parser.add_argument(
+        '-c',
+        '--config',
+        nargs='+',
+        action='extend',
+        required=True,
+        help='YAML files merged in order; the option itself may also be repeated',
+    )
     # --set allows overriding YAML values from the command line.
     #   dest='overrides'    -> the parsed value is stored as args.overrides, not args.set.
     #   action='append'     -> the flag can be repeated; each occurrence is appended to a list.

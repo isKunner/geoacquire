@@ -888,3 +888,65 @@ workunit 已被当前规则表覆盖（TX 67、AL 1），无需重复加规则�
 TX 有 17 个已下载 LAZ 在栅格化时因完整文件头没有 CRS 而失败，均属于
 `TX_RioGrand_FTWhit_2014`。Rasterizer 现仅在头 CRS 缺失时使用规划阶段保存的已审核
 `source_crs`（EPSG:6342），正常头声明仍优先。连同混合续跑回归，完整离线测试 133 项通过。
+
+## 23. PE3D 1 米 MDT 下载接入（2026-09-11）
+
+新增 `geoacquire/sources/pe3d/`。纯规划器把任意 Region 转到 WGS84 后按巴西系统分幅计算
+1:5,000 图幅，再以带过期和故障回退的官网 `quadriculas_pe.json` 缓存核对可用性，并取得下载表单
+需要的门户 ID。2026-09-11 的目录含 16,816 条图幅—市镇记录，去重后为 12,962 个图幅。三个用户
+下载样本的实际 GeoTIFF 中心分别正确反解为
+`SC-24-X-B-IV-1-NE-D-I`、`SC-24-X-B-IV-1-NE-D-III` 和
+`SC-25-V-A-II-4-NO-C-IV`。样本 ZIP 的来源地址确认 1 米 MDT 使用
+`1_5000/BLOCO-*/4_MDT_RASTER/MDT-*.zip`，因此链接发现同时核对产品代码、比例尺目录、
+产品目录、文件前缀、请求图幅和官方主机，不靠下载后的像元大小猜分辨率。
+
+`PE3DClient` 的构造保持离线；只有未缓存图幅需要查询时才初始化会话、保存 CAPTCHA 并等待
+人工输入。账号密码沿用 CopDEM 的 ignored private YAML 约定，验证码不持久化。登录后的实际
+ZIP 传输复用 `HTTPDownloadService` 的并发、重试、续传和 reporting；Cookie 值不写入运行状态，
+只记录请求含有的 header 名。解包只提取精确匹配的 TIF/TFW/aux.xml，通过 `.part` 写入且最后
+发布 TIF，不使用 `extractall`。
+
+门户 TLS 响应只包含叶证书，遗漏 `ZeroSSL ECC DV SSL CA 2` 中间证书。新增 PE3D 专用、已核验的
+ZeroSSL/Sectigo CA 链，并把 `DownloadRequest.verify_tls` 扩展为可接收 CA 文件路径，使登录、目录
+请求和共享 HTTP 下载线程使用同一验证链；主机名、证书签名和有效期校验仍保持启用。
+
+六类门户产品集中在 `products.py`，当前仅开放 `dtm_raster`（代码 4、DTM raster）；未来类型
+通过补充已核验的 archive convention 复用相同会话、分幅和下载流程。默认与示例 pipeline
+只返回原生 1 米 MDT 图幅，不拼接、裁剪、重采样或重投影。
+
+为大量小 Polygon 增加 `VectorRegionProvider`：每个 Polygon/MultiPolygon 要素形成一个 Region，
+完整几何以 WKB 保存，边界框只负责候选预筛。PE3D 规划改为在认证前处理全部 Region，集中生成
+唯一图幅集合，再登录一次并跨要素按 `batch_size` 批量查询；同一图幅通过 `target_region_ids`
+关联回所有 Polygon，只发生一次物理下载。可选 `min_intersection_fraction` 用于忽略已有 PE3D
+栅格足迹越过名义图幅边界的窄重叠。
+
+用户提供的两要素测试 SHP 原 `.prj` 声明 EPSG:4326，但坐标与样本栅格一致，实际为 EPSG:31984；
+现已把 `.prj` 修正为 SIRGAS 2000 / UTM 24S。Provider 仍会拒绝不可能的经纬度坐标，并允许其他
+错误或缺失 CRS 的输入显式使用 `crs_override`。专用示例直接读取修正后的 CRS，并以 5% 相交阈值
+精确规划为 `SC-24-X-B-IV-1-NE-D-III` 和 `SC-24-X-B-IV-1-NE-D-I` 两个预期图幅。
+
+## 24. Polygon 几何复用、LINZ 精确选片与 CNIG MDT50 cm 首版（2026-09-11）
+
+把 Vector Region 的 WKB 解析、坐标转换和正面积相交判断集中到
+`geoacquire/core/region_geometry.py`。bounds 与目标 TIF 输入仍回退到历史外包矩形语义，只有
+确实携带 WKB 的矢量输入使用真实 Polygon/MultiPolygon；PE3D、LINZ 和 CNIG 共用这层几何边界。
+
+LINZ Source 由逐 Region 外包矩形查询改为一次规划全部 Region：目标真实 Polygon 与官方 STAC
+Item footprint 精确相交，同一 COG 汇总全部 `target_region_ids` 后只生成一个下载请求。仍保存
+原生 EPSG:2193 / NZVD2016 COG，不增加服务器端裁剪或重投影。
+
+CNIG 官网的 MDT50 cm 页面已通过真实 HTTP 探测确认三个 POST 端点：`archivosSerie` 接受 WGS84
+Polygon/MultiPolygon 并分页返回候选文件，`localizarCoordsSec` 返回文件 GeoJSON footprint，
+`descargaDir` 直接返回原生 COG TIFF。新增 `geoacquire/sources/cnig/`，把门户 HTML 解析封装在
+client 边界，按真实几何复核、跨 Region 去重，并在同一地理图幅同时提供相邻 UTM 分区副本时优先
+选择目标质心所属分区。共享 HTTP 请求契约增加 GET/POST 与表单 body 支持，原 GET 行为不变。
+
+CNIG 公开的 OGC API Coverages 当前最高仅提供 5 米 MDT，不含第三期 0.5 米产品；本实现使用的
+是门户内部接口而非公开 OGC API。官网 FAQ 规定匿名最多下载 20 个文件，因此首版在规划阶段主动
+拒绝超过 20 个唯一 COG，账号登录尚未接入。联网冒烟仅查询塞维利亚小范围并核对得到唯一首选
+`MDT50CM-ETRS89-H30-0984-5-6-COB3-V1.tif`，没有下载约 128 MB 的实体文件。
+
+同时修复 `run.py` 重复使用 `-c` 时丢失前面配置文件的问题；现在“单个 `-c`
+后写多个路径”和“每份 YAML 重复一次 `-c`”都按顺序合并。新西兰示例也从美国占位
+TIF 替换为惠灵顿真实小范围。两个示例的 `--check`、Python 编译检查和完整离线回归均
+通过，最终为 **155 项测试通过**。

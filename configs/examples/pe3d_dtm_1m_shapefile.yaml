@@ -1,0 +1,30 @@
+# PE3D 1 m MDT download from every Polygon in one Shapefile.
+# The test Shapefile declares its corrected native CRS: SIRGAS 2000 / UTM 24S.
+#
+# Run with one -c flag and keep the private credentials file last:
+#   python run.py -c configs/default.yaml configs/examples/pe3d_dtm_1m_shapefile.yaml configs/private_pe3d.yaml
+
+region:
+  class_path: geoacquire.regions.vector.VectorRegionProvider
+  init_args:
+    source: ./examples/Brazil_PE3D/input/Brazil_PE3D_Example.shp
+    id_field: name
+    crs_override: null
+    layer: null
+
+pipelines:
+  - name: pe3d_dtm_1m
+    enable: true
+    source:
+      init_args:
+        # The test polygons are footprints of already downloaded PE3D rasters.
+        # Their narrow edge overlap touches neighbouring nominal sheets; 5%
+        # removes those slivers and selects the two intended source sheets.
+        min_intersection_fraction: 0.05
+    acquire:
+      output_dir: ./examples/Brazil_PE3D/download
+    postprocess: []
+
+reporting:
+  log_path: ./examples/Brazil_PE3D/logs/pe3d_dtm_1m.log
+  json_path: ./examples/Brazil_PE3D/logs/pe3d_dtm_1m_run.json

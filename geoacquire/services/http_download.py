@@ -352,8 +352,18 @@ class HTTPDownloadService:
 
         try:
             session = getattr(_DOWNLOAD_CONTEXT, 'session', None)
-            get = session.get if session is not None else requests.get
-            with get(request.url, headers=headers, stream=True, timeout=(30, 600)) as response:
+            if request.method == 'POST':
+                transfer = session.post if session is not None else requests.post
+            else:
+                transfer = session.get if session is not None else requests.get
+            with transfer(
+                request.url,
+                headers=headers,
+                data=request.data or None,
+                stream=True,
+                timeout=(30, 600),
+                verify=request.verify_tls,
+            ) as response:
                 if is_complete_range(response, resume_byte):
                     os.replace(part_path, destination)
                     return _TransferResult(

@@ -3,7 +3,9 @@
 本页保留完整参数、运行机制和维护细节。第一次使用项目请先看根目录的
 [README.md](../README.md)，只需设置输入、下载目录和结果目录即可开始。
 
-GeoAcquire 是一个由 YAML 驱动的地理空间数据获取框架。输入可以是坐标范围、单个目标 GeoTIFF 或目标 GeoTIFF 目录；输出既可以是下载后的源产品，也可以是拼接、裁剪并对齐到目标网格的栅格。
+GeoAcquire 是一个由 YAML 驱动的地理空间数据获取框架。输入可以是坐标范围、Polygon 矢量文件、
+单个目标 GeoTIFF 或目标 GeoTIFF 目录；输出既可以是下载后的源产品，也可以是拼接、裁剪并对齐到
+目标网格的栅格。
 
 当前内置数据源：
 
@@ -12,8 +14,10 @@ GeoAcquire 是一个由 YAML 驱动的地理空间数据获取框架。输入可
 | `USGSLidarSource` | USGS 3DEP LiDAR | LAZ、DSM、DTM |
 | `USGSDEM1mSource` | USGS 3DEP 1 m DEM | GeoTIFF |
 | `LINZDEM1mSource` | LINZ New Zealand LiDAR 1 m DEM | COG GeoTIFF |
+| `CNIGMDTSource` | Spain CNIG/PNOA third-coverage 0.5 m DTM | COG GeoTIFF |
 | `GoogleSource` | Google XYZ 影像 | JPG/PNG、GeoTIFF |
 | `WaybackSource` | Esri Wayback 影像 | JPG/PNG、GeoTIFF |
+| `PE3DSource` | PE3D 1 m MDT | 解压后的原生 MDT GeoTIFF |
 | `CopDEMSource` | Copernicus DEM | 解压后的 DEM |
 
 项目叫 GeoAcquire，是因为稳定职责是“获取地理空间资产”，并不限定 DEM 或遥感影像。
@@ -30,7 +34,7 @@ python run.py -c configs/default.yaml --check
 ```
 
 `configs/default.yaml` 是英文完整参数目录，`configs/default_zh.yaml` 是等值的中文版本；
-两者都包含六个内置 pipeline、全部参数和选项说明，默认均为 `enable: false`。
+两者都包含七个内置 pipeline、全部参数和选项说明，默认均为 `enable: false`。
 每次选择其中一份作为第一份配置，不要同时加载两份。本文命令统一使用英文主配置。
 中文版可以直接检查：`python run.py -c configs/default_zh.yaml --check`。
 
@@ -82,6 +86,17 @@ pipelines:
         password: your_password
 ```
 
+PE3D 使用相同的私有配置约定：复制 `configs/private_pe3d.example.yaml` 为
+`configs/private_pe3d.yaml` 后填写账号密码。验证码与当次会话绑定，运行时保存到
+`cache/pe3d/captcha.png` 并由操作者在终端输入，不进入 YAML。下载 1 m MDT 示例：
+
+```powershell
+python run.py `
+  -c configs/default.yaml `
+     configs/examples/pe3d_dtm_1m.yaml `
+     configs/private_pe3d.yaml
+```
+
 ## 2. 配置文件分工
 
 ```text
@@ -91,19 +106,28 @@ configs/
 ├── usgs_lidar_projects.yaml     # 已审核的 USGS LiDAR 项目命名规则
 ├── private_copdem.example.yaml  # 可提交的凭证结构模板，仅含占位值
 ├── private_copdem.yaml          # 用户复制后填写的真实凭证，不提交
+├── private_pe3d.example.yaml    # PE3D 凭证模板；CAPTCHA 不写入配置
+├── private_pe3d.yaml            # 用户复制后填写的真实凭证，不提交
 ├── examples/                    # 可编辑的数据源下载示例和通用输入覆盖
 │   ├── target_raster.yaml
 │   ├── target_raster_directory.yaml
 │   ├── target_training_data.yaml
 │   ├── usgs_lidar.yaml / usgs_dem_1m.yaml
-│   ├── google.yaml / wayback.yaml / copdem.yaml
-│   └── linz_nz_dem_1m.yaml
+│   ├── google.yaml / wayback.yaml / pe3d_dtm_1m.yaml / copdem.yaml
+│   ├── pe3d_dtm_1m_shapefile.yaml
+│   ├── linz_nz_dem_1m.yaml
+│   └── cnig_spain_mdt50cm.yaml
 └── runs/                        # 实际生产场景
     ├── geodar_state_lidar.yaml
     └── geodar_state_lidar_audit.yaml
 ```
 
-多份 YAML 按顺序合并：
+多份 YAML 按顺序合并。可以把路径都写在一个 `-c` 后，也可以为每份文件重复
+`-c`；两种形式都保留声明顺序：
+
+```powershell
+python run.py -c configs/default.yaml -c configs/examples/cnig_spain_mdt50cm.yaml --check
+```
 
 - 普通 mapping 递归合并；
 - `pipelines` 按 `name` 合并；
@@ -147,6 +171,7 @@ BaseSource
 │   ├── XYZSource
 │   │   ├── GoogleSource
 │   │   └── WaybackSource
+│   ├── PE3DSource
 │   └── USGSHTTPSource
 │       ├── USGSWorkunitHTTPSource
 │       │   └── USGSDEM1mSource
@@ -160,7 +185,10 @@ BaseSource
 plan_requests() → HTTPDownloadService worker 内 [download → materialize(one_file)]
 ```
 
-CopDEM 需要认证、Token 刷新、Catalogue、受权下载和 ZIP 解压，因此直接实现完整 `BaseSource.acquire()`。Pipeline 不判断 Source 类型，也没有注册器。
+PE3DSource 在 `HTTPSource` 上增加会话初始化、人工 CAPTCHA、按图幅链接发现和安全 ZIP 解包，
+实际文件传输仍复用 `HTTPDownloadService` 的并发、重试与断点续传。CopDEM 需要 Token 刷新、
+Catalogue、受权下载和 ZIP 解压，因此直接实现完整 `BaseSource.acquire()`。Pipeline 不判断
+Source 类型，也没有注册器。
 
 `RuntimeContext` 只是显式携带共享运行服务：
 
@@ -271,6 +299,9 @@ region 就绪必须满足：**清单已关闭、不再添加文件；全部依�
 | XYZ `output_format` | `image` / `geotiff`；兼容别名 `jpg/raw` / `tif` | 保留普通图片或生成带地理参考 TIF。 |
 | CopDEM `resolution` | 字符串 `"30"` / `"90"` | Copernicus DEM 分辨率系列。 |
 | CopDEM `dem_format` | `DGED` / `DTED` | CDSE 产品格式。 |
+| PE3D `product` | 当前仅 `dtm_raster` | 产品表已保留其他五类门户代码，但未核验前拒绝启用。 |
+| PE3D `ca_bundle_path` | 默认 `null` | `null` 使用随代码提供的 PE3D ZeroSSL/Sectigo CA 链；也可指定自有 CA 文件。 |
+| PE3D `min_intersection_fraction` | 默认 `0.0` | 相交面积占“Polygon 与图幅中较小者”的最低比例；可用 `0.05` 忽略已有图幅足迹的窄边缘重叠。 |
 | RasterAlign `merge_method` | `first` / `last` | 重叠像元保留先出现或后出现的有效值。 |
 | RasterAlign `vertical_datum_policy` | `ignore` / `warn_once` | 忽略或只警告一次；两者都不做高程基准转换。 |
 | RasterAlign `resampling` | `nearest/bilinear/cubic/cubic_spline/lanczos/average/mode/max/min/med/q1/q3/sum/rms` | Rasterio 重采样方法。 |
@@ -361,6 +392,30 @@ region:
     crs: EPSG:4326
 ```
 
+### Polygon / MultiPolygon 矢量文件
+
+```yaml
+region:
+  class_path: geoacquire.regions.vector.VectorRegionProvider
+  init_args:
+    source: ./examples/Brazil_PE3D/input/Brazil_PE3D_Example.shp
+    id_field: name
+    crs_override: null
+    layer: null
+```
+
+每个要素成为一个 Region；`id_field` 选择稳定且唯一的名称字段，未设置时使用 `feature_0`、
+`feature_1`。Provider 把完整 Polygon/MultiPolygon 以 WKB 保存在 Region metadata 中，Source 可做
+真实几何相交，`bounds` 只用于候选范围预筛。缺少 CRS 时必须设置 `crs_override`；若 `.prj` 声明
+经纬度而坐标超过合法经纬度范围，会直接报错。`crs_override` 只修正运行时解释，不改输入文件。
+
+PE3D 的多 Polygon 模式会在登录前规划整个矢量文件，按图幅全局去重，并把一个物理下载结果关联
+回所有相交 Region；因此一次运行只需一次 CAPTCHA，而不是每个要素一次。
+
+LINZ 与 CNIG/PNOA 也读取同一份 WKB 真实几何。LINZ 对官方 STAC footprint 做一次全局空间索引；
+CNIG 把 Polygon 分批提交给门户 POST 查询接口，再读取候选文件的 GeoJSON footprint 做本地精确
+相交。两者都会把一个物理 COG 关联回所有相交 Region，并在一次运行中只下载一次。
+
 ### 单个目标 TIF
 
 ```yaml
@@ -385,7 +440,7 @@ region:
 脚本或命令接口逐个目录调用，使每次运行保持“一个输入目录对应一个输出目录”。
 
 `exclude_suffixes` 防止 `_lidar.tif` 等结果被当成新目标；default 已排除内置的
-`lidar/dsm/dtm/usgs_dem_1m/nz_dem_1m/google/wayback/copdem/cop` 后缀。对这个参数，
+`lidar/dsm/dtm/usgs_dem_1m/nz_dem_1m/cnig_mdt50cm/google/wayback/copdem/cop` 后缀。对这个参数，
 `null` 和 `[]` 都表示“不排除任何后缀”；`[lidar, cop]` 与多行 YAML list 写法语义相同。
 default 使用具体列表是为了避免把内置中间/最终结果再次识别成目标。
 `skip_existing_suffixes` 是可选的目录级人工规则；Pipeline 还会根据实际启用的处理链自动
@@ -451,6 +506,7 @@ LiDAR 的 `output_products` 是 Source 配置：决定需要保留或生成哪�
 | USGS LiDAR 表面/地形栅格 | `raster` | `dsm` / `dtm` | 分别使用 `[dsm]` 或 `[dtm]` |
 | USGS 1 m DEM | `raster` | `dem` | `[dem]` |
 | LINZ 1 m DEM | `raster` | `dem` | `[dem]` |
+| CNIG/PNOA MDT50 cm | `raster` | `dtm` | `[dtm]` |
 | Copernicus DEM | `raster` | `dem` | `[dem]` |
 | Google / Wayback 影像 | `raster` | `imagery` | `[imagery]` |
 
@@ -990,6 +1046,12 @@ LINZ New Zealand LiDAR 1 m DEM 通过官方公开静态 STAC 选择图幅，并�
 （EPSG:2193）COG；高程采用 NZVD2016。首次建立的 STAC 索引按
 `catalog_cache_days` 刷新，刷新失败时可回退到已有旧缓存。一个很小的 bbox 仍可能命中并下载
 完整的 1:50,000 图幅，因此正式批量运行前应先用 Source 规划日志和磁盘容量评估范围。
+
+CNIG/PNOA MDT50 cm Source 使用门户实际采用的 POST 接口查询 Polygon/MultiPolygon、分页读取候选
+文件，并通过 `localizarCoordsSec` 返回的真实 footprint 在本地复核；最终以 POST 下载原生 COG。
+该接口不是公开 OGC API，因此客户端解析边界集中在 `geoacquire/sources/cnig/client.py`。官网规定
+匿名最多下载 20 个文件，当前 Source 主动执行该限制；账号登录尚未接入，不能用于超过 20 个唯一
+COG 的生产批次。
 
 CopDEM 的 Source 自己维护一个 CDSE 客户端会话。支持 `DGED/DTED × 30/90 m`；
 `max_workers` 对它无效，当前按瓦片串行保持认证状态简单，产品直接写入

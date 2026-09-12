@@ -1,0 +1,24 @@
+# CNIG/PNOA third-coverage 0.5 m bare-earth DTM example.
+# This small Seville bounds example normally selects one native UTM-zone COG.
+# Replace BoundsRegionProvider with VectorRegionProvider when the Spain test SHP
+# is available. The Source preserves true Polygon/MultiPolygon geometry.
+#
+#   python run.py -c configs/default.yaml -c configs/examples/cnig_spain_mdt50cm.yaml --check
+
+region:
+  class_path: geoacquire.regions.bounds.BoundsRegionProvider
+  init_args:
+    source: [-5.9855, 37.3881, -5.9835, 37.3901]
+    region: seville_sample
+    crs: EPSG:4326
+
+pipelines:
+  - name: cnig_spain_mdt50cm
+    enable: true
+    acquire:
+      output_dir: ./examples/Spain_CNIG/download
+    postprocess: []
+
+reporting:
+  log_path: ./examples/Spain_CNIG/logs/cnig_mdt50cm.log
+  json_path: ./examples/Spain_CNIG/logs/cnig_mdt50cm_run.json
