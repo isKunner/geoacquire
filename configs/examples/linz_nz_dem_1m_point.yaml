@@ -1,0 +1,39 @@
+# LINZ New Zealand 1 m DEM: Point vector -> 500 m discovery Region ->
+# native-grid 448 m GT. Replace the sample GeoJSON with any GeoPandas-readable
+# Point file (including SHP); its declared geographic or projected CRS is used.
+# No DEM reprojection or value interpolation is performed.
+#
+#   python run.py -c configs/default.yaml -c configs/examples/linz_nz_dem_1m_point.yaml --check
+#   python run.py -c configs/default.yaml -c configs/examples/linz_nz_dem_1m_point.yaml
+
+region:
+  class_path: geoacquire.regions.point.PointRegionProvider
+  init_args:
+    source: ./examples/New_Zealand_LINZ/input/New_Zealand_LINZ_Point_Example.geojson
+    id_field: ID
+    query_size_m: 500.0
+    include_values: null
+    crs_override: null
+    layer: null
+
+pipelines:
+  - name: linz_nz_dem_1m
+    enable: true
+    postprocess_workers: 1
+    acquire:
+      output_dir: ./examples/New_Zealand_LINZ/raw
+      max_workers: 2
+    postprocess:
+      - class_path: geoacquire.postprocess.native_point_crop.NativePointWindowPostprocessor
+        init_args:
+          size_m: 448.0
+          input_products: [dem]
+          output_dir: ./examples/New_Zealand_LINZ/gt
+          output_suffix: null
+          min_valid_fraction: 1.0
+          max_grid_snap_pixels: 0.5
+          skip_existing: true
+
+reporting:
+  log_path: ./examples/New_Zealand_LINZ/logs/linz_nz_dem_1m_point.log
+  json_path: ./examples/New_Zealand_LINZ/logs/linz_nz_dem_1m_point_run.json

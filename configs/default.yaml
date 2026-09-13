@@ -13,10 +13,12 @@
 #     - name: google
 #       enable: true
 
-# source accepts a bbox, a bbox with CRS, multiple named bboxes, one target TIF,
-# or a TIF directory. Directory trees are handled one directory per run by the
-# calling script or command interface. Bbox order is always
-# [minx, miny, maxx, maxy]; see configs/examples/ for complete examples.
+# BoundsRegionProvider accepts a bbox, multiple named bboxes, one target TIF, or
+# a TIF directory. VectorRegionProvider accepts Polygon/MultiPolygon files;
+# PointRegionProvider accepts Point files and expands each point by query_size_m.
+# Every provider preserves the declared input CRS. Directory trees are handled
+# one directory per run. Bbox order is [minx, miny, maxx, maxy]; see the complete
+# runnable examples under configs/examples/.
 # class_path is the full Python import path instantiated directly without a registry.
 # Change class_path and its init_args to select another provider, source, or processor.
 # In YAML overrides, a different class_path replaces that component's init_args;
@@ -391,8 +393,10 @@ pipelines:
       max_workers: 4
       chunk_size: 1048576
       retry_delay: 2.0
-    # Acquisition returns native 1 m MDT GeoTIFF sheets. This initial pipeline
-    # deliberately does not mosaic, crop, resample, or reproject them.
+    # Acquisition returns native 1 m MDT GeoTIFF sheets. This default deliberately
+    # does not postprocess them; pe3d_dtm_1m_point.yaml replaces this list with the
+    # generic native point-window processor and explicitly enables its narrowly
+    # bounded seam fallback. Other pipelines remain strict by default.
     postprocess: []
 
   # Copernicus DEM: CDSE login -> catalogue search -> ZIP download -> DEM TIF extraction.

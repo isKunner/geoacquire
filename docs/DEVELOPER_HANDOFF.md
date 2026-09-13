@@ -38,12 +38,14 @@ geoacquire/sources/rs/            XYZ、Google、Wayback、地理参考
 geoacquire/sources/copdem/        CDSE stateful client
 geoacquire/sources/pe3d/          PE3D 分幅、CAPTCHA 会话、链接过滤与 ZIP 解包
 geoacquire/regions/vector.py      Polygon/MultiPolygon 矢量文件 Region Provider
+geoacquire/regions/point.py       Point 矢量、米制查询范围与属性筛选 Region Provider
 geoacquire/postprocess/           目标导向本地处理
+  native_point_crop.py            原生网格固定米制 Point 窗口及可选的受限接缝补偿
 configs/default.yaml              英文内置参数目录，默认主配置
 configs/default_zh.yaml           与 default.yaml 等值的中文参数目录
 configs/usgs_lidar_projects.yaml  LiDAR 已审核规则表
 configs/examples/                 可编辑的数据源下载示例和通用输入覆盖
-configs/runs/                     生产覆盖文件
+configs/runs/                     本机生产覆盖文件；新YAML默认忽略，已有GeoDAR模板继续跟踪
 tests/test_core.py                离线回归
 tests/test_streaming.py           A/B 调度、共享文件、失败隔离、早期真实 TIF 验收
 tests/test_boundaries.py          续传完整性、缓存隔离、栅格网格等边界回归
@@ -52,6 +54,7 @@ tests/test_linz.py                静态 STAC 解析/缓存、footprint 选片�
 tests/test_cnig.py                门户 HTML、真实几何、UTM 分区去重与 20 文件上限
 tests/test_pe3d.py                分幅命名、登录边界、链接过滤和安全解包回归
                                   含真实几何过滤、全局图幅批处理与错误 CRS 回归
+tests/test_point_regions.py       地理/投影 Point 查询、原生裁剪、拼图和网格吸附边界
 tests/test_reporting.py           三级输出、错误落盘、十分位和磁盘续接回归
 tests/fixtures/lidar_headers.json 已核对的官方样本：来源、bounds、CRS 编号
 tests/fixtures/lidar_headers_mn.json M–N 批次，包含独立复核和针对性补查样本
@@ -64,7 +67,7 @@ scripts/sample_lidar_headers.py  维护时显式抽样文件头，正式下载�
 ## 3. 对象与调用关系
 
 ```text
-BoundsRegionProvider.get_regions()
+BaseRegionProvider.get_regions()
     → dict[str, Region]
 
 PipelineRunner.run()
@@ -74,9 +77,10 @@ PipelineRunner.run()
     → acquire 与全部 B 任务结束后汇总 AcquisitionReport
 ```
 
-`Region.metadata` 在目标 TIF 场景只保存跨层实际使用的 target_path、shape 和 transform；
-跨层键统一使用 `RegionMetadataKey`。常用读取通过 `Region.target_path/target_shape/target_transform`
-属性完成，不在各模块重复拼写字典键。
+`Region.metadata` 只保存跨层实际使用的信息：目标 TIF 场景使用 target_path、shape 和 transform；
+Point 场景使用原始 point、point_crs 和 query_size_m。跨层键统一使用 `RegionMetadataKey`。常用读取
+通过 `Region.target_path/target_shape/target_transform/point/point_crs` 属性完成，不在各模块重复
+拼写字典键。
 
 `DownloadRequest` 只存在于 HTTPSource 和下载服务之间。`LocalAsset` 才是后处理可消费的结果。不要让 Postprocessor 接收 URL，也不要让 Source 最终只返回 URL 列表。
 
@@ -88,7 +92,7 @@ PipelineRunner.run()
 - `ProductType`：内置 acquisition 产品类型 `generic/imagery/dem/laz/dsm/dtm`；
 - `AssetStatus`：`success/skipped/reused/failed`；`skipped` 是磁盘已有，`reused` 是本次运行跨 Region 共用；
 - `AssetSpec`：一个 Source/Postprocessor 声明的 `kind + product` 产出组合；
-- `RegionMetadataKey`：确实跨 core、RegionProvider 和后处理使用的目标栅格 metadata 键。
+- `RegionMetadataKey`：确实跨 core、RegionProvider 和后处理使用的目标栅格、几何与 Point metadata 键。
 
 `kind` 决定处理器是否能打开该存储形态，`product` 表示文件内容；二者不能合并。例如原始
 XYZ 与地理配准 TIF 都是 `product=imagery`，但 kind 分别是 image/raster；DSM、DTM、DEM 和

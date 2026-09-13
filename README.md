@@ -1,11 +1,12 @@
 # GeoAcquire
 
-GeoAcquire 根据指定的地理范围下载高程、LiDAR 和影像数据。输入支持四种形式：
+GeoAcquire 根据指定的地理范围下载高程、LiDAR 和影像数据。输入支持五种形式：
 
 1. 坐标范围 `[minx, miny, maxx, maxy]`；
 2. 单个目标 GeoTIFF；
 3. 直接包含多个目标 GeoTIFF 的目录；
 4. 包含多个 Polygon/MultiPolygon 要素的 Shapefile 或其他 GeoPandas 可读矢量文件。
+5. 包含多个 Point 要素的矢量文件；程序可按米扩展查询范围，再在原生 DEM 网格上裁剪固定大小。
 
 目标 GeoTIFF 只提供覆盖范围、坐标系和目标网格，不会被修改。
 
@@ -18,11 +19,11 @@ GeoAcquire 根据指定的地理范围下载高程、LiDAR 和影像数据。输
 | --- | --- | --- | --- | --- |
 | USGS 3DEP LiDAR | `usgs_lidar` | LAZ、DSM、DTM | 随项目 / workunit 变化；通常为 NAD83 系列的 UTM、State Plane 或 Albers，也可能采用当地基准；以 WESM 和 LAZ 文件头为准 | [`configs/examples/usgs_lidar.yaml`](configs/examples/usgs_lidar.yaml) |
 | USGS 3DEP 1 m DEM | `usgs_dem_1m` | GeoTIFF DEM | NAD83 / UTM，分区随位置变化；通常为 NAVD88 高程，美国部分领地采用当地高程基准；以 GeoTIFF 文件头为准 | [`configs/examples/usgs_dem_1m.yaml`](configs/examples/usgs_dem_1m.yaml) |
-| LINZ New Zealand LiDAR 1 m DEM | `linz_nz_dem_1m` | 原生 COG DEM | NZTM2000（EPSG:2193）；NZVD2016 高程（EPSG:7839） | [`configs/examples/linz_nz_dem_1m.yaml`](configs/examples/linz_nz_dem_1m.yaml) |
-| Spain CNIG/PNOA MDT50 cm | `cnig_spain_mdt50cm` | 第三期原生 COG DTM | ETRS89 / 相应 UTM 分区；加那利群岛为 REGCAN95 / UTM 28N；正高 | [`configs/examples/cnig_spain_mdt50cm.yaml`](configs/examples/cnig_spain_mdt50cm.yaml) |
+| LINZ New Zealand LiDAR 1 m DEM | `linz_nz_dem_1m` | 原生 COG DEM | NZTM2000（EPSG:2193）；NZVD2016 高程（EPSG:7839） | [范围示例](configs/examples/linz_nz_dem_1m.yaml) / [Point→448 m 示例](configs/examples/linz_nz_dem_1m_point.yaml) |
+| Spain CNIG/PNOA MDT50 cm | `cnig_spain_mdt50cm` | 第三期原生 COG DTM | ETRS89 / 相应 UTM 分区；加那利群岛为 REGCAN95 / UTM 28N；正高 | [范围示例](configs/examples/cnig_spain_mdt50cm.yaml) / [Point→448 m 示例](configs/examples/cnig_spain_mdt50cm_point.yaml) |
 | Google XYZ 影像 | `google` | 影像及地理配准 GeoTIFF | XYZ Web Mercator；GeoAcquire 落地 GeoTIFF 为 EPSG:3857 | [`configs/examples/google.yaml`](configs/examples/google.yaml) |
 | Esri Wayback 影像 | `wayback` | 历史影像及地理配准 GeoTIFF | WMTS / Web Mercator；GeoAcquire 落地 GeoTIFF 为 EPSG:3857 | [`configs/examples/wayback.yaml`](configs/examples/wayback.yaml) |
-| PE3D 1 m MDT | `pe3d_dtm_1m` | 1:5,000 原生 GeoTIFF 裸地高程图幅 | SIRGAS 2000 / UTM 24S 或 25S（EPSG:31984 / 31985）；垂直基准未声明 | [范围示例](configs/examples/pe3d_dtm_1m.yaml) / [多 Polygon SHP 示例](configs/examples/pe3d_dtm_1m_shapefile.yaml) |
+| PE3D 1 m MDT | `pe3d_dtm_1m` | 1:5,000 原生 GeoTIFF 裸地高程图幅 | SIRGAS 2000 / UTM 24S 或 25S（EPSG:31984 / 31985）；垂直基准未声明 | [范围示例](configs/examples/pe3d_dtm_1m.yaml) / [多 Polygon SHP 示例](configs/examples/pe3d_dtm_1m_shapefile.yaml) / [Point→448 m 示例](configs/examples/pe3d_dtm_1m_point.yaml) |
 | Copernicus DEM | `copdem` | 30 m 或 90 m DEM | WGS 84 经纬度（EPSG:4326）；EGM2008 正高（EPSG:3855） | [`configs/examples/copdem.yaml`](configs/examples/copdem.yaml) |
 
 USGS 数据主要覆盖美国，LINZ 数据覆盖新西兰，CNIG/PNOA 数据覆盖当前已发布的西班牙区域；
@@ -35,6 +36,10 @@ Google、Wayback 和 Copernicus 的实际结果取决于各服务的覆盖情况
 每个数据源的类型、源分辨率、采集或发布时间、国家或地区范围、官方下载入口和相关文献，统一整理在
 [`docs/DATA_SOURCES.md`](docs/DATA_SOURCES.md)。其中既包括项目已经接入的数据，也包括暂时需要
 从官方网页手动下载、以后可以继续接入的补充数据。
+
+如果要判断“哪一种输入可以接哪一个下载器、下载结果又能接哪一种后处理”，直接查看
+[`docs/COMPONENT_MATRIX.md`](docs/COMPONENT_MATRIX.md)。该表列出了全部内置类的 `class_path`、
+`init_args`、输入输出产品和推荐组合。
 
 ## 1. 创建 Conda 环境
 
@@ -120,7 +125,7 @@ pipelines:
 
 | YAML 位置 | 含义 |
 | --- | --- |
-| `region.init_args.source` | 输入 bbox、目标 TIF 或目标 TIF 目录 |
+| `region.init_args.source` | 输入 bbox、目标 TIF/TIF 目录，或由所选 RegionProvider 读取的 Polygon/Point 矢量文件 |
 | `pipelines.<名称>.acquire.output_dir` | LAZ、源影像、DEM 和中间文件的下载目录 |
 | `pipelines.<名称>.postprocess[0].init_args.output_dir` | 与目标 TIF 对齐的最终结果目录 |
 
@@ -139,6 +144,21 @@ region: null
 # 目标 TIF 目录
 source: ./examples/USA_SanJuan_Example/input
 region: null
+```
+
+Point 文件要同时更换 RegionProvider；`query_size_m` 是下载查询范围，最终尺寸由后处理的
+`size_m` 决定：
+
+```yaml
+region:
+  class_path: geoacquire.regions.point.PointRegionProvider
+  init_args:
+    source: E:/data/dams.shp
+    id_field: ID
+    query_size_m: 500
+    include_values: null
+    crs_override: null
+    layer: null
 ```
 
 纯 bbox 没有目标 TIF 网格，因此只把选中的源数据写入 `acquire.output_dir`，并跳过目标对齐；
@@ -207,8 +227,24 @@ python run.py -c configs/default.yaml configs/examples/pe3d_dtm_1m_shapefile.yam
 `min_intersection_fraction` 默认 0，表示保留所有正面积相交；已有 PE3D 图幅边缘本身带窄重叠时，
 可像 SHP 示例一样设为 `0.05`，忽略不足较小几何面积 5% 的边缘条带。
 
+Point 输入的 Entremontes 示例只选择 `ID=512989`，以原始点为中心建立约 500 m × 500 m 的下载
+查询范围，再从 PE3D 原生 MDT 中直接复制最接近 448 m × 448 m 的整数像元窗口：
+
+```bash
+python run.py -c configs/default.yaml -c configs/examples/pe3d_dtm_1m_point.yaml -c configs/private_pe3d.yaml
+```
+
+输入 SHP 可以使用地理或投影坐标系，不会改写源文件。地理坐标按点所在纬度用测地距离估算 500 m；
+投影坐标按 CRS 的线性单位换算。最终结果保持 PE3D 主图幅的 UTM CRS、原生网格和像元值；中心
+允许吸附到最近的原生像元网格。PE3D 示例显式允许次图幅原点向主图幅网格吸附最多0.5个像元。
+若相邻官方图幅仅因导出舍入产生不超过0.1%的分辨率差，处理器可只对原生复制后仍为空的接缝
+执行双线性补偿，最多占结果的25%，并且绝不覆盖已复制的原生高程；超过任一阈值仍明确失败。
+补偿比例和来源会写入输出标签。原始图幅写入 `raw/`，最终 `<ID>.tif` 写入 `gt/`。同一次运行
+中的全部 Point 仍只登录和验证一次，并对重复图幅全局去重。
+
 当前 PE3D pipeline 只下载并安全解压 1:5,000 的 `MDT Raster`（产品代码 4）。它通过下载链接中的
-`1_5000/4_MDT_RASTER/MDT-*.zip` 三项约束排除 0.5 m 城区产品；不进行拼接、裁剪、重采样或重投影。
+`1_5000/4_MDT_RASTER/MDT-*.zip` 三项约束排除 0.5 m 城区产品。范围和 Polygon 示例保留完整
+原生图幅；Point 示例另行执行原生优先的拼接/裁剪，仅对满足严格阈值的剩余接缝启用局部补偿。
 PE3D 服务器当前没有发送完整的 ZeroSSL 中间证书链，因此浏览器能访问时，Requests 仍可能报
 `CERTIFICATE_VERIFY_FAILED`。下载器默认使用随代码提供的 PE3D 专用 ZeroSSL/Sectigo CA 链，
 登录、目录查询和 ZIP 下载都保持 TLS 校验；如需使用自己的 CA 文件，可设置 `ca_bundle_path`，
@@ -219,13 +255,38 @@ LINZ 和 CNIG/PNOA 同样会使用矢量输入中的真实 Polygon/MultiPolygon�
 查询接口取得当前 MDT50 cm 文件及其 GeoJSON footprint。CNIG 首版保留原生 COG，不裁剪、拼接、
 重采样或重投影，并遵守官网注明的匿名 20 文件上限。
 
+## Point → 固定米制 GT 的通用性
+
+完整的三层组件组合、全部类路径和参数速查见
+[`docs/COMPONENT_MATRIX.md`](docs/COMPONENT_MATRIX.md)。
+
+Point 输入与数据源解耦：`PointRegionProvider` 只负责把每个点扩展成米制查询 Region；任何接受
+普通 Region 的 Source 都能直接使用。`NativePointWindowPostprocessor` 只接收 Source 已落地的
+栅格，因此切换数据源时主要改变 `input_products` 和原生分辨率，不复制点扩展逻辑。
+
+| 数据源 | Point SHP 查询 | 原生窗口 | 448 m 的典型结果 / 限制 |
+| --- | --- | --- | --- |
+| PE3D 1 m MDT | 可以 | 可以 | 448×448；原生复制优先，示例对极小图幅分辨率误差启用受限接缝补偿 |
+| LINZ 1 m DEM | 可以 | 可以 | 448×448，输出保持 EPSG:2193 / NZVD2016 |
+| Spain CNIG 0.5 m MDT | 可以 | 可以 | 896×896；一次匿名任务仍受最多 20 个源文件限制 |
+| USGS 1 m DEM | 可以 | 可以 | 通常 448×448；CRS 随原生 UTM 图幅变化 |
+| USGS LiDAR | 可以 | 有条件 | 必须让 Source 生成 `dtm` 或 `dsm` 栅格；只下载 `laz` 时不能直接使用栅格窗口处理器 |
+| Copernicus DEM | 可以 | 可以但只能近似 | 30/90 m 原生像元不能整除 448 m；程序选最接近的整数行列，不重采样，因此实际尺寸不会严格等于 448 m |
+| Google / Wayback | 可以 | 技术上可以但不推荐 | 原生 GeoTIFF 是 EPSG:3857，地图米不等于严格地面米；训练数据应采用下面的两次运行 |
+
+推荐流程是两次运行：第一次由高程数据源读取 Point 文件并生成原生网格 GT；第二次把生成的 GT
+目录作为目标 TIF 输入，再运行 Google/Wayback。这样影像会重投影、拼接和重采样到 DEM 的精确
+范围、CRS、行列数与仿射网格。除非像 PE3D 示例一样显式开启受限接缝补偿，否则 DEM 不会重采样；
+即使开启也只填补缺失像元。新西兰和西班牙的可运行 Point 示例自带
+一个 WGS84 GeoJSON 点；把其中 `source` 换成任意带正确 CRS 的 Point SHP 即可。
+
 ## `default.yaml`、示例 YAML 和命令行的关系
 
 程序按从左到右的顺序合并配置：
 
 ```text
 configs/default.yaml
-        ↓ 完整基础配置：Region、Reporting、七个 Pipeline 和全部参数
+        ↓ 完整基础配置：Region、Reporting、八个 Pipeline 和全部参数
 configs/examples/某个数据源.yaml
         ↓ 本次运行：输入、输出目录、启用哪个 Pipeline
 --set 配置路径=新值
@@ -249,8 +310,10 @@ python run.py -c configs/default.yaml configs/examples/google.yaml --set region.
 
 这里放的是可以复制、编辑和运行的示例覆盖配置，不是第二份 default：
 
-- `usgs_lidar.yaml`、`usgs_dem_1m.yaml`、`linz_nz_dem_1m.yaml`、`cnig_spain_mdt50cm.yaml`、
-  `google.yaml`、`wayback.yaml`、`pe3d_dtm_1m.yaml`、`pe3d_dtm_1m_shapefile.yaml`、`copdem.yaml`：每个数据源
+- `usgs_lidar.yaml`、`usgs_dem_1m.yaml`、`linz_nz_dem_1m.yaml`、
+  `linz_nz_dem_1m_point.yaml`、`cnig_spain_mdt50cm.yaml`、`cnig_spain_mdt50cm_point.yaml`、
+  `google.yaml`、`wayback.yaml`、`pe3d_dtm_1m.yaml`、`pe3d_dtm_1m_shapefile.yaml`、
+  `pe3d_dtm_1m_point.yaml`、`copdem.yaml`：每个数据源
   一份下载模板；PE3D 首版只设置
   下载目录，其他示例同时设置下载和结果目录；
 - `target_raster.yaml`：只演示单个目标 TIF 的 Region 输入；
@@ -261,7 +324,9 @@ python run.py -c configs/default.yaml configs/examples/google.yaml --set region.
 
 ### `configs/runs/`
 
-这里放实际生产场景，而不是入门模板：
+这里放本机实际生产场景，而不是入门模板。目录中新建的 YAML 默认被 `.gitignore` 排除，避免
+把绝对路径、任务批次和运行报告位置上传。仓库目前只保留两个历史上已经纳入版本控制的 GeoDAR
+通用运行模板：
 
 - `geodar_state_lidar.yaml`：GeoDAR 按州正式下载 LiDAR；
 - `geodar_state_lidar_audit.yaml`：只检查项目命名规则，不下载 LAZ。
@@ -292,6 +357,7 @@ python run.py -c configs/default.yaml configs/examples/google.yaml --set region.
 | --- | --- |
 | [README.md](README.md) | 新人入口：选择数据源、修改 YAML 中的输入输出并开始下载 |
 | [docs/DATA_SOURCES.md](docs/DATA_SOURCES.md) | 数据目录：数据类型、源分辨率、时间、国家范围、官方下载入口和来源文献 |
+| [docs/COMPONENT_MATRIX.md](docs/COMPONENT_MATRIX.md) | 组件组合速查：类路径、参数、输入输出产品以及 Region、Source、Postprocessor 兼容矩阵 |
 | [docs/REFERENCE.md](docs/REFERENCE.md) | 完整运行参考：参数、默认值、配置合并、日志、续跑和 LiDAR 审计 |
 | [docs/DEVELOPER_HANDOFF.md](docs/DEVELOPER_HANDOFF.md) | 开发与继续扩展：架构边界、新增 Source/Postprocessor、并发约束、LiDAR 规则和提交检查 |
 | [docs/PROJECT_REPORT.md](docs/PROJECT_REPORT.md) | 历史与证据：设计决定、规则补全、验证结果和未解决问题 |

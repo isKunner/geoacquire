@@ -1,0 +1,54 @@
+# PE3D 1 m DTM example for one Point selected from the Pernambuco dam dataset.
+# Acquisition uses an in-memory 500 m query square; the final GT is a native-grid
+# 448 m crop. A tightly bounded bilinear fallback may fill only a missing seam
+# when adjacent official sheets differ by a tiny resolution rounding error.
+#
+#   python run.py -c configs/default.yaml -c configs/examples/pe3d_dtm_1m_point.yaml -c configs/private_pe3d.yaml --check
+#   python run.py -c configs/default.yaml -c configs/examples/pe3d_dtm_1m_point.yaml -c configs/private_pe3d.yaml
+
+region:
+  class_path: geoacquire.regions.point.PointRegionProvider
+  init_args:
+    source: ./examples/Brazil_PE3D/input/Brazil_PE3D_Point_Example.geojson
+    id_field: ID
+    query_size_m: 500.0
+    include_values:
+      ID: ['512989']
+    crs_override: null
+    layer: null
+
+pipelines:
+  - name: pe3d_dtm_1m
+    enable: true
+    postprocess_workers: 1
+    source:
+      init_args:
+        min_intersection_fraction: 0.0
+    acquire:
+      output_dir: ./output/Brazil_PE3D_512989/raw
+      max_workers: 2
+    postprocess:
+      - class_path: geoacquire.postprocess.native_point_crop.NativePointWindowPostprocessor
+        init_args:
+          size_m: 448.0
+          input_products: [dtm]
+          output_dir: ./output/Brazil_PE3D_512989/gt
+          output_suffix: null
+          min_valid_fraction: 1.0
+          # Preserve pixel values; snap a secondary PE3D sheet's origin to the
+          # nearest primary-sheet grid by at most one-half native pixel.
+          max_grid_snap_pixels: 0.5
+          # Native copy always runs first. Only remaining gaps may use this
+          # fallback; native pixels are never overwritten.
+          fallback_resampling: bilinear
+          # Accept at most a 0.1% native-resolution difference. The observed
+          # Papagaio sheet boundary differs by about 0.02066%.
+          max_resolution_mismatch_fraction: 0.001
+          # Refuse a result if more than one quarter of its pixels would need
+          # fallback interpolation.
+          max_resampled_fraction: 0.25
+          skip_existing: true
+
+reporting:
+  log_path: ./logs/pe3d_point_512989.log
+  json_path: ./logs/pe3d_point_512989_run.json

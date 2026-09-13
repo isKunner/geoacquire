@@ -11,10 +11,12 @@ import tempfile
 import unittest
 from unittest.mock import Mock, patch
 
-from shapely.geometry import Polygon
+import geopandas as gpd
+from shapely.geometry import Point, Polygon
 
 from geoacquire.core.geo import transform_bounds
 from geoacquire.core.models import Region, RegionMetadataKey
+from geoacquire.regions.point import PointRegionProvider
 from geoacquire.sources.linz.catalog import LINZSTACTile, LINZStaticSTACCatalog
 from geoacquire.sources.linz.dem_1m import LINZDEM1mSource
 
@@ -122,6 +124,30 @@ class LINZSourceTests(unittest.TestCase):
 
         self.assertEqual(len(requests), 1)
         self.assertEqual(requests[0].target_region_ids, ('first', 'second'))
+
+    def test_source_accepts_metric_query_region_from_point_provider(self):
+        frame = gpd.GeoDataFrame(
+            {'ID': ['wellington_demo']},
+            geometry=[Point(174.78, -41.29)],
+            crs='EPSG:4326',
+        )
+        with (
+            patch('geoacquire.regions.point.os.path.isfile', return_value=True),
+            patch('geoacquire.regions.point.gpd.read_file', return_value=frame),
+        ):
+            regions = PointRegionProvider(
+                'nz_points.shp', id_field='ID', query_size_m=500.0,
+            ).get_regions()
+        source = LINZDEM1mSource(collection_url=self.COLLECTION_URL, filename_suffix=None)
+        source.catalog.list_tiles = Mock(return_value=(
+            self._tile('BQ31', (174.70, -41.40, 174.90, -41.20)),
+        ))
+
+        requests = list(source.build_requests(regions))
+
+        self.assertEqual([request.filename for request in requests], ['BQ31.tiff'])
+        self.assertEqual(requests[0].target_region_ids, ('wellington_demo',))
+        self.assertEqual(regions['wellington_demo'].metadata['query_size_m'], 500.0)
 
     def test_static_stac_refresh_resolves_links_and_reuses_disk_cache(self):
         collection = {

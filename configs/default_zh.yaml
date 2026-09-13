@@ -12,9 +12,11 @@
 #     - name: google
 #       enable: true
 
-# source 支持六种输入：单 bbox、带 CRS 的 bbox、多个命名 bbox、单个目标 TIF、
-# 或 TIF 目录。目录树由调用脚本或命令接口逐个目录运行。bbox 顺序固定为
-# [minx, miny, maxx, maxy]；详细写法见 configs/examples/。
+# BoundsRegionProvider 支持单 bbox、多个命名 bbox、单个目标 TIF 或 TIF 目录；
+# VectorRegionProvider 支持 Polygon/MultiPolygon 文件；PointRegionProvider 支持 Point
+# 文件并按 query_size_m 为每个点扩展查询范围。三者都保留输入声明的 CRS。目录树由
+# 调用脚本或命令接口逐个目录运行；bbox 顺序固定为 [minx, miny, maxx, maxy]。
+# 完整可运行示例见 configs/examples/。
 # class_path 是 Python 类的完整导入路径，程序会按它直接创建对象，不需要注册器。
 # 更换 RegionProvider、Source 或 Postprocessor 时修改对应 class_path 和 init_args。
 # YAML 覆盖中更换 class_path 会替换该组件的 init_args，避免混入旧类参数；
@@ -377,8 +379,9 @@ pipelines:
       max_workers: 4
       chunk_size: 1048576
       retry_delay: 2.0
-    # Acquisition 直接返回原生 1 m MDT GeoTIFF 图幅；首版不拼接、裁剪、
-    # 重采样或重投影。
+    # Acquisition 直接返回原生 1 m MDT GeoTIFF 图幅；默认不做后处理。
+    # pe3d_dtm_1m_point.yaml 会用通用原生 Point 窗口处理器替换这个空列表，
+    # 并显式启用受严格限制的接缝补偿；其他 pipeline 默认仍使用严格模式。
     postprocess: []
 
   # Copernicus DEM：CDSE 登录 -> 产品检索 -> ZIP 下载 -> DEM TIF 提取。

@@ -42,12 +42,16 @@ class AssetStatus(StrEnum):
 
 
 class RegionMetadataKey(StrEnum):
-    """Cross-layer keys for the optional target-raster contract on Region."""
+    """Cross-layer keys for optional target-raster, geometry, and point contracts."""
 
     TARGET_PATH = 'target_path'
     SHAPE = 'shape'
     TRANSFORM = 'transform'
     GEOMETRY_WKB_HEX = 'geometry_wkb_hex'
+    POINT_X = 'point_x'
+    POINT_Y = 'point_y'
+    POINT_CRS = 'point_crs'
+    QUERY_SIZE_M = 'query_size_m'
 
 
 def validate_product_type(value: str, label: str = 'product') -> str:
@@ -99,7 +103,8 @@ class Region:
         bounds: Extent in (minx, miny, maxx, maxy) order, expressed in `crs`.
         crs: Coordinate reference system describing `bounds`.
         metadata: Optional extra input information. A target-raster Region stores
-            target_path, shape, and transform here.
+            target_path, shape, and transform here. A point Region stores its
+            original coordinate, CRS, and metre-based acquisition query size.
     """
 
     region_id: str
@@ -141,6 +146,21 @@ class Region:
     def geometry_wkb_hex(self) -> str | None:
         """Original-CRS Polygon/MultiPolygon geometry supplied by a vector input."""
         value = self.metadata.get(RegionMetadataKey.GEOMETRY_WKB_HEX)
+        return str(value) if value else None
+
+    @property
+    def point(self) -> tuple[float, float] | None:
+        """Original point coordinate when this Region came from a point vector."""
+        x = self.metadata.get(RegionMetadataKey.POINT_X)
+        y = self.metadata.get(RegionMetadataKey.POINT_Y)
+        if x is None or y is None:
+            return None
+        return float(x), float(y)
+
+    @property
+    def point_crs(self) -> str | None:
+        """CRS of ``point``; normally identical to the Region bounds CRS."""
+        value = self.metadata.get(RegionMetadataKey.POINT_CRS)
         return str(value) if value else None
 
 

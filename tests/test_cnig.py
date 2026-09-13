@@ -4,11 +4,13 @@
 
 import tempfile
 import unittest
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
-from shapely.geometry import Polygon, box, mapping
+import geopandas as gpd
+from shapely.geometry import Point, Polygon, box, mapping
 
 from geoacquire.core.models import Region, RegionMetadataKey
+from geoacquire.regions.point import PointRegionProvider
 from geoacquire.sources.cnig.client import CNIGTile, _CNIGFileTableParser, _result_total
 from geoacquire.sources.cnig.source import CNIGMDTSource
 
@@ -98,6 +100,36 @@ class CNIGSourceTests(unittest.TestCase):
 
             with self.assertRaisesRegex(RuntimeError, 'official anonymous limit is 20'):
                 list(source.build_requests({'madrid': Region('madrid', footprint.bounds)}))
+
+    def test_source_accepts_metric_query_region_from_point_provider(self):
+        frame = gpd.GeoDataFrame(
+            {'ID': ['seville_demo']},
+            geometry=[Point(-5.9845, 37.3891)],
+            crs='EPSG:4326',
+        )
+        with (
+            patch('geoacquire.regions.point.os.path.isfile', return_value=True),
+            patch('geoacquire.regions.point.gpd.read_file', return_value=frame),
+        ):
+            regions = PointRegionProvider(
+                'spain_points.shp', id_field='ID', query_size_m=500.0,
+            ).get_regions()
+        with tempfile.TemporaryDirectory() as temporary:
+            source = CNIGMDTSource(footprint_cache_path=temporary + '/footprints.json')
+            source.client.query_tiles = Mock(return_value=(
+                self._tile(
+                    1,
+                    'MDT50CM-ETRS89-H30-0984-5-6-COB3-V1.tif',
+                    box(-6.0, 37.37, -5.97, 37.41),
+                ),
+            ))
+
+            requests = list(source.build_requests(regions))
+
+        self.assertEqual(len(requests), 1)
+        self.assertEqual(requests[0].target_region_ids, ('seville_demo',))
+        self.assertEqual(requests[0].product, 'dtm')
+        self.assertEqual(regions['seville_demo'].metadata['query_size_m'], 500.0)
 
 
 if __name__ == '__main__':

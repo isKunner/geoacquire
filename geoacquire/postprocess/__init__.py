@@ -6,11 +6,13 @@
 # @Describe: Optional target-oriented post-processing interfaces.
 
 from .base import BasePostprocessor
+from .native_point_crop import NativePointWindowPostprocessor
 from .print_step import PrintPostprocessor
 from .raster_align import RasterAlignToTargetPostprocessor
 
 __all__ = [
     'BasePostprocessor',
+    'NativePointWindowPostprocessor',
     'PrintPostprocessor',
     'RasterAlignToTargetPostprocessor',
 ]

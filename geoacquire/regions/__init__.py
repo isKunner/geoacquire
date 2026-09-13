@@ -7,6 +7,12 @@
 
 from .base import BaseRegionProvider
 from .bounds import BoundsRegionProvider
+from .point import PointRegionProvider
 from .vector import VectorRegionProvider
 
-__all__ = ['BaseRegionProvider', 'BoundsRegionProvider', 'VectorRegionProvider']
+__all__ = [
+    'BaseRegionProvider',
+    'BoundsRegionProvider',
+    'PointRegionProvider',
+    'VectorRegionProvider',
+]

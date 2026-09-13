@@ -3,6 +3,9 @@
 本页保留完整参数、运行机制和维护细节。第一次使用项目请先看根目录的
 [README.md](../README.md)，只需设置输入、下载目录和结果目录即可开始。
 
+需要快速查找 RegionProvider、Source、Postprocessor 的完整类路径、构造参数和兼容组合时，
+请看 [COMPONENT_MATRIX.md](COMPONENT_MATRIX.md)。
+
 GeoAcquire 是一个由 YAML 驱动的地理空间数据获取框架。输入可以是坐标范围、Polygon 矢量文件、
 单个目标 GeoTIFF 或目标 GeoTIFF 目录；输出既可以是下载后的源产品，也可以是拼接、裁剪并对齐到
 目标网格的栅格。
@@ -34,7 +37,7 @@ python run.py -c configs/default.yaml --check
 ```
 
 `configs/default.yaml` 是英文完整参数目录，`configs/default_zh.yaml` 是等值的中文版本；
-两者都包含七个内置 pipeline、全部参数和选项说明，默认均为 `enable: false`。
+两者都包含八个内置 pipeline、全部参数和选项说明，默认均为 `enable: false`。
 每次选择其中一份作为第一份配置，不要同时加载两份。本文命令统一使用英文主配置。
 中文版可以直接检查：`python run.py -c configs/default_zh.yaml --check`。
 
@@ -114,9 +117,9 @@ configs/
 │   ├── target_training_data.yaml
 │   ├── usgs_lidar.yaml / usgs_dem_1m.yaml
 │   ├── google.yaml / wayback.yaml / pe3d_dtm_1m.yaml / copdem.yaml
-│   ├── pe3d_dtm_1m_shapefile.yaml
-│   ├── linz_nz_dem_1m.yaml
-│   └── cnig_spain_mdt50cm.yaml
+│   ├── pe3d_dtm_1m_shapefile.yaml / pe3d_dtm_1m_point.yaml
+│   ├── linz_nz_dem_1m.yaml / linz_nz_dem_1m_point.yaml
+│   └── cnig_spain_mdt50cm.yaml / cnig_spain_mdt50cm_point.yaml
 └── runs/                        # 实际生产场景
     ├── geodar_state_lidar.yaml
     └── geodar_state_lidar_audit.yaml
@@ -415,6 +418,71 @@ PE3D 的多 Polygon 模式会在登录前规划整个矢量文件，按图幅全
 LINZ 与 CNIG/PNOA 也读取同一份 WKB 真实几何。LINZ 对官方 STAC footprint 做一次全局空间索引；
 CNIG 把 Polygon 分批提交给门户 POST 查询接口，再读取候选文件的 GeoJSON footprint 做本地精确
 相交。两者都会把一个物理 COG 关联回所有相交 Region，并在一次运行中只下载一次。
+
+### Point 矢量文件与米制窗口
+
+```yaml
+region:
+  class_path: geoacquire.regions.point.PointRegionProvider
+  init_args:
+    source: E:/data/dams.shp
+    id_field: ID
+    query_size_m: 500
+    include_values:
+      ID: ['512989']
+    crs_override: null
+    layer: null
+```
+
+每个 Point 成为一个 Region。`query_size_m` 只决定 Source 选取哪些源图幅，并不提前生成目标
+栅格；`include_values` 可按一个或多个属性字段精确筛选，省略时处理全部点。Provider 保存原始点、
+输入 CRS、查询尺寸和属性，并在内存中建立查询外包框。投影 CRS 按轴单位换算米，地理 CRS 在点的
+纬度处用测地距离估算；两种情况都不修改或强制转换输入矢量文件。
+
+需要固定米制 GT 时，在 pipeline 中接 `NativePointWindowPostprocessor`：
+
+```yaml
+postprocess:
+  - class_path: geoacquire.postprocess.native_point_crop.NativePointWindowPostprocessor
+    init_args:
+      size_m: 448
+      input_products: [dtm]
+      output_dir: E:/data/gt
+      output_suffix: null
+      min_valid_fraction: 1.0
+      max_grid_snap_pixels: 0.5
+      fallback_resampling: null
+      max_resolution_mismatch_fraction: 0.001
+      max_resampled_fraction: 0.25
+      skip_existing: true
+```
+
+它先把原始点坐标转换到源栅格 CRS，然后把中心吸附到最近的原生像元网格，直接复制最接近
+`size_m` 的整数行列。对 PE3D 1 m MDT，448 m 正常得到 448×448 像元。相邻图幅必须具有相同
+CRS、分辨率和旋转；`max_grid_snap_pixels=0` 要求网格原点严格一致，设置为不超过 `0.5` 的值时，
+允许次图幅原点吸附到主图幅最近的整数网格。默认 `fallback_resampling=null`，不插值或重算
+高程样本，只直接复制原始像元。若显式设为 `bilinear`，程序仍先完成全部可行的原生复制，只对
+剩余 NoData 使用方向一致、分辨率差不超过 `max_resolution_mismatch_fraction` 的相邻图幅；
+不会覆盖已经复制的原生像元，且补偿比例超过 `max_resampled_fraction` 时整个目标失败。实际
+吸附量、补偿比例、补偿图幅和最大分辨率差均写入输出标签。若源本身是地理栅格，则只在点附近
+估算每个像元的米制大小，输出仍保持主图幅 CRS 和网格。
+
+这个组合不依赖 PE3D。内置 Source 的兼容边界如下：
+
+| Source | Point Region | `NativePointWindowPostprocessor` | `input_products` | 关键边界 |
+| --- | --- | --- | --- | --- |
+| `PE3DSource` | 支持 | 支持 | `[dtm]` | 1 m；示例允许原点吸附 ≤0.5 像元，并对极小分辨率误差启用受限接缝补偿 |
+| `LINZDEM1mSource` | 支持 | 支持 | `[dem]` | 1 m NZTM2000；448 m 通常为 448×448 |
+| `CNIGMDTSource` | 支持 | 支持 | `[dtm]` | 0.5 m；448 m 通常为 896×896；匿名最多 20 个源文件 |
+| `USGSDEM1mSource` | 支持 | 支持 | `[dem]` | 1 m 原生 UTM 图幅，CRS 随位置变化 |
+| `USGSLidarSource` | 支持 | 条件支持 | `[dtm]` 或 `[dsm]` | `output_products` 必须生成对应栅格；`laz` 不是栅格 |
+| `CopDEMSource` | 支持 | 支持但近似尺寸 | `[dem]` | 30/90 m 不整除 448 m；保留原生像元时只能选择最近整数行列 |
+| `GoogleSource` / `WaybackSource` | 支持 | 仅 `output_format=geotiff` 时可用 | `[imagery]` | EPSG:3857 地图米；推荐以第一阶段 DEM GT 作为第二阶段目标 TIF |
+
+这里的“Point Region 支持”表示 Source 能用扩展后的查询范围选择并去重源文件；不表示所有产品都能
+在不重采样时严格得到 448 m。最终尺寸由 `size_m / 原生像元米制大小` 四舍五入成整数行列。
+影像训练对齐应采用两次运行：先生成保持主图幅原生网格的 DEM GT，再把该 GT 或其目录交给
+`BoundsRegionProvider`，由 `RasterAlignToTargetPostprocessor` 将影像对齐到完全相同的网格。
 
 ### 单个目标 TIF
 

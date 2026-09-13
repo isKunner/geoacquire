@@ -1,0 +1,39 @@
+# Spain CNIG/PNOA 0.5 m DTM: Point vector -> 500 m discovery Region ->
+# native-grid 448 m GT (normally 896 x 896 pixels). Replace the sample GeoJSON
+# with any GeoPandas-readable Point file (including SHP) in a declared CRS.
+# CNIG currently enforces the official anonymous limit of 20 unique downloads.
+#
+#   python run.py -c configs/default.yaml -c configs/examples/cnig_spain_mdt50cm_point.yaml --check
+#   python run.py -c configs/default.yaml -c configs/examples/cnig_spain_mdt50cm_point.yaml
+
+region:
+  class_path: geoacquire.regions.point.PointRegionProvider
+  init_args:
+    source: ./examples/Spain_CNIG/input/Spain_CNIG_Point_Example.geojson
+    id_field: ID
+    query_size_m: 500.0
+    include_values: null
+    crs_override: null
+    layer: null
+
+pipelines:
+  - name: cnig_spain_mdt50cm
+    enable: true
+    postprocess_workers: 1
+    acquire:
+      output_dir: ./examples/Spain_CNIG/raw
+      max_workers: 2
+    postprocess:
+      - class_path: geoacquire.postprocess.native_point_crop.NativePointWindowPostprocessor
+        init_args:
+          size_m: 448.0
+          input_products: [dtm]
+          output_dir: ./examples/Spain_CNIG/gt
+          output_suffix: null
+          min_valid_fraction: 1.0
+          max_grid_snap_pixels: 0.5
+          skip_existing: true
+
+reporting:
+  log_path: ./examples/Spain_CNIG/logs/cnig_spain_mdt50cm_point.log
+  json_path: ./examples/Spain_CNIG/logs/cnig_spain_mdt50cm_point_run.json

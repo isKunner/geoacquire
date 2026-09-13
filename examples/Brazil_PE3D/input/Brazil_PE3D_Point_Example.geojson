@@ -1,0 +1,26 @@
+{
+  "type": "FeatureCollection",
+  "name": "Brazil_PE3D_Point_Example",
+  "crs": {
+    "type": "name",
+    "properties": {
+      "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
+    }
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "ID": 512989,
+        "Name": "Entremontes",
+        "Basin": "Sao Francisco",
+        "CD_RGI": 260016,
+        "size": "large"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-39.8976246759, -8.2293747602]
+      }
+    }
+  ]
+}

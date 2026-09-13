@@ -39,6 +39,10 @@ configs/private*.yaml
 # Safe placeholder templates are documentation and must remain versioned.
 !configs/private*.example.yaml
 
+# Workstation-specific production run overrides. Files already tracked in this
+# directory remain versioned, but new local run configurations stay private.
+/configs/runs/*.yaml
+
 # Intentionally versioned project assets:
 # - tests/ contains regression code and reviewed LiDAR header fixtures.
 # - scripts/ contains LiDAR audit replay and header-sampling maintenance tools.
