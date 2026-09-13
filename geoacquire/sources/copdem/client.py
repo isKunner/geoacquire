@@ -37,8 +37,9 @@ class CopDEMClient:
         'auth/realms/CDSE/protocol/openid-connect/token'
     )
     CATALOG_URL = 'https://catalogue.dataspace.copernicus.eu/odata/v1/Products'
-    DOWNLOAD_URL = 'https://zipper.dataspace.copernicus.eu/odata/v1/Products({product_id})/$value'
+    DOWNLOAD_URL = 'https://download.dataspace.copernicus.eu/odata/v1/Products({product_id})/$value'
     TILE_RE = re.compile(r'([NS])(\d{2})_00_([WE])(\d{3})_00')
+    DATASET_VERSION_RE = re.compile(r'/(\d{4})_(\d+)$')
 
     def __init__(
         self,
@@ -123,25 +124,44 @@ class CopDEMClient:
             ('DTED', '90'): 'SAR_DTE_90_61F6',
         }
         product_type = product_types[(self.dem_format, self.resolution)]
-        polygon = self._search_polygon(tile_name)
+        grid_id = self._grid_id(tile_name)
         filters = (
             "Collection/Name eq 'CCM' and "
             "Attributes/OData.CSC.StringAttribute/any("
             "att:att/Name eq 'productType' and "
             f"att/OData.CSC.StringAttribute/Value eq '{product_type}') and "
-            f"OData.CSC.Intersects(area=geography'SRID=4326;POLYGON(({polygon}))')"
+            "Attributes/OData.CSC.StringAttribute/any("
+            "att:att/Name eq 'gridId' and "
+            f"att/OData.CSC.StringAttribute/Value eq '{grid_id}')"
         )
         try:
             response = self.session.get(
                 self.CATALOG_URL,
-                params={'$filter': filters, '$top': 10},
+                params={
+                    '$filter': filters,
+                    '$top': 100,
+                    '$select': 'Id,Attributes',
+                    '$expand': 'Attributes',
+                },
                 timeout=(30, 60),
             )
             response.raise_for_status()
             values = response.json().get('value', [])
         except (requests.RequestException, ValueError) as exc:
             raise CDSEDownloadError(f'CDSE catalogue query failed for {tile_name}: {exc}') from exc
-        return values[0]['Id'] if values else None
+        candidates: list[tuple[int, int, str]] = []
+        for item in values:
+            product_id = str(item.get('Id') or '')
+            if not product_id:
+                continue
+            year, delivery = self._dataset_version(item.get('Attributes', ()))
+            candidates.append((year, delivery, product_id))
+        if not candidates:
+            return None
+        # The latest delivery contains the current corrections. UUID is the
+        # deterministic tie-breaker if CDSE ever publishes duplicate records
+        # within one delivery, so retries always address the same .part file.
+        return min(candidates, key=lambda item: (-item[0], -item[1], item[2]))[2]
 
     def download_product(self, product_id: str, destination: str, chunk_size: int = 1024 * 1024) -> None:
         os.makedirs(os.path.dirname(destination), exist_ok=True)
@@ -305,25 +325,22 @@ class CopDEMClient:
             return destination
 
     @classmethod
-    def _tile_bounds(cls, tile_name: str) -> tuple[float, float, float, float]:
+    def _grid_id(cls, tile_name: str) -> str:
         match = cls.TILE_RE.search(tile_name)
         if not match:
             raise ValueError(f'Invalid CopDEM tile name: {tile_name}')
         latitude_direction, latitude_value, longitude_direction, longitude_value = match.groups()
-        latitude = int(latitude_value) * (1 if latitude_direction == 'N' else -1)
-        longitude = int(longitude_value) * (1 if longitude_direction == 'E' else -1)
-        return longitude, latitude, longitude + 1, latitude + 1
+        return (
+            f'{latitude_direction}{latitude_value}_'
+            f'{longitude_direction}{longitude_value}'
+        )
 
     @classmethod
-    def _search_polygon(cls, tile_name: str) -> str:
-        min_lon, min_lat, max_lon, max_lat = cls._tile_bounds(tile_name)
-        center_lon = (min_lon + max_lon) / 2.0
-        center_lat = (min_lat + max_lat) / 2.0
-        buffer = 0.05
-        return (
-            f'{center_lon - buffer:.6f} {center_lat - buffer:.6f}, '
-            f'{center_lon + buffer:.6f} {center_lat - buffer:.6f}, '
-            f'{center_lon + buffer:.6f} {center_lat + buffer:.6f}, '
-            f'{center_lon - buffer:.6f} {center_lat + buffer:.6f}, '
-            f'{center_lon - buffer:.6f} {center_lat - buffer:.6f}'
-        )
+    def _dataset_version(cls, attributes) -> tuple[int, int]:
+        for attribute in attributes:
+            if attribute.get('Name') != 'dataset':
+                continue
+            match = cls.DATASET_VERSION_RE.search(str(attribute.get('Value') or ''))
+            if match:
+                return int(match.group(1)), int(match.group(2))
+        return -1, -1

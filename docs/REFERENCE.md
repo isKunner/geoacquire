@@ -21,7 +21,8 @@ GeoAcquire 是一个由 YAML 驱动的地理空间数据获取框架。输入可
 | `GoogleSource` | Google XYZ 影像 | JPG/PNG、GeoTIFF |
 | `WaybackSource` | Esri Wayback 影像 | JPG/PNG、GeoTIFF |
 | `PE3DSource` | PE3D 1 m MDT | 解压后的原生 MDT GeoTIFF |
-| `CopDEMSource` | Copernicus DEM | 解压后的 DEM |
+| `CopDEMSource` | Copernicus DEM最新CDSE交付 | 解压后的 DEM |
+| `CopDEMPublicCOGSource` | Copernicus DEM AWS公开2021版 | 原生 COG DEM |
 
 项目叫 GeoAcquire，是因为稳定职责是“获取地理空间资产”，并不限定 DEM 或遥感影像。
 
@@ -171,6 +172,7 @@ BaseSource.acquire(regions, context, options)
 BaseSource
 ├── HTTPSource
 │   ├── LINZDEM1mSource
+│   ├── CopDEMPublicCOGSource
 │   ├── XYZSource
 │   │   ├── GoogleSource
 │   │   └── WaybackSource
@@ -189,9 +191,9 @@ plan_requests() → HTTPDownloadService worker 内 [download → materialize(one
 ```
 
 PE3DSource 在 `HTTPSource` 上增加会话初始化、人工 CAPTCHA、按图幅链接发现和安全 ZIP 解包，
-实际文件传输仍复用 `HTTPDownloadService` 的并发、重试与断点续传。CopDEM 需要 Token 刷新、
-Catalogue、受权下载和 ZIP 解压，因此直接实现完整 `BaseSource.acquire()`。Pipeline 不判断
-Source 类型，也没有注册器。
+实际文件传输仍复用 `HTTPDownloadService` 的并发、重试与断点续传。公开AWS COG模式同样走
+`HTTPSource`。账号版CopDEM需要Token刷新、Catalogue、受权下载和ZIP解压，因此直接实现完整
+`BaseSource.acquire()`。Pipeline不判断Source类型，也没有注册器。
 
 `RuntimeContext` 只是显式携带共享运行服务：
 
@@ -203,7 +205,8 @@ context = RuntimeContext(
 PipelineRunner(context).run(config.region, config.pipelines)
 ```
 
-CopDEM 不会被强制走 HTTPDownloadService；它从 context 中不使用该服务，而是使用自己的 `CopDEMClient`。
+账号版 `CopDEMSource` 不会被强制走HTTPDownloadService；它使用自己的 `CopDEMClient`。
+`CopDEMPublicCOGSource` 则复用共享HTTP服务并允许并发下载。
 
 ### 下载与后处理如何并行
 
@@ -302,6 +305,7 @@ region 就绪必须满足：**清单已关闭、不再添加文件；全部依�
 | XYZ `output_format` | `image` / `geotiff`；兼容别名 `jpg/raw` / `tif` | 保留普通图片或生成带地理参考 TIF。 |
 | CopDEM `resolution` | 字符串 `"30"` / `"90"` | Copernicus DEM 分辨率系列。 |
 | CopDEM `dem_format` | `DGED` / `DTED` | CDSE 产品格式。 |
+| Public COG `resolution` | 字符串 `"30"` / `"90"` | AWS Open Data GLO-30/GLO-90公开COG。 |
 | PE3D `product` | 当前仅 `dtm_raster` | 产品表已保留其他五类门户代码，但未核验前拒绝启用。 |
 | PE3D `ca_bundle_path` | 默认 `null` | `null` 使用随代码提供的 PE3D ZeroSSL/Sectigo CA 链；也可指定自有 CA 文件。 |
 | PE3D `min_intersection_fraction` | 默认 `0.0` | 相交面积占“Polygon 与图幅中较小者”的最低比例；可用 `0.05` 忽略已有图幅足迹的窄边缘重叠。 |

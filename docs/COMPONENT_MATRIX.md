@@ -18,7 +18,7 @@ RegionProvider（输入与范围） → Source（检索与下载） → Postproc
 | --- | --- | --- |
 | bbox、目标TIF或TIF目录<br>`geoacquire.regions.bounds.BoundsRegionProvider`<br><br>Polygon/MultiPolygon<br>`geoacquire.regions.vector.VectorRegionProvider`<br><br>Point按米扩展<br>`geoacquire.regions.point.PointRegionProvider` | USGS LiDAR<br>`geoacquire.sources.usgs.lidar.USGSLidarSource`<br><br>USGS 1 m DEM<br>`geoacquire.sources.usgs.dem_1m.USGSDEM1mSource`<br><br>LINZ 1 m DEM<br>`geoacquire.sources.linz.dem_1m.LINZDEM1mSource`<br><br>CNIG MDT50 cm<br>`geoacquire.sources.cnig.source.CNIGMDTSource`<br><br>Google XYZ<br>`geoacquire.sources.rs.google.GoogleSource`<br><br>Esri Wayback<br>`geoacquire.sources.rs.wayback.WaybackSource`<br><br>PE3D<br>`geoacquire.sources.pe3d.source.PE3DSource`<br><br>Copernicus DEM<br>`geoacquire.sources.copdem.source.CopDEMSource` | 不处理<br>`postprocess: []`<br><br>Point原生网格固定米制窗口<br>`geoacquire.postprocess.native_point_crop.NativePointWindowPostprocessor`<br><br>目标TIF拼接、重投影和对齐<br>`geoacquire.postprocess.raster_align.RasterAlignToTargetPostprocessor`<br><br>只打印报告<br>`geoacquire.postprocess.print_step.PrintPostprocessor` |
 
-三个内置 RegionProvider 都先输出统一的 `dict[str, Region]`；8个Source都通过统一的
+三个内置 RegionProvider 都先输出统一的 `dict[str, Region]`；9个Source类都通过统一的
 `BaseSource.acquire(regions, context, options)` 接口接收它。Source类在YAML的 `source.class_path`
 中选择。普通HTTP传输另由共享的 `geoacquire.services.http_download.HTTPDownloadService` 执行，
 它在程序启动时注入，不是一个需要在每个pipeline中重复配置的Source。
@@ -122,7 +122,8 @@ pipelines:
 | `GoogleSource`<br>`geoacquire.sources.rs.google.GoogleSource` | Google XYZ 影像 | `image:imagery` 或 `raster:imagery` | 仅 `output_format: geotiff` 时可接 | 落地 GeoTIFF 为 EPSG:3857；服务与授权状态需自行确认 |
 | `WaybackSource`<br>`geoacquire.sources.rs.wayback.WaybackSource` | Esri World Imagery Wayback | `image:imagery` 或 `raster:imagery` | 仅 `output_format: geotiff` 时可接 | `date` 是发布版本日期，不一定是影像拍摄日 |
 | `PE3DSource`<br>`geoacquire.sources.pe3d.source.PE3DSource` | 巴西伯南布哥州 PE3D | 当前为 `raster:dtm` | 两种栅格处理器均可 | 当前只实现 `product: dtm_raster`；账号和每次新会话 CAPTCHA |
-| `CopDEMSource`<br>`geoacquire.sources.copdem.source.CopDEMSource` | 全球 Copernicus DEM 30/90 m | `raster:dem` | 两种栅格处理器均可 | 需 CDSE 账号；30/90 m 像元不能严格组成448 m原生窗口 |
+| `CopDEMSource`<br>`geoacquire.sources.copdem.source.CopDEMSource` | 全球 Copernicus DEM 30/90 m 最新CDSE交付 | `raster:dem` | 两种栅格处理器均可 | 需CDSE账号；下载原生ZIP并解压，串行客户端 |
+| `CopDEMPublicCOGSource`<br>`geoacquire.sources.copdem.public_cog.CopDEMPublicCOGSource` | 全球 Copernicus DEM 30/90 m AWS公开2021版 | `raster:dem` | 两种栅格处理器均可 | 无需账号；标准HTTP COG支持并发、去重和断点续传 |
 
 ### 所有 Source `init_args`
 
@@ -136,6 +137,7 @@ pipelines:
 | `WaybackSource` | `date: null`；`version: null`；`release_date: null`；`server`（内置 WMTS 模板）；`zoom: 18`；`tile_ext: jpg`；`output_format: geotiff`；`keep_download: true` |
 | `PE3DSource` | `username`、`password`（必填）；`product: dtm_raster`；`captcha_path: ./cache/pe3d/captcha.png`；`catalog_cache_path: ./cache/pe3d/quadriculas_pe.json`；`catalog_cache_days: 10.0`；`auth_attempts: 3`；`batch_size: 100`；`keep_archive: false`；`verify_tls: true`；`ca_bundle_path: null`；`quadrangle_mode: quad`；`min_intersection_fraction: 0.0` |
 | `CopDEMSource` | `username`、`password`（必填）；`resolution: "30"`；`dem_format: DGED`；`keep_archive: false`；`filename_suffix: copdem` |
+| `CopDEMPublicCOGSource` | `resolution: "30"`；`base_url: null` 使用AWS公开桶；`filename_suffix: null` |
 
 真实账号密码只放在 `.gitignore` 已排除的 `configs/private_*.yaml`，不要写入默认配置、示例或文档。
 
@@ -201,7 +203,7 @@ pipelines:
 
 ### RegionProvider × Source
 
-在公开接口上，8个Source都接收相同的 `dict[str, Region]`。下面的差异是选片精度和地理覆盖，
+在公开接口上，9个Source类都接收相同的 `dict[str, Region]`。下面的差异是选片精度和地理覆盖，
 不是方法签名不同。
 
 | Source完整 `class_path` | Bounds bbox/目标TIF | Vector Polygon | Point扩展Region | 实际选片方式 |
@@ -214,6 +216,7 @@ pipelines:
 | `geoacquire.sources.rs.wayback.WaybackSource` | ✓ | ✓ | ✓ | 全部转换为WGS84 bbox后计算XYZ瓦片；不按Polygon形状裁瓦片 |
 | `geoacquire.sources.pe3d.source.PE3DSource` | ✓ | ✓ | ✓ | Vector使用真实Polygon过滤；Point使用按米扩展后的矩形；仅有PE州覆盖 |
 | `geoacquire.sources.copdem.source.CopDEMSource` | ✓ | ✓ | ✓ | 按WGS84 bbox选择1°原生瓦片，不按Polygon形状裁瓦片 |
+| `geoacquire.sources.copdem.public_cog.CopDEMPublicCOGSource` | ✓ | ✓ | ✓ | 按WGS84 bbox选择1°公开COG，同一图幅跨Region只下载一次 |
 
 `BoundsRegionProvider` 的目标TIF模式虽然携带额外网格信息，但Source仍只把它当一个Region范围；
 shape/transform留给后处理使用。PointProvider的原始点元数据同样不会把Source绑定到Point模式，
@@ -252,6 +255,7 @@ Source看到的下载范围仍是普通Region。
 | `geoacquire.sources.rs.google.GoogleSource` / `geoacquire.sources.rs.wayback.WaybackSource`，`output_format: geotiff` | ✓ | 可用但不推荐直接作GT | ✓ | `[imagery]` |
 | `geoacquire.sources.pe3d.source.PE3DSource`，`product: dtm_raster` | ✓ | ✓ | ✓ | `[dtm]` |
 | `geoacquire.sources.copdem.source.CopDEMSource` | ✓ | 可用但448 m只能近似 | ✓ | `[dem]` |
+| `geoacquire.sources.copdem.public_cog.CopDEMPublicCOGSource` | ✓ | 可用但448 m只能近似 | ✓ | `[dem]` |
 
 矩阵中的 `NativePointWindow` 还要求 Region 来自 PointProvider；`RasterAlignToTarget` 还要求 Region
 来自单个/目录目标 TIF。仅仅产品类型相符，不代表输入 Region 已包含后处理所需元数据。

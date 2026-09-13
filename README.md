@@ -27,8 +27,9 @@ GeoAcquire 根据指定的地理范围下载高程、LiDAR 和影像数据。输
 | Copernicus DEM | `copdem` | 30 m 或 90 m DEM | WGS 84 经纬度（EPSG:4326）；EGM2008 正高（EPSG:3855） | [`configs/examples/copdem.yaml`](configs/examples/copdem.yaml) |
 
 USGS 数据主要覆盖美国，LINZ 数据覆盖新西兰，CNIG/PNOA 数据覆盖当前已发布的西班牙区域；
-Google、Wayback 和 Copernicus 的实际结果取决于各服务的覆盖情况。Copernicus DEM 需要 CDSE
-账号。CNIG 当前允许匿名下载最多 20 个文件，账号登录尚未接入，因此首版用于小范围验证。
+Google、Wayback 和 Copernicus 的实际结果取决于各服务的覆盖情况。默认Copernicus配置下载
+CDSE最新交付整包并需要账号；也可改用无需账号的AWS Open Data 2021 COG Source。CNIG当前允许
+匿名下载最多20个文件，账号登录尚未接入，因此首版用于小范围验证。
 
 表中的坐标系是下载或落地后的**源数据坐标系**。如果配置了目标 GeoTIFF，最终对齐结果使用
 目标 GeoTIFF 的水平坐标系和网格；当前流程只做水平重投影，不会自动转换不同的垂直高程基准。
@@ -204,6 +205,20 @@ pipelines:
 ```bash
 python run.py -c configs/default.yaml configs/examples/copdem.yaml configs/private_copdem.yaml --check
 ```
+
+需要更稳定的公开COG下载、且可以接受AWS Open Data提供的2021发布版时，可在运行覆盖中把
+`copdem` pipeline 的 Source 换为：
+
+```yaml
+source:
+  class_path: geoacquire.sources.copdem.public_cog.CopDEMPublicCOGSource
+  init_args:
+    resolution: "30"
+    base_url: null
+    filename_suffix: null
+```
+
+该模式不加载 `private_copdem.yaml`，并通过共享HTTP服务并发下载、跨Region去重及安全续传。
 
 PE3D 同样把账号密码放在私有配置中。复制
 [`configs/private_pe3d.example.yaml`](configs/private_pe3d.example.yaml) 为

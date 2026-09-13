@@ -35,7 +35,7 @@ geoacquire/sources/usgs/          WESM、项目规则、LiDAR/DEM
 geoacquire/sources/linz/          LINZ 静态 STAC 索引、新西兰 1 m DEM
 geoacquire/sources/cnig/          CNIG Polygon 查询、footprint 缓存与西班牙 0.5 m DTM
 geoacquire/sources/rs/            XYZ、Google、Wayback、地理参考
-geoacquire/sources/copdem/        CDSE stateful client
+geoacquire/sources/copdem/        CDSE有状态整包客户端与AWS公开COG Source
 geoacquire/sources/pe3d/          PE3D 分幅、CAPTCHA 会话、链接过滤与 ZIP 解包
 geoacquire/regions/vector.py      Polygon/MultiPolygon 矢量文件 Region Provider
 geoacquire/regions/point.py       Point 矢量、米制查询范围与属性筛选 Region Provider

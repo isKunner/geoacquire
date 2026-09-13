@@ -43,6 +43,7 @@ from geoacquire.regions.reader import read_raster_region
 from geoacquire.services.http_download import HTTPDownloadService, _TransferResult
 from geoacquire.sources.copdem.client import CopDEMClient
 from geoacquire.sources.copdem.planner import plan_region_tiles
+from geoacquire.sources.copdem.public_cog import CopDEMPublicCOGSource
 from geoacquire.sources.rs.google import GoogleSource
 from geoacquire.sources.usgs.lidar import USGSLidarSource, _LidarTile
 from geoacquire.sources.usgs.lidar_catalog import LidarProjectCatalog
@@ -1257,6 +1258,67 @@ class GeoAcquireCoreTests(unittest.TestCase):
 
         region = Region('example', (111.0, 41.0, 112.0, 42.0))
         self.assertEqual(plan_region_tiles(region, '30'), ['Copernicus_DSM_10_N41_00_E111_00_DEM'])
+
+    def test_copdem_catalog_search_selects_latest_delivery_with_stable_tie_break(self):
+        client = CopDEMClient('offline-user', 'offline-password')
+        with (
+            patch.object(client, 'ensure_token'),
+            patch.object(client.session, 'get') as request,
+        ):
+            request.return_value.json.return_value = {
+                'value': [
+                    {
+                        'Id': 'old-id',
+                        'Attributes': [{'Name': 'dataset', 'Value': 'COP-DEM_GLO-30-DGED/2023_1'}],
+                    },
+                    {
+                        'Id': 'latest-z',
+                        'Attributes': [{'Name': 'dataset', 'Value': 'COP-DEM_GLO-30-DGED/2024_1'}],
+                    },
+                    {
+                        'Id': 'latest-a',
+                        'Attributes': [{'Name': 'dataset', 'Value': 'COP-DEM_GLO-30-DGED/2024_1'}],
+                    },
+                ]
+            }
+            result = client.search('Copernicus_DSM_10_S09_00_W036_00_DEM')
+
+        self.assertEqual(result, 'latest-a')
+        params = request.call_args.kwargs['params']
+        self.assertIn("att:att/Name eq 'gridId'", params['$filter'])
+        self.assertIn("Value eq 'S09_W036'", params['$filter'])
+        self.assertEqual(params['$top'], 100)
+        self.assertEqual(params['$select'], 'Id,Attributes')
+        self.assertEqual(params['$expand'], 'Attributes')
+
+    def test_copdem_public_cog_deduplicates_tiles_across_regions(self):
+        from geoacquire.core.models import Region
+
+        source = CopDEMPublicCOGSource('30')
+        requests = list(
+            source.build_requests(
+                {
+                    'a': Region('a', (-35.9, -8.9, -35.8, -8.8)),
+                    'b': Region('b', (-35.7, -8.7, -35.6, -8.6)),
+                }
+            )
+        )
+
+        self.assertEqual(len(requests), 1)
+        request = requests[0]
+        self.assertEqual(request.target_region_ids, ('a', 'b'))
+        self.assertEqual(request.product, ProductType.DEM)
+        self.assertEqual(request.kind, AssetKind.RASTER)
+        self.assertEqual(
+            request.filename,
+            'Copernicus_DSM_COG_10_S09_00_W036_00_DEM.tif',
+        )
+        self.assertEqual(
+            request.url,
+            'https://copernicus-dem-30m.s3.eu-central-1.amazonaws.com/'
+            'Copernicus_DSM_COG_10_S09_00_W036_00_DEM/'
+            'Copernicus_DSM_COG_10_S09_00_W036_00_DEM.tif',
+        )
 
     def test_copdem_archive_extraction(self):
         tile = 'Copernicus_DSM_10_N41_00_E111_00_DEM'
